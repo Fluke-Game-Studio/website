@@ -10,14 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SFTP_KEY }}
-
-      - name: Show loaded key fingerprint
+      - name: Install SSH key from base64
         run: |
-          ssh-add -l
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SFTP_KEY_B64 }}" | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
 
       - name: Choose remote folder
         id: target
@@ -30,17 +27,19 @@ jobs:
             echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
           fi
 
-      - name: SSH preflight (force agent)
+      - name: SSH preflight
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PORT: ${{ secrets.SFTP_PORT }}
         run: |
           ssh -p "$SFTP_PORT" \
-            -o IdentityAgent="$SSH_AUTH_SOCK" \
+            -i ~/.ssh/deploy_key \
             -o IdentitiesOnly=yes \
-            -o PubkeyAuthentication=yes \
             -o PreferredAuthentications=publickey \
+            -o PasswordAuthentication=no \
+            -o KbdInteractiveAuthentication=no \
+            -o BatchMode=yes \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
             "$SFTP_USER@$SFTP_HOST" "echo SSH_OK && whoami"
@@ -61,6 +60,7 @@ jobs:
             "--exclude=README*"
           )
 
+          # main deploy should NOT touch dev/qa folders
           if [ "${{ github.ref_name }}" = "main" ]; then
             EXCLUDES+=("--exclude=dev/")
             EXCLUDES+=("--exclude=qa/")
@@ -68,5 +68,5 @@ jobs:
 
           rsync -az --delete \
             "${EXCLUDES[@]}" \
-            -e "ssh -p ${SFTP_PORT} -o IdentityAgent=${SSH_AUTH_SOCK} -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            -e "ssh -p ${SFTP_PORT} -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             ./ "${SFTP_USER}@${SFTP_HOST}:~/${REMOTE_DIR}/"
