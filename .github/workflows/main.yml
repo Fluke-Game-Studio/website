@@ -32,6 +32,7 @@ jobs:
           host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
           key: ${{ secrets.SFTP_KEY }}
+          passphrase: ${{ secrets.SFTP_PASSPHRASE }}
           port: ${{ secrets.SFTP_PORT }}
           script: |
             rm -rf ~/${{ steps.target.outputs.REMOTE_DIR }}/*
@@ -43,6 +44,7 @@ jobs:
           host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
           key: ${{ secrets.SFTP_KEY }}
+          passphrase: ${{ secrets.SFTP_PASSPHRASE }}
           port: ${{ secrets.SFTP_PORT }}
           source: "./*"
           target: "~/${{ steps.target.outputs.REMOTE_DIR }}"
