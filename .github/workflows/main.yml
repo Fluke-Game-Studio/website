@@ -28,7 +28,7 @@ jobs:
       - name: Deploy via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.SFTP_SERVER }}   # ftp.flukegamestudio.com
+          server: ${{ secrets.SFTP_HOST }}   # ftp.flukegamestudio.com
           username: ${{ secrets.SFTP_USERNAME }} # githubdeploymain@flukegamestudio.com
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}       # 21
