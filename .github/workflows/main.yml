@@ -22,16 +22,16 @@ jobs:
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=dev" >> $GITHUB_OUTPUT
           else
-            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=qa" >> $GITHUB_OUTPUT
           fi
 
       - name: SSH preflight (prints real SSH error)
         env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_HOST: ${{ secrets.SFTP_HOST }}
+          SSH_USER: ${{ secrets.SFTP_USER }}
+          SSH_PORT: ${{ secrets.SFTP_PORT }}
         run: |
           set -x
           ssh -vvv -p "$SSH_PORT" \
@@ -41,9 +41,9 @@ jobs:
 
       - name: Rsync deploy (sync + deletions)
         env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_HOST: ${{ secrets.SFTP_HOST }}
+          SSH_USER: ${{ secrets.SFTP_USER }}
+          SSH_PORT: ${{ secrets.SFTP_PORT }}
           REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
         run: |
           set -e
