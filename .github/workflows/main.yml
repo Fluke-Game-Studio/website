@@ -1,4 +1,4 @@
-name: Deploy to Namecheap (SFTP)
+name: Deploy to Namecheap (rsync)
 
 on:
   push:
@@ -11,43 +11,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Choose remote folder + clean mode
+      # Load SSH key into ssh-agent (KEY MUST NOT HAVE A PASSPHRASE)
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Choose remote folder
         id: target
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
-            echo "CLEAN=false" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "dev" ]; then
             echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
-            echo "CLEAN=true" >> $GITHUB_OUTPUT
           else
             echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
-            echo "CLEAN=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Clean dev/qa folders only
-        if: ${{ steps.target.outputs.CLEAN == 'true' }}
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USER }}
-          key: ${{ secrets.SFTP_KEY }}
-          passphrase: ${{ secrets.SFTP_PASSPHRASE }}
-          port: ${{ secrets.SFTP_PORT }}
-          script: |
-            rm -rf ~/${{ steps.target.outputs.REMOTE_DIR }}/*
-            mkdir -p ~/${{ steps.target.outputs.REMOTE_DIR }}
+      - name: Rsync deploy
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
+        run: |
+          set -e
 
-      - name: Upload files via SFTP (SCP)
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USER }}
-          key: ${{ secrets.SFTP_KEY }}
-          passphrase: ${{ secrets.SFTP_PASSPHRASE }}
-          port: ${{ secrets.SFTP_PORT }}
-          source: "./*"
-          target: "~/${{ steps.target.outputs.REMOTE_DIR }}"
-          strip_components: 0
-          overwrite: true
-          rm: false
+          # Base excludes (never upload these)
+          EXCLUDES=(
+            "--exclude=.git/"
+            "--exclude=.github/"
+            "--exclude=node_modules/"
+            "--exclude=README*"
+          )
+
+          # For PROD deploy, preserve dev/qa folders that live inside public_html
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            EXCLUDES+=("--exclude=dev/")
+            EXCLUDES+=("--exclude=qa/")
+          fi
+
+          rsync -az --delete \
+            "${EXCLUDES[@]}" \
+            -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no" \
+            ./ "${SSH_USER}@${SSH_HOST}:~/${REMOTE_DIR}/"
