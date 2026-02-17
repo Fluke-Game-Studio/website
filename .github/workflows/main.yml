@@ -1,4 +1,4 @@
-name: Deploy to Namecheap (FTPS)
+name: Deploy to Namecheap (SFTP)
 
 on:
   push:
@@ -15,29 +15,37 @@ jobs:
         id: target
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "REMOTE_DIR=/public_html/" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
             echo "CLEAN=false" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "REMOTE_DIR=/public_html/dev/" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
             echo "CLEAN=true" >> $GITHUB_OUTPUT
           else
-            echo "REMOTE_DIR=/public_html/qa/" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
             echo "CLEAN=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Deploy via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Clean dev/qa folders only
+        if: ${{ steps.target.outputs.CLEAN == 'true' }}
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          server: ${{ secrets.SFTP_HOST }}   # ftp.flukegamestudio.com
-          username: ${{ secrets.SFTP_USERNAME }} # githubdeploymain@flukegamestudio.com
-          password: ${{ secrets.SFTP_PASSWORD }}
-          port: ${{ secrets.SFTP_PORT }}       # 21
-          protocol: ftps
-          local-dir: ./
-          server-dir: ${{ steps.target.outputs.REMOTE_DIR }}
-          dangerous-clean-slate: ${{ steps.target.outputs.CLEAN }}
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            README*
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          key: ${{ secrets.SFTP_KEY }}
+          port: ${{ secrets.SFTP_PORT }}
+          script: |
+            rm -rf ~/${{ steps.target.outputs.REMOTE_DIR }}/*
+            mkdir -p ~/${{ steps.target.outputs.REMOTE_DIR }}
+
+      - name: Upload files via SFTP (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          key: ${{ secrets.SFTP_KEY }}
+          port: ${{ secrets.SFTP_PORT }}
+          source: "./*"
+          target: "~/${{ steps.target.outputs.REMOTE_DIR }}"
+          strip_components: 0
+          overwrite: true
+          rm: false
