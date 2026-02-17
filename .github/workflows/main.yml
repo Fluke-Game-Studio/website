@@ -1,0 +1,73 @@
+name: Deploy to Namecheap (rsync)
+
+on:
+  push:
+    branches: ["main", "dev", "qa"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SSH key from base64
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SFTP_KEY_B64 }}" | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Verify deploy key fingerprint (must be cyglfMd...)
+        run: |
+          ssh-keygen -y -f ~/.ssh/deploy_key | ssh-keygen -lf -
+
+      - name: Choose remote folder
+        id: target
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
+          else
+            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
+          fi
+
+      - name: SSH preflight
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+        run: |
+          ssh -vvv -p "$SFTP_PORT" \
+            -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
+            -o PasswordAuthentication=no \
+            -o KbdInteractiveAuthentication=no \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            "$SFTP_USER@$SFTP_HOST" "echo SSH_OK && whoami"
+
+      - name: Rsync deploy (sync + deletions)
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+          REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
+        run: |
+          set -e
+          EXCLUDES=(
+            "--exclude=.git/"
+            "--exclude=.github/"
+            "--exclude=node_modules/"
+            "--exclude=README*"
+          )
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            EXCLUDES+=("--exclude=dev/")
+            EXCLUDES+=("--exclude=qa/")
+          fi
+
+          rsync -az --delete \
+            "${EXCLUDES[@]}" \
+            -e "ssh -p ${SFTP_PORT} -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            ./ "${SFTP_USER}@${SFTP_HOST}:~/${REMOTE_DIR}/"
