@@ -15,6 +15,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SFTP_KEY }}
 
+      - name: Show loaded key fingerprint
+        run: ssh-add -l
+
       - name: Choose remote folder
         id: target
         run: |
@@ -28,21 +31,22 @@ jobs:
 
       - name: SSH preflight (key auth)
         env:
-          SSH_HOST: ${{ secrets.SFTP_HOST }}
-          SSH_USER: ${{ secrets.SFTP_USER }}
-          SSH_PORT: ${{ secrets.SFTP_PORT }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
         run: |
-          ssh -p "$SSH_PORT" \
+          ssh -vvv -p "$SFTP_PORT" \
             -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
-            "$SSH_USER@$SSH_HOST" "echo SSH_OK && whoami"
+            "$SFTP_USER@$SFTP_HOST" "echo SSH_OK && whoami"
 
       - name: Rsync deploy (sync + deletions)
         env:
-          SSH_HOST: ${{ secrets.SFTP_HOST }}
-          SSH_USER: ${{ secrets.SFTP_USER }}
-          SSH_PORT: ${{ secrets.SFTP_PORT }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
           REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
         run: |
           set -e
@@ -62,5 +66,5 @@ jobs:
 
           rsync -az --delete \
             "${EXCLUDES[@]}" \
-            -e "ssh -p ${SSH_PORT} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            ./ "${SSH_USER}@${SSH_HOST}:~/${REMOTE_DIR}/"
+            -e "ssh -p ${SFTP_PORT} -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            ./ "${SFTP_USER}@${SFTP_HOST}:~/${REMOTE_DIR}/"
