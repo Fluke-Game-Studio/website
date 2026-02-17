@@ -16,6 +16,13 @@ jobs:
           echo "${{ secrets.SFTP_KEY_B64 }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+      - name: Verify key fingerprint on runner (must match cyglfMd...)
+        run: |
+          echo "deploy_key fingerprint:"
+          ssh-keygen -lf ~/.ssh/deploy_key || true
+          echo "deploy_key public fingerprint (derived):"
+          ssh-keygen -y -f ~/.ssh/deploy_key | ssh-keygen -lf - || true
+
       - name: Choose remote folder
         id: target
         run: |
@@ -43,30 +50,3 @@ jobs:
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
             "$SFTP_USER@$SFTP_HOST" "echo SSH_OK && whoami"
-
-      - name: Rsync deploy (sync + deletions)
-        env:
-          SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_USER: ${{ secrets.SFTP_USER }}
-          SFTP_PORT: ${{ secrets.SFTP_PORT }}
-          REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
-        run: |
-          set -e
-
-          EXCLUDES=(
-            "--exclude=.git/"
-            "--exclude=.github/"
-            "--exclude=node_modules/"
-            "--exclude=README*"
-          )
-
-          # main deploy should NOT touch dev/qa folders
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            EXCLUDES+=("--exclude=dev/")
-            EXCLUDES+=("--exclude=qa/")
-          fi
-
-          rsync -az --delete \
-            "${EXCLUDES[@]}" \
-            -e "ssh -p ${SFTP_PORT} -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            ./ "${SFTP_USER}@${SFTP_HOST}:~/${REMOTE_DIR}/"
