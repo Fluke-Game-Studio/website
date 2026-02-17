@@ -13,16 +13,54 @@ jobs:
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SFTP_KEY }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: SSH debug (show exact error)
-        env:
-          SSH_HOST: ${{ secrets.SFTP_HOST }}
-          SSH_USER: ${{ secrets.SFTP_USER }}
-          SSH_PORT: ${{ secrets.SFTP_PORT }}
+      - name: Choose remote folder
+        id: target
         run: |
-          set -x
-          ssh -vvv -p "$SSH_PORT" \
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
+          else
+            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
+          fi
+
+      - name: SSH preflight (key auth)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -p "$SSH_PORT" \
+            -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
-            "$SSH_USER@$SSH_HOST" "echo SSH_OK"
+            "$SSH_USER@$SSH_HOST" "echo SSH_OK && whoami"
+
+      - name: Rsync deploy (sync + deletions)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
+        run: |
+          set -e
+
+          EXCLUDES=(
+            "--exclude=.git/"
+            "--exclude=.github/"
+            "--exclude=node_modules/"
+            "--exclude=README*"
+          )
+
+          # For PROD deploy, preserve dev/qa folders that live inside public_html
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            EXCLUDES+=("--exclude=dev/")
+            EXCLUDES+=("--exclude=qa/")
+          fi
+
+          rsync -az --delete \
+            "${EXCLUDES[@]}" \
+            -e "ssh -p ${SSH_PORT} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            ./ "${SSH_USER}@${SSH_HOST}:~/${REMOTE_DIR}/"
