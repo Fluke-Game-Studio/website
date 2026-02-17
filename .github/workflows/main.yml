@@ -1,0 +1,42 @@
+name: Deploy to Namecheap (FTP)
+
+on:
+  push:
+    branches: ["main", "dev", "qa"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Choose remote folder + clean mode
+        id: target
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "REMOTE_DIR=/public_html/" >> $GITHUB_OUTPUT
+            echo "CLEAN=false" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "REMOTE_DIR=/public_html/dev/" >> $GITHUB_OUTPUT
+            echo "CLEAN=true" >> $GITHUB_OUTPUT
+          else
+            echo "REMOTE_DIR=/public_html/qa/" >> $GITHUB_OUTPUT
+            echo "CLEAN=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: ./
+          server-dir: ${{ steps.target.outputs.REMOTE_DIR }}
+          dangerous-clean-slate: ${{ steps.target.outputs.CLEAN }}
+          exclude: |
+            **/.git*
+            **/.github/**
+            dev/**
+            qa/**
+            README*
