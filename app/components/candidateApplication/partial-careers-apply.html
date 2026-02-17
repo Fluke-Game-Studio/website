@@ -1,0 +1,548 @@
+<!-- app/components/careersApply/partial-careers-apply.html -->
+<style>
+  .career-apply-wrap { padding-top: 8%; padding-bottom: 5%; }
+
+  .career-card{
+    max-width: 920px;
+    margin: 0 auto;
+    border-radius: 18px;
+    background: rgba(14, 14, 14, 0.78);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+  .career-card .card-content{ padding: 30px; }
+  .career-card .card-action{
+    padding: 18px 30px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+  }
+
+  .career-card-header{
+    display:flex; gap:18px; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap; margin-bottom:18px;
+  }
+
+  .career-title{
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    color: #ffd54f;
+  }
+  .career-subtitle{
+    margin-top: 6px;
+    color: rgba(255,255,255,0.78);
+    font-size: 13px;
+  }
+  .career-role{
+    display:inline-block;
+    margin-left: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 213, 79, 0.14);
+    border: 1px solid rgba(255, 213, 79, 0.28);
+    color: #ffd54f;
+    font-weight: 700;
+  }
+
+  .career-progress{ min-width: 280px; }
+  .career-progress-text{ color: rgba(255,255,255,0.65); margin-bottom: 6px; font-size: 12px; }
+
+  .career-intro .career-paragraph{
+    color: rgba(255,255,255,0.90);
+    line-height: 1.75;
+    margin: 0 0 12px;
+    font-size: 14px;
+  }
+
+  .career-note{
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 82, 82, 0.10);
+    border: 1px solid rgba(255, 82, 82, 0.22);
+    color: rgba(255,255,255,0.92);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .career-info{
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    color: rgba(255,255,255,0.90);
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .career-required-hint{
+    margin: 10px 0 0;
+    color: rgba(255,255,255,0.65);
+    font-size: 12px;
+  }
+
+  .career-role-banner{
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.88);
+  }
+
+  .career-chapter-title{
+    font-size: 18px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.96);
+    margin: 10px 0 6px;
+  }
+
+  .career-chapter-desc{
+    color: rgba(255,255,255,0.72);
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+
+  .career-choice-block{
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 14px;
+  }
+
+  .career-choice-label{
+    color: rgba(255,255,255,0.90);
+    font-weight: 800;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .req{ color:#ff8a80; margin-left: 4px; }
+  .career-error{ margin-top: 4px; color:#ff8a80; font-size: 12px; }
+
+  .career-card input,
+  .career-card textarea{ color: rgba(255,255,255,0.92) !important; }
+  .career-card label{ color: rgba(255,255,255,0.70) !important; }
+
+  .career-card-actions{
+    display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  }
+
+  /* -------- Success screen -------- */
+  .career-success{
+    padding: 14px 0 2px;
+  }
+  .career-success-title{
+    font-size: 20px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.96);
+    margin: 0 0 8px;
+  }
+  .career-success-sub{
+    color: rgba(255,255,255,0.82);
+    line-height: 1.6;
+    font-size: 14px;
+    margin: 0 0 14px;
+  }
+  .career-success-box{
+    margin-top: 12px;
+    padding: 14px 14px;
+    border-radius: 14px;
+    background: rgba(140, 255, 176, 0.10);
+    border: 1px solid rgba(140, 255, 176, 0.22);
+    color: rgba(255,255,255,0.92);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .career-success-box .muted{
+    opacity: 0.85;
+    font-weight: 600;
+  }
+
+  /* -------- Expandable role summary -------- */
+  .career-role-summary{
+    margin-top: 18px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.05);
+  }
+  .career-role-summary-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .career-role-summary-title{
+    font-weight: 900;
+    color: rgba(255,255,255,0.92);
+  }
+  .career-role-summary-toggle{
+    font-weight: 800;
+    opacity: 0.85;
+  }
+  .career-role-summary-body{
+    padding: 12px 14px 14px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.90);
+    line-height: 1.6;
+  }
+  .career-role-summary-body p{ margin: 0 0 10px; }
+  .career-role-summary-body ul, .career-role-summary-body ol{ margin: 0 0 10px 18px; }
+  .career-role-summary-body a{ color: #ffd54f; text-decoration: underline; }
+
+  /* -------- WhatsApp consent -------- */
+  .career-consent{
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .career-consent small{
+    display:block;
+    margin-top: 6px;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.4;
+  }
+
+  /* -------- White Google Theme Modal -------- */
+  .google-modal{
+    width: min(520px, 92vw) !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    max-height: 85vh !important;
+  }
+  .google-modal .modal-content{
+    background: #fff !important;
+    color: #202124 !important;
+    padding: 20px 20px !important;
+
+    max-height: calc(85vh - 64px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .g-title{
+    margin: 0;
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .g-sub{
+    margin-top: 8px;
+    color: #5f6368;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .g-row{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+  }
+  .google-modal .g-signin2{ display:inline-block; }
+
+  .g-fallback-btn{
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.2px !important;
+    background: #1a73e8 !important;
+  }
+  .g-fallback-btn i{ margin-right: 8px; }
+
+  .google-modal .modal-footer{
+    background:#fff !important;
+    border-top: 1px solid #eee !important;
+    height:auto !important;
+    padding: 10px 14px !important;
+  }
+  .g-skip{
+    color:#1a73e8 !important;
+    font-weight:700;
+    text-transform:none !important;
+  }
+</style>
+
+<div class="container career-apply-wrap" ng-controller="CareersApplyCtrl" style="padding:5%; padding-top:15%;">
+
+  <!-- ✅ Google Prefill Popup -->
+  <div id="googleGateModal" class="modal google-modal">
+    <div class="modal-content">
+      <h6 class="g-title">Prefill your application</h6>
+      <div class="g-sub">
+        Sign in with Google to auto-fill your <b>Name</b> and <b>Email</b>. You can still proceed without signing in.
+      </div>
+
+      <div class="g-row">
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+        <a class="btn g-fallback-btn"
+           ng-if="!googleBtnReady"
+           ng-click="googleLoginFallback()">
+          <i class="fab fa-google"></i> Sign in with Google
+        </a>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <a class="btn-flat g-skip" ng-click="skipGoogleAndProceed()">Skip for now</a>
+      <a class="btn-flat modal-close" style="color:#5f6368;">Close</a>
+    </div>
+  </div>
+
+  <div class="career-card card z-depth-3">
+    <div class="card-content">
+
+      <div class="career-card-header">
+        <div>
+          <div class="career-title">{{ intro.title }}</div>
+          <div class="career-subtitle">
+            Role: <span class="career-role">{{ (role && (role.title || role.id)) || 'Loading...' }}</span>
+          </div>
+        </div>
+
+        <div class="career-progress" ng-if="!isSubmitted && !isLoading">
+          <div class="career-progress-text" ng-if="!isIntro()">
+            Page {{stepIndex}} / {{totalSteps()-1}}
+          </div>
+          <div class="progress">
+            <div class="determinate" style="width: {{progressPct()}}%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ LOADING / ERROR -->
+      <div ng-if="isLoading" class="career-info" style="margin-top:10px;">
+        Loading application form…
+      </div>
+
+      <div ng-if="!isLoading && loadError" class="career-note" style="margin-top:10px;">
+        {{loadError}}
+      </div>
+
+      <div ng-if="submitError" class="career-note" style="margin-top:10px;">
+        {{submitError}}
+      </div>
+
+      <!-- ✅ SUCCESS -->
+      <div ng-if="isSubmitted" class="career-success">
+        <div class="career-success-title">Thank you — your application is received ✅</div>
+        <p class="career-success-sub">
+          We’ll track your application and reach out by email if your profile matches the current needs.
+        </p>
+
+        <div class="career-success-box" ng-if="submitReceipt">
+          <div><span class="muted">Role:</span> {{submitReceipt.roleTitle}}</div>
+          <div><span class="muted">Email:</span> {{submitReceipt.email}}</div>
+          <div><span class="muted">Submitted:</span> {{submitReceipt.submittedPretty}}</div>
+          <div ng-if="submitReceipt.trackingId">
+            <span class="muted">Tracking ID:</span> {{submitReceipt.trackingId}}
+          </div>
+        </div>
+      </div>
+
+      <!-- INTRO -->
+      <div ng-if="!isSubmitted && !isLoading && !loadError && isIntro()" class="career-intro">
+        <p ng-repeat="p in intro.body track by $index" class="career-paragraph" ng-if="p !== ''">{{p}}</p>
+
+        <!-- ✅ Expandable Role Summary (HTML formatted) -->
+        <div class="career-role-summary" ng-if="role && role.description">
+          <div class="career-role-summary-head" ng-click="roleSummaryOpen = !roleSummaryOpen">
+            <div class="career-role-summary-title">Role Summary</div>
+            <div class="career-role-summary-toggle">
+              <span ng-if="!roleSummaryOpen">Expand ▾</span>
+              <span ng-if="roleSummaryOpen">Collapse ▴</span>
+            </div>
+          </div>
+          <div class="career-role-summary-body" ng-if="roleSummaryOpen">
+            <div ng-bind-html="role.description"></div>
+          </div>
+        </div>
+
+        <div class="career-info">
+          <b>How this works:</b> The application has multiple pages. Every question is required.
+          <div style="margin-top:8px; opacity:0.9;">{{ intro.note }}</div>
+
+          <div style="margin-top:10px;">
+            <span style="opacity:0.85;">Login status:</span>
+            <span ng-if="googleUser && googleUser.email" style="color:#8cffb0; font-weight:800;">
+              Signed in as {{googleUser.email}}
+            </span>
+            <span ng-if="!(googleUser && googleUser.email)" style="color:#ffb3b3; font-weight:800;">
+              Not signed in
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <form name="applyForm" novalidate ng-if="!isSubmitted && !isLoading && !loadError && !isIntro()">
+
+        <div class="career-required-hint">
+          Fields marked with <span class="req">*</span> are required.
+        </div>
+
+        <div ng-repeat="chapter in chapters track by $index" ng-show="stepIndex === ($index + 1)">
+
+          <div class="career-chapter-title">{{ chapter.title }}</div>
+
+          <div class="career-chapter-desc" ng-if="chapter.description" style="white-space:pre-line;">
+            {{ chapter.description }}
+          </div>
+
+          <div class="career-role-banner" ng-if="chapter.title === 'Applicant Information'">
+            You are applying for: <b>{{ (role && (role.title || role.id)) }}</b>
+            <span ng-if="role && role.employmentType" style="opacity:0.9;"> — {{role.employmentType}}</span>
+          </div>
+
+          <div class="career-fields">
+            <div ng-repeat="f in chapter.fields track by f.key" class="career-field" id="field-{{f.key}}">
+
+              <!-- INPUT -->
+              <div class="input-field" ng-if="f.type === 'text' || f.type === 'email' || f.type === 'url' || f.type === 'tel'">
+                <input type="{{f.type}}"
+                       ng-model="form[f.key]"
+                       name="{{f.key}}"
+                       ng-required="f.required"
+                       ng-pattern="f.type === 'tel' ? PHONE_REGEX : undefined"
+                       placeholder="{{f.placeholder || ''}}"
+                       ng-disabled="locked[f.key] || isSubmitting">
+                <label class="active">{{f.label}} <span ng-if="f.required" class="req">*</span></label>
+
+                <div class="career-error"
+                     ng-if="applyForm.$submitted || (applyForm[f.key].$touched && applyForm[f.key].$invalid)">
+                  <span ng-if="applyForm[f.key].$error.required">Required — please fill this in.</span>
+                  <span ng-if="applyForm[f.key].$error.email">Invalid email format.</span>
+                  <span ng-if="applyForm[f.key].$error.url">Invalid link — must start with http:// or https://</span>
+                  <span ng-if="applyForm[f.key].$error.pattern">Invalid phone number format.</span>
+                </div>
+
+                <!-- ✅ WhatsApp consent appears right under phone field -->
+                <div class="career-consent" ng-if="f.type === 'tel' || (f.key && (f.key.toLowerCase().indexOf('phone')>=0 || f.key.toLowerCase().indexOf('mobile')>=0))">
+
+                  <label>
+                    <input type="checkbox"
+                           ng-disabled="isSubmitting"
+                           ng-model="form.whatsappOptIn" />
+                    <span>
+                      I consent to receiving application updates and communication on WhatsApp.
+                    </span>
+                  </label>
+                  <small>
+                    We’ll only use your number for updates related to this application (e.g., interview scheduling / status).
+                    You can ask us to stop anytime.
+                  </small>
+
+                  <div class="career-error" ng-if="applyForm.$submitted && !form.whatsappOptIn">
+                    Please confirm WhatsApp consent to proceed.
+                  </div>
+                </div>
+              </div>
+
+              <!-- TEXTAREA -->
+              <div class="input-field" ng-if="f.type === 'textarea'">
+                <textarea class="materialize-textarea"
+                          ng-model="form[f.key]"
+                          name="{{f.key}}"
+                          ng-required="f.required"
+                          placeholder="{{f.placeholder || ''}}"
+                          ng-disabled="isSubmitting"></textarea>
+                <label class="active">{{f.label}} <span ng-if="f.required" class="req">*</span></label>
+
+                <div class="career-error"
+                     ng-if="applyForm.$submitted || (applyForm[f.key].$touched && applyForm[f.key].$invalid)">
+                  <span ng-if="applyForm[f.key].$error.required">Required — please fill this in.</span>
+                </div>
+              </div>
+
+              <!-- RADIO -->
+              <div ng-if="f.type === 'radio'" class="career-choice-block">
+                <div class="career-choice-label">{{f.label}} <span ng-if="f.required" class="req">*</span></div>
+                <p ng-repeat="o in f.options track by $index">
+                  <label>
+                    <input class="with-gap" type="radio"
+                           name="{{f.key}}"
+                           ng-model="form[f.key]"
+                           ng-value="o"
+                           ng-required="f.required"
+                           ng-disabled="isSubmitting"/>
+                    <span>{{o}}</span>
+                  </label>
+                </p>
+
+                <div class="career-error"
+                     ng-if="applyForm.$submitted || (applyForm[f.key].$touched && applyForm[f.key].$invalid)">
+                  Required — please select one option.
+                </div>
+              </div>
+
+              <!-- ✅ CHECKBOX (clickable again) -->
+              <div ng-if="f.type === 'checkbox'" class="career-choice-block">
+                <div class="career-choice-label">{{f.label}} <span ng-if="f.required" class="req">*</span></div>
+
+                <p ng-repeat="o in f.options track by $index">
+                  <label>
+                    <input type="checkbox"
+                           ng-disabled="isSubmitting"
+                           ng-checked="(form[f.key] || []).indexOf(o) >= 0"
+                           ng-click="toggleCheckbox(f.key, o, $event)" />
+                    <span>{{o}}</span>
+                  </label>
+                </p>
+
+                <div class="career-error"
+                     ng-if="applyForm.$submitted && f.required && (!form[f.key] || form[f.key].length === 0)">
+                  Required — please select at least one option.
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+
+    <!-- ACTIONS (hidden after submit) -->
+    <div class="card-action career-card-actions" ng-if="!isSubmitted && !isLoading && !loadError">
+      <a class="btn-flat white-text"
+         ng-click="!isSubmitting && back()"
+         ng-if="stepIndex > 0"
+         ng-class="{'disabled': isSubmitting}">
+        Back
+      </a>
+
+      <a class="btn amber darken-2"
+         ng-if="isIntro()"
+         ng-class="{'disabled': isSubmitting}"
+         ng-click="!isSubmitting && startApplication()">
+        Start Application
+      </a>
+
+      <a class="btn amber darken-2"
+         ng-if="!isIntro() && stepIndex < totalSteps()-1"
+         ng-class="{'disabled': isSubmitting}"
+         ng-click="!isSubmitting && next(applyForm)">
+        Next
+      </a>
+
+      <a class="btn green darken-2"
+         ng-if="!isIntro() && stepIndex === totalSteps()-1"
+         ng-class="{'disabled': isSubmitting}"
+         ng-click="!isSubmitting && submit(applyForm)">
+        {{ isSubmitting ? 'Submitting...' : 'Submit Application' }}
+      </a>
+    </div>
+  </div>
+</div>

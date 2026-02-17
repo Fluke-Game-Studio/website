@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="preconnect" href="https://cdn.vectorstock.com">
+	<link rel="dns-prefetch" href="https://cdn.vectorstock.com">
+	<meta name="theme-color" content="#101122">
+	<script type="text/javascript" nonce="32CkNzdfSFEw4xbtXpguqI5wnk7gUdZPeV30u1YmO4Y=">(window.NREUM||(NREUM={})).init={ajax:{deny_list:["bam-cell.nr-data.net"]}};(window.NREUM||(NREUM={})).loader_config={licenseKey:"02e09611df",applicationID:"156179534"};window.NREUM||(NREUM={}),__nr_require=function(t,e,n){function r(n){if(!e[n]){var i=e[n]={exports:{}};t[n][0].call(i.exports,function(e){var i=t[n][1][e];return r(i||e)},i,i.exports)}return e[n].exports}if("function"==typeof __nr_require)return __nr_require;for(var i=0;i<n.length;i++)r(n[i]);return r}({1:[function(t,e,n){function r(){}function i(t,e,n){return function(){return o(t,[u.now()].concat(f(arguments)),e?null:this,n),e?void 0:this}}var o=t("handle"),a=t(8),f=t(9),c=t("ee").get("tracer"),u=t("loader"),s=NREUM;"undefined"==typeof window.newrelic&&(newrelic=s);var d=["setPageViewName","setCustomAttribute","setErrorHandler","finished","addToTrace","inlineHit","addRelease"],p="api-",l=p+"ixn-";a(d,function(t,e){s[e]=i(p+e,!0,"api")}),s.addPageAction=i(p+"addPageAction",!0),s.setCurrentRouteName=i(p+"routeName",!0),e.exports=newrelic,s.interaction=function(){return(new r).get()};var m=r.prototype={createTracer:function(t,e){var n={},r=this,i="function"==typeof e;return o(l+"tracer",[u.now(),t,n],r),function(){if(c.emit((i?"":"no-")+"fn-start",[u.now(),r,i],n),i)try{return e.apply(this,arguments)}catch(t){throw c.emit("fn-err",[arguments,this,t],n),t}finally{c.emit("fn-end",[u.now()],n)}}}};a("actionText,setName,setAttribute,save,ignore,onEnd,getContext,end,get".split(","),function(t,e){m[e]=i(l+e)}),newrelic.noticeError=function(t,e){"string"==typeof t&&(t=new Error(t)),o("err",[t,u.now(),!1,e])}},{}],2:[function(t,e,n){function r(t){if(NREUM.init){for(var e=NREUM.init,n=t.split("."),r=0;r<n.length-1;r++)if(e=e[n[r]],"object"!=typeof e)return;return e=e[n[n.length-1]]}}e.exports={getConfiguration:r}},{}],3:[function(t,e,n){function r(){return f.exists&&performance.now?Math.round(performance.now()):(o=Math.max((new Date).getTime(),o))-a}function i(){return o}var o=(new Date).getTime(),a=o,f=t(10);e.exports=r,e.exports.offset=a,e.exports.getLastTimestamp=i},{}],4:[function(t,e,n){function r(t){return!(!t||!t.protocol||"file:"===t.protocol)}e.exports=r},{}],5:[function(t,e,n){function r(t,e){var n=t.getEntries();n.forEach(function(t){"first-paint"===t.name?d("timing",["fp",Math.floor(t.startTime)]):"first-contentful-paint"===t.name&&d("timing",["fcp",Math.floor(t.startTime)])})}function i(t,e){var n=t.getEntries();n.length>0&&d("lcp",[n[n.length-1]])}function o(t){t.getEntries().forEach(function(t){t.hadRecentInput||d("cls",[t])})}function a(t){if(t instanceof m&&!g){var e=Math.round(t.timeStamp),n={type:t.type};e<=p.now()?n.fid=p.now()-e:e>p.offset&&e<=Date.now()?(e-=p.offset,n.fid=p.now()-e):e=p.now(),g=!0,d("timing",["fi",e,n])}}function f(t){"hidden"===t&&d("pageHide",[p.now()])}if(!("init"in NREUM&&"page_view_timing"in NREUM.init&&"enabled"in NREUM.init.page_view_timing&&NREUM.init.page_view_timing.enabled===!1)){var c,u,s,d=t("handle"),p=t("loader"),l=t(7),m=NREUM.o.EV;if("PerformanceObserver"in window&&"function"==typeof window.PerformanceObserver){c=new PerformanceObserver(r);try{c.observe({entryTypes:["paint"]})}catch(v){}u=new PerformanceObserver(i);try{u.observe({entryTypes:["largest-contentful-paint"]})}catch(v){}s=new PerformanceObserver(o);try{s.observe({type:"layout-shift",buffered:!0})}catch(v){}}if("addEventListener"in document){var g=!1,h=["click","keydown","mousedown","pointerdown","touchstart"];h.forEach(function(t){document.addEventListener(t,a,!1)})}l(f)}},{}],6:[function(t,e,n){function r(t,e){if(!i)return!1;if(t!==i)return!1;if(!e)return!0;if(!o)return!1;for(var n=o.split("."),r=e.split("."),a=0;a<r.length;a++)if(r[a]!==n[a])return!1;return!0}var i=null,o=null,a=/Version\/(\S+)\s+Safari/;if(navigator.userAgent){var f=navigator.userAgent,c=f.match(a);c&&f.indexOf("Chrome")===-1&&f.indexOf("Chromium")===-1&&(i="Safari",o=c[1])}e.exports={agent:i,version:o,match:r}},{}],7:[function(t,e,n){function r(t){function e(){t(a&&document[a]?document[a]:document[i]?"hidden":"visible")}"addEventListener"in document&&o&&document.addEventListener(o,e,!1)}e.exports=r;var i,o,a;"undefined"!=typeof document.hidden?(i="hidden",o="visibilitychange",a="visibilityState"):"undefined"!=typeof document.msHidden?(i="msHidden",o="msvisibilitychange"):"undefined"!=typeof document.webkitHidden&&(i="webkitHidden",o="webkitvisibilitychange",a="webkitVisibilityState")},{}],8:[function(t,e,n){function r(t,e){var n=[],r="",o=0;for(r in t)i.call(t,r)&&(n[o]=e(r,t[r]),o+=1);return n}var i=Object.prototype.hasOwnProperty;e.exports=r},{}],9:[function(t,e,n){function r(t,e,n){e||(e=0),"undefined"==typeof n&&(n=t?t.length:0);for(var r=-1,i=n-e||0,o=Array(i<0?0:i);++r<i;)o[r]=t[e+r];return o}e.exports=r},{}],10:[function(t,e,n){e.exports={exists:"undefined"!=typeof window.performance&&window.performance.timing&&"undefined"!=typeof window.performance.timing.navigationStart}},{}],ee:[function(t,e,n){function r(){}function i(t){function e(t){return t&&t instanceof r?t:t?u(t,c,a):a()}function n(n,r,i,o,a){if(a!==!1&&(a=!0),!l.aborted||o){t&&a&&t(n,r,i);for(var f=e(i),c=v(n),u=c.length,s=0;s<u;s++)c[s].apply(f,r);var p=d[w[n]];return p&&p.push([b,n,r,f]),f}}function o(t,e){y[t]=v(t).concat(e)}function m(t,e){var n=y[t];if(n)for(var r=0;r<n.length;r++)n[r]===e&&n.splice(r,1)}function v(t){return y[t]||[]}function g(t){return p[t]=p[t]||i(n)}function h(t,e){l.aborted||s(t,function(t,n){e=e||"feature",w[n]=e,e in d||(d[e]=[])})}var y={},w={},b={on:o,addEventListener:o,removeEventListener:m,emit:n,get:g,listeners:v,context:e,buffer:h,abort:f,aborted:!1};return b}function o(t){return u(t,c,a)}function a(){return new r}function f(){(d.api||d.feature)&&(l.aborted=!0,d=l.backlog={})}var c="nr@context",u=t("gos"),s=t(8),d={},p={},l=e.exports=i();e.exports.getOrSetContext=o,l.backlog=d},{}],gos:[function(t,e,n){function r(t,e,n){if(i.call(t,e))return t[e];var r=n();if(Object.defineProperty&&Object.keys)try{return Object.defineProperty(t,e,{value:r,writable:!0,enumerable:!1}),r}catch(o){}return t[e]=r,r}var i=Object.prototype.hasOwnProperty;e.exports=r},{}],handle:[function(t,e,n){function r(t,e,n,r){i.buffer([t],r),i.emit(t,e,n)}var i=t("ee").get("handle");e.exports=r,r.ee=i},{}],id:[function(t,e,n){function r(t){var e=typeof t;return!t||"object"!==e&&"function"!==e?-1:t===window?0:a(t,o,function(){return i++})}var i=1,o="nr@id",a=t("gos");e.exports=r},{}],loader:[function(t,e,n){function r(){if(!R++){var t=M.info=NREUM.info,e=v.getElementsByTagName("script")[0];if(setTimeout(u.abort,3e4),!(t&&t.licenseKey&&t.applicationID&&e))return u.abort();c(E,function(e,n){t[e]||(t[e]=n)});var n=a();f("mark",["onload",n+M.offset],null,"api"),f("timing",["load",n]);var r=v.createElement("script");0===t.agent.indexOf("http://")||0===t.agent.indexOf("https://")?r.src=t.agent:r.src=l+"://"+t.agent,e.parentNode.insertBefore(r,e)}}function i(){"complete"===v.readyState&&o()}function o(){f("mark",["domContent",a()+M.offset],null,"api")}var a=t(3),f=t("handle"),c=t(8),u=t("ee"),s=t(6),d=t(4),p=t(2),l=p.getConfiguration("ssl")===!1?"http":"https",m=window,v=m.document,g="addEventListener",h="attachEvent",y=m.XMLHttpRequest,w=y&&y.prototype,b=!d(m.location);NREUM.o={ST:setTimeout,SI:m.setImmediate,CT:clearTimeout,XHR:y,REQ:m.Request,EV:m.Event,PR:m.Promise,MO:m.MutationObserver};var x=""+location,E={beacon:"bam.nr-data.net",errorBeacon:"bam.nr-data.net",agent:"js-agent.newrelic.com/nr-1211.min.js"},O=y&&w&&w[g]&&!/CriOS/.test(navigator.userAgent),M=e.exports={offset:a.getLastTimestamp(),now:a,origin:x,features:{},xhrWrappable:O,userAgent:s,disabled:b};if(!b){t(1),t(5),v[g]?(v[g]("DOMContentLoaded",o,!1),m[g]("load",r,!1)):(v[h]("onreadystatechange",i),m[h]("onload",r)),f("mark",["firstbyte",a.getLastTimestamp()],null,"api");var R=0}},{}],"wrap-function":[function(t,e,n){function r(t,e){function n(e,n,r,c,u){function nrWrapper(){var o,a,s,p;try{a=this,o=d(arguments),s="function"==typeof r?r(o,a):r||{}}catch(l){i([l,"",[o,a,c],s],t)}f(n+"start",[o,a,c],s,u);try{return p=e.apply(a,o)}catch(m){throw f(n+"err",[o,a,m],s,u),m}finally{f(n+"end",[o,a,p],s,u)}}return a(e)?e:(n||(n=""),nrWrapper[p]=e,o(e,nrWrapper,t),nrWrapper)}function r(t,e,r,i,o){r||(r="");var f,c,u,s="-"===r.charAt(0);for(u=0;u<e.length;u++)c=e[u],f=t[c],a(f)||(t[c]=n(f,s?c+r:r,i,c,o))}function f(n,r,o,a){if(!m||e){var f=m;m=!0;try{t.emit(n,r,o,e,a)}catch(c){i([c,n,r,o],t)}m=f}}return t||(t=s),n.inPlace=r,n.flag=p,n}function i(t,e){e||(e=s);try{e.emit("internal-error",t)}catch(n){}}function o(t,e,n){if(Object.defineProperty&&Object.keys)try{var r=Object.keys(t);return r.forEach(function(n){Object.defineProperty(e,n,{get:function(){return t[n]},set:function(e){return t[n]=e,e}})}),e}catch(o){i([o],n)}for(var a in t)l.call(t,a)&&(e[a]=t[a]);return e}function a(t){return!(t&&t instanceof Function&&t.apply&&!t[p])}function f(t,e){var n=e(t);return n[p]=t,o(t,n,s),n}function c(t,e,n){var r=t[e];t[e]=f(r,n)}function u(){for(var t=arguments.length,e=new Array(t),n=0;n<t;++n)e[n]=arguments[n];return e}var s=t("ee"),d=t(9),p="nr@original",l=Object.prototype.hasOwnProperty,m=!1;e.exports=r,e.exports.wrapFunction=f,e.exports.wrapInPlace=c,e.exports.argsToArray=u},{}]},{},["loader"]);</script>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="csrf-name" content="csrf616dc0a53042a">
+	<meta name="csrf-value" content="c03a3ca7ee856e0aad2b73c974c4491e">
+	<meta name="csp-nonce" content="32CkNzdfSFEw4xbtXpguqI5wnk7gUdZPeV30u1YmO4Y=">
+	<meta name="cart-hash" content="d751713988987e9331980363e24189ce">
+	<meta name="twitter:site" content="@VectorStock">
+	<meta property="og:site_name" content="VectorStock">
+	<meta property="fb:app_id" content="241100862642313">
+
+	<link rel="shortcut icon" href="https://cdn.vectorstock.com/img/icons/favicon.ico" type="image/x-icon">
+	<link rel="search" type="application/opensearchdescription+xml" title="VectorStock Search" href="https://www.vectorstock.com/xml/searchbox.xml">
+
+	<title>Flat business woman user profile avatar icon Vector Image</title>
+	<meta name="description" content="Flat Business Woman User Profile Avatar icon design and long shadow for website and promotion banners. Download a Free Preview or High Quality Adobe Illustrator Ai, EPS, PDF and High Resolution JPEG versions..">
+	
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://www.vectorstock.com/royalty-free-vector/flat-business-woman-user-profile-avatar-icon-vector-4334111">
+	<meta property="og:title" content="Flat business woman user profile avatar icon vector image on VectorStock">
+	<meta property="og:description" content="Flat Business Woman User Profile Avatar icon design and long shadow for website and promotion banners. Download a Free Preview or High Quality Adobe Illustrator Ai, EPS, PDF and High Resolution JPEG versions.">
+	<meta property="og:image" content="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+	<meta property="og:image:url" content="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+	<meta property="og:image:secure_url" content="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1000">
+	<meta property="og:image:height" content="1000">
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:url" content="https://www.vectorstock.com/royalty-free-vector/flat-business-woman-user-profile-avatar-icon-vector-4334111">
+	<meta name="twitter:title" content="Flat business woman user profile avatar icon vector image">
+	<meta name="twitter:description" content="Flat Business Woman User Profile Avatar icon design and long shadow for website and promotion banners">
+	<meta name="twitter:image" content="https://cdn2.vectorstock.com/i/thumb-large/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+	<meta name="twitter:image:width" content="238">
+	<meta name="twitter:image:height" content="250">
+
+	<link rel="canonical" href="https://www.vectorstock.com/royalty-free-vector/flat-business-woman-user-profile-avatar-icon-vector-4334111">
+
+	<link rel="stylesheet" type="text/css" href="/cache/common1634097073.min.css">
+	<link rel="stylesheet" type="text/css" href="/cache/vector1634097073.min.css">
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-QBXWNL4G7Q"></script>
+	<script src="/cache/common1634171771.min.js"></script>
+	<script src="/cache/vector1634171771.min.js"></script>
+	<link rel="preload" href="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg" as="image">
+</head>
+<body>
+
+<!-- Top header -->
+<header>
+	<nav class="top">
+		<figure>
+			<a href="/" title="VectorStock&reg;">VectorStock&reg;</a>
+		</figure>
+
+		<div class="grid">
+			<form id="searchbox" class="focused empty">
+				<div class="wrap">
+					<fieldset>
+						<div class="contents">
+							<div class="tags">
+								<ul></ul>
+							</div>
+							<div class="input">
+								<input type="text" name="input" autocomplete="off" autocapitalize="none" spellcheck="true" value="" placeholder="Search&hellip;" maxlength="50" autofocus>
+								<button type="button" data-action="clear">&times;</button>
+							</div>
+
+							<input type="hidden" name="category" value="">
+							<input type="hidden" name="custom_srp" value="">
+							<input type="hidden" name="artist" value="">
+							<input type="hidden" name="similar" value="">
+						</div>
+					</fieldset>
+
+					<button type="submit">
+						<span class="icon">Search</span>
+					</button>
+				</div>
+			</form>
+			<ul>
+				<li><a href="/royalty-free-vectors">All Vectors</a></li>
+				<li><a href="/free-vectors">Free Vectors</a></li>
+			</ul>
+		</div>
+
+		<div class="aside">
+			<ul>
+				<li><a href="/popular-categories" title="Popular Categories">Categories</a></li>
+				<li><a href="/pricing" title="Pricing">Pricing</a></li>
+				<li class="account">
+					<button type="button" data-action="signup">Sign Up</button>
+					<button type="button" data-action="login">Login</button>
+				</li>
+			</ul>
+		</div>
+
+		<div id="mobilenav-icon">
+			<span></span><span></span><span></span><span></span>
+		</div>
+	</nav>
+
+	<!-- Submenu -->
+		<nav id="searchrelated"></nav>	
+	<!-- Mobile menu -->
+	<div id="mobilenav-menu">
+		<div>
+			<div class="group">
+				<h4>Browse</h4>
+				<ul>
+					<li><a href="/royalty-free-vectors">All Vectors</a></li>
+					<li><a href="/free-vectors">Free Vectors</a></li>
+				</ul>
+			</div>
+			<div class="group">
+				<h4>Account</h4>
+				<ul>
+					<li class="account">
+						<ul>
+							<li><a href="/signup">Sign Up</a></li>
+							<li data-action="login"><a href="/?login=1">Login&hellip;</a></li>
+							<li><a href="/pricing">Pricing</a></li>
+						</ul>
+					</li>
+				</ul>
+				<form method="get" action="/auth/logout" class="logout">
+					<input type="hidden" name="logout" value="1">
+				</form>
+			</div>
+			<div class="group">
+				<h4>Help</h4>
+				<ul>
+					<li><a href="/faq"><abbr title="Frequently Asked Questions">FAQs</abbr></a></li>
+					<li><a href="/contact">Contact Us</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</header>
+
+		<!-- Account Menu Tabs -->
+		<aside id="nav_sidebar" class="tabs tabsDark">
+
+			<nav>
+				<ul role="tablist">
+					<li data-tab-id="signup" class=""><span role="tab"><span>Sign Up</span></span></li>
+					<li data-tab-id="login" class="selected"><span role="tab"><span>Log In</span></span></li>
+				</ul>
+			</nav>
+
+			<section id="sb_signup" data-tab-id="signup" class="">
+				<div class="primary">
+					<p>New to VectorStock?</p>
+					<p><em>We&apos;re the largest royalty-free, vector-only stock agency in the world.</em></p>
+					<p>Every week we add new premium graphics by the thousands.</p>
+				</div>
+				<div class="secondary">
+					<p>Whether you&apos;re a global ad&nbsp;agency or a freelance graphic designer, we have the vector graphics to make your project come to life.</p>
+					<p>Buy Vectors, sell Vectors or both. <a href="/signup">Sign up now, it&rsquo;s free.</a></p>
+				</div>
+				<div class="footer">
+					<button class="master">
+						<span class="title">Sign Up...</span>
+						<span class="value">
+							<span class="symbol signup"></span>
+						</span>
+					</button>
+				</div>
+			</section>
+
+			<section id="sb_login" data-tab-id="login" class="selected">
+				<form action="/auth/login" method="post">
+					<fieldset class="">
+						<label for="vs_username">Email / Username</label>
+						<div class="textfield">
+							<input type="text" id="vs_username" name="vs_username" value="" autocomplete="on" tabindex="1">
+						</div>
+					</fieldset>
+					<fieldset class="">
+						<label for="vs_password">Password</label>
+						<button type="button" class="forgot">Forgot Password</button>
+						<div class="textfield">
+							<input type="password" id="vs_password" name="vs_password" value="" autocomplete="on" tabindex="2"  maxlength="72">
+						</div>
+					</fieldset>
+
+
+					<button type="submit" tabindex="4">Log In</button>
+				</form>
+				<div class="alternatives">
+					<h6>Or Login With</h6>
+					<ul>
+						<li class="gp"><a href="/">
+							<span class="title">Google</span>
+							<span class="icon"></span>
+						</a></li>
+						<li class="fb"><a href="/">
+							<span class="title">Facebook</span>
+							<span class="icon"></span>
+						</a></li>
+					</ul>
+				</div>
+
+				
+			</section>
+		</aside>
+
+	<!-- Page -->
+	<article>
+		<section id="vs-asset">
+
+			<!-- Aside -->
+			<div class="aside">
+				<ol itemscope itemtype="http://schema.org/BreadcrumbList">
+					<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+						<a itemtype="http://schema.org/Thing" itemprop="item" href="/royalty-free-vectors">
+							<span itemprop="name">Royalty Free Vectors</span>
+						</a>
+						<meta itemprop="position" content="1" />
+					</li>
+					<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+						<a itemtype="http://schema.org/Thing" itemprop="item" href="/royalty-free-vectors/icon-vectors">
+							<span itemprop="name">Icon Vectors</span>
+						</a>
+						<meta itemprop="position" content="2" />
+					</li>
+				</ol>
+
+				<h1>Flat business woman user profile avatar icon vector&nbsp;image</h1>
+
+				<figure style="padding-top: 99%;" class="target">
+					<div class="highres" data-src="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+						<noscript><img src="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg" title="Flat business woman user profile avatar icon vector image" alt="Flat business woman user profile avatar icon"></noscript>
+					</div>
+					<div class="overlay"></div>
+				</figure>
+
+				<form data-loggedin="0" data-licenses="2" data-license="standard" data-status="" data-payment="single-image">
+					<input type="hidden" id="vector_id" value="4334111">
+					<input type="hidden" id="vector_title" value="Flat business woman user profile avatar icon">
+					<input type="hidden" id="vector_description" value="Flat Business Woman User Profile Avatar icon design and long shadow for website and promotion banners. Download a Free Preview or High Quality Adobe Illustrator Ai, EPS, PDF and High Resolution JPEG versions.">
+					<input type="hidden" id="vector_url" value="https://www.vectorstock.com/royalty-free-vector/flat-business-woman-user-profile-avatar-icon-vector-4334111">
+					<input type="hidden" id="vector_media" value="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+					<input type="hidden" id="vector_ratio" value="1">
+					<input type="hidden" id="vector_license_status" value="">
+					<input type="hidden" id="artist_name" value="ProVectors">
+					<input type="hidden" id="account_user" value="0">
+
+					<input type="hidden" id="vector_download_urls" value="[]">
+					<input type="hidden" id="vector_license_options" value="[{&quot;type&quot;:&quot;standard&quot;,&quot;cost&quot;:{&quot;single-image&quot;:14.99,&quot;credits&quot;:1,&quot;subscription&quot;:1}},{&quot;type&quot;:&quot;expanded&quot;,&quot;cost&quot;:{&quot;single-image&quot;:39.99,&quot;credits&quot;:30}}]">
+					<input type="hidden" id="account_filetype" value="zip">
+					<input type="hidden" id="account_customizations" value="[]">
+					<input type="hidden" id="account_cloud" value="[{&quot;type&quot;:&quot;googledrive&quot;,&quot;status&quot;:&quot;connect&quot;},{&quot;type&quot;:&quot;dropbox&quot;,&quot;status&quot;:&quot;connect&quot;}]">
+					
+					<div class="options">
+						<!--
+						-- OPTION: License type
+						-->
+						<div class="option" data-type="license" data-license="standard" data-licenses="2">
+							<h6><span class="type">License</span><a href="/faq/members/standard-license">Learn More</a></h6>
+							<div class="optgroup radgroup">
+								<fieldset class="checked">
+									<label for="f_license_standard">
+										<input type="radio" id="f_license_standard" name="license" value="standard" checked="checked" tabindex="2">
+										<span class="label">Standard</span>
+										<span class="descr">For Print, Advertising, Design</span>
+									</label>
+								</fieldset>
+								<fieldset>
+									<label for="f_license_expanded">
+										<input type="radio" id="f_license_expanded" name="license" value="expanded" tabindex="4">
+										<span class="label">Expanded</span>
+										<span class="descr">For Print on Demand &amp; Resale</span>
+									</label>
+								</fieldset>
+							</div>
+
+							<div class="help">
+								<p>The license type determines how you can use this image.</p>
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+																						<th data-license="standard">Std.</th>																						<th data-license="expanded">Exp.</th>										</tr>
+									</thead>
+									<tbody>
+																				<tr>
+											<td>Print / Editorial</td>
+											<td data-license="standard"><span class="yes"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+										<tr>
+											<td>Graphic Design</td>
+											<td data-license="standard"><span class="yes"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+										<tr>
+											<td>Web Design</td>
+											<td data-license="standard"><span class="yes"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+										<tr>
+											<td>Social Media</td>
+											<td data-license="standard"><span class="yes"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+										<tr>
+											<td>Edit &amp; Modify</td>
+											<td data-license="standard"><span class="yes"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+										<tr>
+											<td>Multi-user</td>
+											<td data-license="standard"><span class="no"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+										<tr>
+											<td>Resale Items</td>
+											<td data-license="standard"><span class="no"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+										<tr>
+											<td>Print on Demand</td>
+											<td data-license="standard"><span class="no"></span></td><td data-license="expanded"><span class="yes"></span></td> 											
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						
+						<!--
+						-- OPTION: Payment options (Standard)
+						-->
+						<div class="option" data-type="payment" data-license="standard">
+							<h6><span class="type">Ways to Buy</span><a href="/pricing">Compare</a></h6>
+							<div class="optgroup radgroup" data-license="standard">
+								<fieldset class="checked" >
+									<label for="f_payment_standard_single-image">
+										<input type="radio" id="f_payment_standard_single-image" name="payment_standard" data-cost="14.99" value="single-image"  checked="checked" tabindex="5">
+										<span class="label">Pay-per-Image</span>
+										<span class="value"><small>$</small><var>14.99</var></span>
+									</label>
+								</fieldset>
+								<fieldset>
+									<label for="f_payment_standard_credits">
+										<input type="radio" id="f_payment_standard_credits" name="payment_standard" data-cost="1" value="credits" tabindex="6">
+										<span class="label">Credits</span>
+										<span class="value"><small>$</small><var>1.00</var></span>
+									</label>
+								</fieldset>
+								<fieldset>
+									<label for="f_payment_standard_subscription">
+										<input type="radio" id="f_payment_standard_subscription" name="payment_standard" data-cost="1" value="subscription" tabindex="7">
+										<span class="label">Subscription</span>
+										<span class="value"><small>$</small><var>0.69</var></span>
+									</label>
+								</fieldset>
+							</div>
+							<div class="help">
+								<p>There are three ways to pay for Standard licenses. Prices are $<abbr title="United States Dollars">US</abbr>.</p>
+
+								<table>
+									<thead>
+										<tr>
+											<th>Pay with</th>
+											<th>Image Price</th>
+										</tr>
+									</thead>
+									<tbody>
+																				<tr>
+											<td colspan="2">
+												<span class="title">
+													<span class="dt">Pay-per-Image</span>
+													<span class="dm"></span>
+													<span class="dd"><small>$</small>14.99</span>
+												</span>
+												<span class="byline">One-time payment</span>
+											</td>
+										</tr>
+																				<tr>
+											<td colspan="2">
+												<span class="title">
+													<span class="dt">Pre-paid Credits</span>
+													<span class="dm"></span>
+													<span class="dd"><small>$</small>1</span>
+												</span>
+												<span class="byline">Download images on-demand (1 credit = $1). Minimum purchase of 30.</span>
+											</td>
+										</tr>
+										<tr>
+											<td colspan="2">
+												<span class="title">
+													<span class="dt">Subscription Plan</span>
+													<span class="dm"></span>
+													<span class="dd"><em>From</em> 69c</span>
+												</span>
+												<span class="byline">Choose a monthly plan. Unused downloads automatically roll into following month.</span>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!--
+						-- OPTION: Payment options (Expanded)
+						-->
+						<div class="option" data-type="payment" data-license="expanded">
+							<h6><span class="type">Ways to Buy</span><a href="/faq/members/ways-to-buy">Compare</a></h6>
+							<div class="optgroup radgroup" data-license="expanded">
+								<fieldset class="checked">
+									<label for="f_payment_expanded_single-image">
+										<input type="radio" id="f_payment_expanded_single-image" name="payment_expanded" data-cost="39.99" value="single-image" checked="checked" tabindex="8">
+										<span class="label">Pay-per-Image</span>
+										<span class="value"><small>$</small><var>39.99</var></span>
+									</label>
+								</fieldset>
+								<fieldset>
+									<label for="f_payment_expanded_credits">
+										<input type="radio" id="f_payment_expanded_credits" name="payment_expanded" data-cost="30" value="credits" tabindex="9">
+										<span class="label">Credits</span>
+										<span class="value"><small>$</small><var>30.00</var></span>
+									</label>
+								</fieldset>
+							</div>
+														<div class="help">
+								<p>There are two ways to pay for Expanded licenses. Prices are $<abbr title="United States Dollars">US</abbr>.</p>
+
+								<table>
+									<thead>
+										<tr>
+											<th>Pay with</th>
+											<th>Cost per Image</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td colspan="2">
+												<span class="title">
+													<span class="dt">Pay-per-Image</span>
+													<span class="dm"></span>
+													<span class="dd"><small>$</small>39.99</span>
+												</span>
+												<span class="byline">One-off payment, no signup needed.</span>
+											</td>
+										</tr>
+										<tr>
+											<td colspan="2">
+												<span class="title">
+													<span class="dt">Pre-paid Credits</span>
+													<span class="dm"></span>
+													<span class="dd"><small>$</small>30</span>
+												</span>
+												<span class="byline">Download images on-demand (1 credit = $1).</span>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+													</div>
+						<!--
+						-- OPTION: Customization
+						-->
+						<div class="option" data-type="customization">
+							<h6><span class="type">New Option!</span><a href="/faq/members/what-is-hire-a-designer">What is this?</a></h6>
+							<div class="optgroup chkgroup">
+								<fieldset>
+									<label for="f_payment_customization">
+										<input type="checkbox" id="f_payment_customization" name="payment_customization" data-cost="85" value="customization" tabindex="12">
+										<span class="label">Customize image</span>
+										<span class="descr">Only available with Pay-per-Image</span>
+										<span class="value"><small>$</small><var>85.00</var></span>
+									</label>
+								</fieldset>
+							</div>
+							<div class="help">
+								<p>Love the image but just need a few modifications? Let our talented artists do the work for you!</p>
+								<p>We&rsquo;ll connect you with a designer who can make updates and send you the artwork in a format of your choice.</p>
+								<h4>Examples</h4>
+								<ul>
+									<li>Change the text</li>
+									<li>Modify colors</li>
+									<li>Resize to new dimensions</li>
+									<li>Include logo or symbol</li>
+									<li>Add your company or business name</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="download">
+						<button type="button" data-action="download">
+							<span class="label">Download Image</span>
+							<span class="icon"></span>
+						</button>
+						<h6><span class="label">Files Included</span></h6>
+						<div class="help">
+							<span class="loading"><span class="label">Loading Details...</span></span>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<!-- Image -->
+			<div class="image">
+				<figure data-orientation="square" style="padding-top: 99%;" class="target">
+					<div class="highres" data-src="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+						<noscript><img src="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg" title="Flat business woman user profile avatar icon vector image" alt="Flat business woman user profile avatar icon"></noscript>
+					</div>
+					<div class="overlay"></div>
+					<div class="panels">
+						<div class="share">
+							<h4>Share with others</h4>
+							<ul>
+								<li class="pinterest"><button type="button" data-action="pinterest"><span><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" focusable="false" role="img"><path d="M12.5,0C5.6,0,0,5.6,0,12.5c0,5.12,3.08,9.52,7.48,11.45c-0.03-0.87-0.01-1.92,0.22-2.87c0.24-1.01,1.61-6.81,1.61-6.81s-0.4-0.8-0.4-1.98c0-1.85,1.07-3.24,2.41-3.24c1.14,0,1.69,0.85,1.69,1.88c0,1.14-0.73,2.85-1.1,4.44c-0.31,1.33,0.67,2.41,1.97,2.41c2.37,0,3.96-3.04,3.96-6.65c0-2.74-1.85-4.79-5.2-4.79c-3.79,0-6.15,2.83-6.15,5.99c0,1.09,0.32,1.86,0.82,2.45c0.23,0.27,0.26,0.38,0.18,0.7c-0.06,0.23-0.2,0.78-0.25,1c-0.08,0.32-0.34,0.43-0.63,0.31c-1.75-0.71-2.56-2.62-2.56-4.77c0-3.55,3-7.81,8.93-7.81c4.77,0,7.91,3.45,7.91,7.16c0,4.9-2.73,8.57-6.75,8.57c-1.35,0-2.62-0.73-3.05-1.56c0,0-0.73,2.88-0.88,3.44c-0.27,0.96-0.78,1.93-1.26,2.68C10.08,24.82,11.27,25,12.5,25C19.4,25,25,19.4,25,12.5S19.4,0,12.5,0L12.5,0z"/></svg></span><span class="label">Pinterest</span></span></button></li>
+								<li class="facebook"><button type="button" data-action="facebook"><span><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" focusable="false" role="img"><path d="M22.44,1H2.56C1.7,1,1,1.7,1,2.56v19.88C1,23.3,1.7,24,2.56,24h10.41v-8.89H9.98v-3.46h2.99V9.1c0-2.96,1.81-4.58,4.45-4.58c1.27,0,2.35,0.09,2.67,0.14v3.1l-1.83,0c-1.44,0-1.72,0.68-1.72,1.69v2.21h3.43l-0.45,3.46h-2.98V24h5.89C23.3,24,24,23.3,24,22.44V2.56C24,1.7,23.3,1,22.44,1z"/></svg></span><span class="label">Facebook</span></span></button></li>
+								<li class="twitter"><button type="button" data-action="twitter"><span><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" focusable="false" role="img"><path d="M7.86,22.5c9.43,0,14.59-7.69,14.59-14.37c0-0.22,0-0.44-0.01-0.65c1-0.71,1.87-1.6,2.56-2.61c-0.92,0.4-1.91,0.67-2.95,0.79c1.06-0.62,1.87-1.61,2.26-2.79c-0.99,0.58-2.09,1-3.26,1.23c-0.94-0.98-2.27-1.6-3.74-1.6c-2.83,0-5.13,2.26-5.13,5.05c0,0.4,0.05,0.78,0.13,1.15C8.05,8.49,4.27,6.48,1.74,3.42C1.3,4.17,1.05,5.04,1.05,5.96c0,1.75,0.91,3.3,2.28,4.2C2.49,10.14,1.7,9.91,1,9.53C1,9.55,1,9.58,1,9.6c0,2.45,1.77,4.49,4.11,4.95c-0.43,0.12-0.88,0.18-1.35,0.18c-0.33,0-0.65-0.03-0.96-0.09c0.65,2.01,2.55,3.47,4.79,3.51C5.84,19.5,3.63,20.3,1.22,20.3c-0.41,0-0.82-0.02-1.22-0.07C2.27,21.66,4.97,22.5,7.86,22.5"/></svg></span><span class="label">Twitter</span></span></button></li>
+								<li class="email"><button type="button" data-action="email"><span><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" focusable="false" role="img"><path d="M22.48,4.17H2.52C1.13,4.17,0,5.3,0,6.69v11.62c0,1.39,1.13,2.52,2.52,2.52h19.96c1.39,0,2.52-1.13,2.52-2.52V6.69C25,5.3,23.87,4.17,22.48,4.17z M23.49,18.31c0,0.56-0.45,1.01-1.01,1.01H2.52c-0.55,0-1.01-0.45-1.01-1.01V6.69c0-0.56,0.45-1.01,1.01-1.01h19.96c0.56,0,1.01,0.45,1.01,1.01V18.31z"/><path d="M19.95,7.95l-7.45,4.83L5.05,7.95C4.7,7.72,4.24,7.82,4.01,8.17C3.78,8.52,3.88,8.99,4.23,9.22l7.86,5.1c0.13,0.08,0.27,0.12,0.41,0.12s0.29-0.04,0.41-0.12l7.86-5.1c0.35-0.23,0.45-0.7,0.22-1.05C20.77,7.82,20.3,7.72,19.95,7.95z"/></svg></span><span class="label">Email</span></span></button></li>
+							</ul>
+						</div>
+						<div class="composite">
+							<button type="button" data-action="download"><span><span class="label">Download JPG Preview Image</span></span></button>
+						</div>
+					</div>
+				</figure>
+				<div class="details">
+					<div class="meta">
+						<ul>
+							<li class="meta-id">
+								<dl><dt>Image ID</dt><dd>4334111</dd></dl>
+							</li>
+							<li class="meta-color-mode">
+								<dl><dt>Color Mode</dt><dd>RGB</dd></dl>
+							</li>
+							<li class="meta-artist">
+								<dl>
+									<dt>Artist</dt>
+									<dd>
+										<a href="/royalty-free-vectors/vectors-by_ProVectors" rel="nofollow">ProVectors</a>
+										<button type="button" data-action="follow" title="Follow Artists that you like to create a newsfeed of their recent images."><span class="label">Follow</span></button>
+									</dd>
+								</dl>
+							</li>
+						</ul>
+					</div>
+					<div class="options" data-total="2">
+						<ul>
+							<li class="opt-like">
+								<button type="button" data-action="like" data-count="0"><span class="icon">&hearts;</span><span class="label">Like</span><span class="tally"></span></button>
+							</li>
+							<li class="opt-cart">
+								<button type="button" data-action="cart"><span class="icon">+</span><span class="label">Cart</span></button>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!-- Metadata -->
+			<div class="metadata">
+				<div itemtype="http://schema.org/ImageObject" itemscope>
+					<meta itemprop="contentUrl" content="https://cdn2.vectorstock.com/i/1000x1000/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+					<meta itemprop="thumbnailUrl" content="https://cdn2.vectorstock.com/i/thumb-large/41/11/flat-business-woman-user-profile-avatar-icon-vector-4334111.jpg">
+					<meta itemprop="name" content="Flat business woman user profile avatar icon">
+					<meta itemprop="description" content="Flat Business Woman User Profile Avatar icon design and long shadow for website and promotion banners. Download a Free Preview or High Quality Adobe Illustrator Ai, EPS, PDF and High Resolution JPEG versions. vector image">
+					<meta itemprop="author" content="ProVectors"/>
+					<meta itemprop="datePublished" content="2015-04-07">
+					<meta itemprop="license" content="https://www.vectorstock.com/faq/members/standard-license">
+					<meta itemprop="acquireLicensePage" content="https://www.vectorstock.com/royalty-free-vector/flat-business-woman-user-profile-avatar-icon-vector-4334111">
+					<meta itemprop="sourceOrganization" content="VectorStock.com">
+				</div>
+			</div>
+			
+		</section>
+
+
+		<section id="vs-related">
+						<div id="group-similar" class="group">
+				<h6><span class="icon"></span><strong>Similar Images</strong></h6>
+
+				<div class="gallery large">
+					<ul>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/00/59/black-and-white-flat-design-people-icon-social-vector-7200059.jpg"><a href="//www.vectorstock.com/royalty-free-vector/black-and-white-flat-design-people-icon-social-vector-7200059" title="black and white flat design people icon social vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/00/59/black-and-white-flat-design-people-icon-social-vector-7200059.jpg" title="black and white flat design people icon social" alt="black and white flat design people icon social vector image"></noscript></a></li>
+						<li data-src="https://cdn3.vectorstock.com/i/thumb-large/75/72/big-set-of-avatars-profile-pictures-flat-icons-vector-3677572.jpg"><a href="//www.vectorstock.com/royalty-free-vector/big-set-of-avatars-profile-pictures-flat-icons-vector-3677572" title="big set of avatars profile pictures flat icons vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumb-large/75/72/big-set-of-avatars-profile-pictures-flat-icons-vector-3677572.jpg" title="big set of avatars profile pictures flat icons" alt="big set of avatars profile pictures flat icons vector image"></noscript></a></li>
+						<li data-src="https://cdn3.vectorstock.com/i/thumb-large/83/07/set-of-different-women-app-icons-in-glasses-vector-13908307.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-of-different-women-app-icons-in-glasses-vector-13908307" title="set of different women app icons in glasses vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumb-large/83/07/set-of-different-women-app-icons-in-glasses-vector-13908307.jpg" title="set of different women app icons in glasses" alt="set of different women app icons in glasses vector image"></noscript></a></li>
+						<li data-src="https://cdn4.vectorstock.com/i/thumb-large/71/08/login-or-authorization-page-concept-vector-39437108.jpg"><a href="//www.vectorstock.com/royalty-free-vector/login-or-authorization-page-concept-vector-39437108" title="login or authorization page concept vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumb-large/71/08/login-or-authorization-page-concept-vector-39437108.jpg" title="login or authorization page concept" alt="login or authorization page concept vector image"></noscript></a></li>
+						<li data-src="https://cdn4.vectorstock.com/i/thumb-large/03/78/flat-cartoon-round-avatars-big-collection-vector-13670378.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-cartoon-round-avatars-big-collection-vector-13670378" title="flat cartoon round avatars big collection vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumb-large/03/78/flat-cartoon-round-avatars-big-collection-vector-13670378.jpg" title="flat cartoon round avatars big collection" alt="flat cartoon round avatars big collection vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/84/54/people-icon-design-template-isolated-vector-32648454.jpg"><a href="//www.vectorstock.com/royalty-free-vector/people-icon-design-template-isolated-vector-32648454" title="people icon design template isolated vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/84/54/people-icon-design-template-isolated-vector-32648454.jpg" title="people icon design template isolated" alt="people icon design template isolated vector image"></noscript></a></li>
+						<li data-src="https://cdn3.vectorstock.com/i/thumb-large/63/07/set-of-avatars-woman-vector-4256307.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-of-avatars-woman-vector-4256307" title="set of avatars woman vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumb-large/63/07/set-of-avatars-woman-vector-4256307.jpg" title="set of avatars woman" alt="set of avatars woman vector image"></noscript></a></li>
+						<li data-src="https://cdn3.vectorstock.com/i/thumb-large/51/12/woman-icon-simple-flat-style-vector-26685112.jpg"><a href="//www.vectorstock.com/royalty-free-vector/woman-icon-simple-flat-style-vector-26685112" title="woman icon simple flat style vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumb-large/51/12/woman-icon-simple-flat-style-vector-26685112.jpg" title="woman icon simple flat style" alt="woman icon simple flat style vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/15/64/set-flat-design-avatar-icons-vector-36421564.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-flat-design-avatar-icons-vector-36421564" title="set flat design avatar icons vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/15/64/set-flat-design-avatar-icons-vector-36421564.jpg" title="set flat design avatar icons" alt="set flat design avatar icons vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/25/64/users-icon-set-in-linear-style-various-funny-vector-21162564.jpg"><a href="//www.vectorstock.com/royalty-free-vector/users-icon-set-in-linear-style-various-funny-vector-21162564" title="users icon set in linear style various funny vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/25/64/users-icon-set-in-linear-style-various-funny-vector-21162564.jpg" title="users icon set in linear style various funny" alt="users icon set in linear style various funny vector image"></noscript></a></li>
+						<li data-src="https://cdn4.vectorstock.com/i/thumb-large/69/38/set-of-avatar-icons-for-app-or-web-vector-12296938.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-of-avatar-icons-for-app-or-web-vector-12296938" title="set of avatar icons for app or web vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumb-large/69/38/set-of-avatar-icons-for-app-or-web-vector-12296938.jpg" title="set of avatar icons for app or web" alt="set of avatar icons for app or web vector image"></noscript></a></li>
+						<li data-src="https://cdn1.vectorstock.com/i/thumb-large/61/10/modern-material-flat-design-icons-people-avatars-vector-14796110.jpg"><a href="//www.vectorstock.com/royalty-free-vector/modern-material-flat-design-icons-people-avatars-vector-14796110" title="modern material flat design icons - people avatars vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumb-large/61/10/modern-material-flat-design-icons-people-avatars-vector-14796110.jpg" title="modern material flat design icons - people avatars" alt="modern material flat design icons - people avatars vector image"></noscript></a></li>
+						<li data-src="https://cdn2.vectorstock.com/i/thumb-large/77/41/people-male-and-female-faces-avatars-pixel-art-vector-37147741.jpg"><a href="//www.vectorstock.com/royalty-free-vector/people-male-and-female-faces-avatars-pixel-art-vector-37147741" title="people male and female faces avatars pixel art vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumb-large/77/41/people-male-and-female-faces-avatars-pixel-art-vector-37147741.jpg" title="people male and female faces avatars pixel art" alt="people male and female faces avatars pixel art vector image"></noscript></a></li>
+						<li data-src="https://cdn1.vectorstock.com/i/thumb-large/91/70/asian-business-woman-profile-icon-isolated-chinese-vector-23799170.jpg"><a href="//www.vectorstock.com/royalty-free-vector/asian-business-woman-profile-icon-isolated-chinese-vector-23799170" title="asian business woman profile icon isolated chinese vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumb-large/91/70/asian-business-woman-profile-icon-isolated-chinese-vector-23799170.jpg" title="asian business woman profile icon isolated chinese" alt="asian business woman profile icon isolated chinese vector image"></noscript></a></li>
+						<li data-src="https://cdn1.vectorstock.com/i/thumb-large/75/65/app-or-profile-user-icon-set-set-of-women-avatar-vector-21497565.jpg"><a href="//www.vectorstock.com/royalty-free-vector/app-or-profile-user-icon-set-set-of-women-avatar-vector-21497565" title="app or profile user icon set set of women avatar vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumb-large/75/65/app-or-profile-user-icon-set-set-of-women-avatar-vector-21497565.jpg" title="app or profile user icon set set of women avatar" alt="app or profile user icon set set of women avatar vector image"></noscript></a></li>
+						<li data-src="https://cdn2.vectorstock.com/i/thumb-large/39/61/set-of-avatars-flat-icons-vector-5103961.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-of-avatars-flat-icons-vector-5103961" title="Set of avatars flat icons vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumb-large/39/61/set-of-avatars-flat-icons-vector-5103961.jpg" title="Set of avatars flat icons" alt="Set of avatars flat icons vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/64/84/man-woman-person-kids-person-avatar-picture-vector-29696484.jpg"><a href="//www.vectorstock.com/royalty-free-vector/man-woman-person-kids-person-avatar-picture-vector-29696484" title="man woman person kids person avatar picture vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/64/84/man-woman-person-kids-person-avatar-picture-vector-29696484.jpg" title="man woman person kids person avatar picture" alt="man woman person kids person avatar picture vector image"></noscript></a></li>
+						<li data-src="https://cdn1.vectorstock.com/i/thumb-large/37/05/people-avatars-thin-line-icon-set-editable-stroke-vector-14223705.jpg"><a href="//www.vectorstock.com/royalty-free-vector/people-avatars-thin-line-icon-set-editable-stroke-vector-14223705" title="people avatars thin line icon set editable stroke vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumb-large/37/05/people-avatars-thin-line-icon-set-editable-stroke-vector-14223705.jpg" title="people avatars thin line icon set editable stroke" alt="people avatars thin line icon set editable stroke vector image"></noscript></a></li>
+						<li data-src="https://cdn3.vectorstock.com/i/thumb-large/09/07/user-avatar-woman-portrait-female-person-vector-38840907.jpg"><a href="//www.vectorstock.com/royalty-free-vector/user-avatar-woman-portrait-female-person-vector-38840907" title="user avatar woman portrait female person vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumb-large/09/07/user-avatar-woman-portrait-female-person-vector-38840907.jpg" title="user avatar woman portrait female person" alt="user avatar woman portrait female person vector image"></noscript></a></li>
+						<li data-src="https://cdn4.vectorstock.com/i/thumb-large/94/03/set-flat-icons-of-business-people-vector-2019403.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-flat-icons-of-business-people-vector-2019403" title="set flat icons of business people vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumb-large/94/03/set-flat-icons-of-business-people-vector-2019403.jpg" title="set flat icons of business people" alt="set flat icons of business people vector image"></noscript></a></li>
+					</ul>
+				</div>
+				<div class="gallery small more">
+					<ul>
+						<li data-id="13201961" data-title="woman portrait face icon web avatar flat style" data-src="https://cdn2.vectorstock.com/i/thumbs/19/61/woman-portrait-face-icon-web-avatar-flat-style-vector-13201961.jpg"><a href="//www.vectorstock.com/royalty-free-vector/woman-portrait-face-icon-web-avatar-flat-style-vector-13201961" title="woman portrait face icon web avatar flat style vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/19/61/woman-portrait-face-icon-web-avatar-flat-style-vector-13201961.jpg" title="woman portrait face icon web avatar flat style" alt="woman portrait face icon web avatar flat style vector image"></noscript></a></li>
+						<li data-id="26806925" data-title="employee woman related glyph icon" data-src="https://cdn1.vectorstock.com/i/thumbs/69/25/employee-woman-related-glyph-icon-vector-26806925.jpg"><a href="//www.vectorstock.com/royalty-free-vector/employee-woman-related-glyph-icon-vector-26806925" title="employee woman related glyph icon vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/69/25/employee-woman-related-glyph-icon-vector-26806925.jpg" title="employee woman related glyph icon" alt="employee woman related glyph icon vector image"></noscript></a></li>
+						<li data-id="22446809" data-title="people avatar with full body and torso variations" data-src="https://cdn5.vectorstock.com/i/thumbs/68/09/people-avatar-with-full-body-and-torso-variations-vector-22446809.jpg"><a href="//www.vectorstock.com/royalty-free-vector/people-avatar-with-full-body-and-torso-variations-vector-22446809" title="people avatar with full body and torso variations vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/68/09/people-avatar-with-full-body-and-torso-variations-vector-22446809.jpg" title="people avatar with full body and torso variations" alt="people avatar with full body and torso variations vector image"></noscript></a></li>
+						<li data-id="33869418" data-title="avatars character people set flat female male" data-src="https://cdn4.vectorstock.com/i/thumbs/94/18/avatars-character-people-set-flat-female-male-vector-33869418.jpg"><a href="//www.vectorstock.com/royalty-free-vector/avatars-character-people-set-flat-female-male-vector-33869418" title="avatars character people set flat female male vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumbs/94/18/avatars-character-people-set-flat-female-male-vector-33869418.jpg" title="avatars character people set flat female male" alt="avatars character people set flat female male vector image"></noscript></a></li>
+						<li data-id="28304918" data-title="profile people portraits face male and female" data-src="https://cdn4.vectorstock.com/i/thumbs/49/18/profile-people-portraits-face-male-and-female-vector-28304918.jpg"><a href="//www.vectorstock.com/royalty-free-vector/profile-people-portraits-face-male-and-female-vector-28304918" title="profile people portraits face male and female vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumbs/49/18/profile-people-portraits-face-male-and-female-vector-28304918.jpg" title="profile people portraits face male and female" alt="profile people portraits face male and female vector image"></noscript></a></li>
+						<li data-id="15455942" data-title="people face avatar icon cartoon character" data-src="https://cdn3.vectorstock.com/i/thumbs/59/42/people-face-avatar-icon-cartoon-character-vector-15455942.jpg"><a href="//www.vectorstock.com/royalty-free-vector/people-face-avatar-icon-cartoon-character-vector-15455942" title="people face avatar icon cartoon character vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/59/42/people-face-avatar-icon-cartoon-character-vector-15455942.jpg" title="people face avatar icon cartoon character" alt="people face avatar icon cartoon character vector image"></noscript></a></li>
+						<li data-id="21344360" data-title="avatar profile icon set including male and female" data-src="https://cdn1.vectorstock.com/i/thumbs/43/60/avatar-profile-icon-set-including-male-and-female-vector-21344360.jpg"><a href="//www.vectorstock.com/royalty-free-vector/avatar-profile-icon-set-including-male-and-female-vector-21344360" title="avatar profile icon set including male and female vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/43/60/avatar-profile-icon-set-including-male-and-female-vector-21344360.jpg" title="avatar profile icon set including male and female" alt="avatar profile icon set including male and female vector image"></noscript></a></li>
+						<li data-id="35595027" data-title="set portraits in flat design positive young" data-src="https://cdn3.vectorstock.com/i/thumbs/50/27/set-portraits-in-flat-design-positive-young-vector-35595027.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-portraits-in-flat-design-positive-young-vector-35595027" title="set portraits in flat design positive young vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/50/27/set-portraits-in-flat-design-positive-young-vector-35595027.jpg" title="set portraits in flat design positive young" alt="set portraits in flat design positive young vector image"></noscript></a></li>
+						<li data-id="33303576" data-title="young man and woman avatar template for social" data-src="https://cdn2.vectorstock.com/i/thumbs/35/76/young-man-and-woman-avatar-template-for-social-vector-33303576.jpg"><a href="//www.vectorstock.com/royalty-free-vector/young-man-and-woman-avatar-template-for-social-vector-33303576" title="young man and woman avatar template for social vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/35/76/young-man-and-woman-avatar-template-for-social-vector-33303576.jpg" title="young man and woman avatar template for social" alt="young man and woman avatar template for social vector image"></noscript></a></li>
+						<li data-id="35803881" data-title="human avatars set" data-src="https://cdn2.vectorstock.com/i/thumbs/38/81/human-avatars-set-vector-35803881.jpg"><a href="//www.vectorstock.com/royalty-free-vector/human-avatars-set-vector-35803881" title="human avatars set vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/38/81/human-avatars-set-vector-35803881.jpg" title="human avatars set" alt="human avatars set vector image"></noscript></a></li>
+						<li data-id="23086285" data-title="quality isometry a set of 3d avatar business men" data-src="https://cdn1.vectorstock.com/i/thumbs/62/85/quality-isometry-a-set-of-3d-avatar-business-men-vector-23086285.jpg"><a href="//www.vectorstock.com/royalty-free-vector/quality-isometry-a-set-of-3d-avatar-business-men-vector-23086285" title="quality isometry a set of 3d avatar business men vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/62/85/quality-isometry-a-set-of-3d-avatar-business-men-vector-23086285.jpg" title="quality isometry a set of 3d avatar business men" alt="quality isometry a set of 3d avatar business men vector image"></noscript></a></li>
+						<li data-id="6423435" data-title="women avatar set with pink ribbon" data-src="https://cdn1.vectorstock.com/i/thumbs/34/35/women-avatar-set-with-pink-ribbon-vector-6423435.jpg"><a href="//www.vectorstock.com/royalty-free-vector/women-avatar-set-with-pink-ribbon-vector-6423435" title="women avatar set with pink ribbon vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/34/35/women-avatar-set-with-pink-ribbon-vector-6423435.jpg" title="women avatar set with pink ribbon" alt="women avatar set with pink ribbon vector image"></noscript></a></li>
+						<li data-id="8535790" data-title="set of line styled people" data-src="https://cdn1.vectorstock.com/i/thumbs/57/90/set-of-line-styled-people-vector-8535790.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-of-line-styled-people-vector-8535790" title="set of line styled people vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/57/90/set-of-line-styled-people-vector-8535790.jpg" title="set of line styled people" alt="set of line styled people vector image"></noscript></a></li>
+						<li data-id="38549456" data-title="female icon avatar women" data-src="https://cdn2.vectorstock.com/i/thumbs/94/56/female-icon-avatar-women-vector-38549456.jpg"><a href="//www.vectorstock.com/royalty-free-vector/female-icon-avatar-women-vector-38549456" title="female icon avatar women vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/94/56/female-icon-avatar-women-vector-38549456.jpg" title="female icon avatar women" alt="female icon avatar women vector image"></noscript></a></li>
+						<li data-id="21286550" data-title="12 generic avatars for any needs" data-src="https://cdn1.vectorstock.com/i/thumbs/65/50/12-generic-avatars-for-any-needs-vector-21286550.jpg"><a href="//www.vectorstock.com/royalty-free-vector/12-generic-avatars-for-any-needs-vector-21286550" title="12 generic avatars for any needs vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/65/50/12-generic-avatars-for-any-needs-vector-21286550.jpg" title="12 generic avatars for any needs" alt="12 generic avatars for any needs vector image"></noscript></a></li>
+						<li data-id="13958169" data-title="collection of avatars of various young women" data-src="https://cdn5.vectorstock.com/i/thumbs/81/69/collection-of-avatars-of-various-young-women-vector-13958169.jpg"><a href="//www.vectorstock.com/royalty-free-vector/collection-of-avatars-of-various-young-women-vector-13958169" title="collection of avatars of various young women vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/81/69/collection-of-avatars-of-various-young-women-vector-13958169.jpg" title="collection of avatars of various young women" alt="collection of avatars of various young women vector image"></noscript></a></li>
+						<li data-id="10686506" data-title="set of female avatar icons people" data-src="https://cdn2.vectorstock.com/i/thumbs/65/06/set-of-female-avatar-icons-people-vector-10686506.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-of-female-avatar-icons-people-vector-10686506" title="set of female avatar icons people vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/65/06/set-of-female-avatar-icons-people-vector-10686506.jpg" title="set of female avatar icons people" alt="set of female avatar icons people vector image"></noscript></a></li>
+						<li data-id="25540648" data-title="set colorful people icons" data-src="https://cdn4.vectorstock.com/i/thumbs/06/48/set-colorful-people-icons-vector-25540648.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-colorful-people-icons-vector-25540648" title="set colorful people icons vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumbs/06/48/set-colorful-people-icons-vector-25540648.jpg" title="set colorful people icons" alt="set colorful people icons vector image"></noscript></a></li>
+						<li data-id="34642427" data-title="user profile and avatar icons set" data-src="https://cdn3.vectorstock.com/i/thumbs/24/27/user-profile-and-avatar-icons-set-vector-34642427.jpg"><a href="//www.vectorstock.com/royalty-free-vector/user-profile-and-avatar-icons-set-vector-34642427" title="user profile and avatar icons set vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/24/27/user-profile-and-avatar-icons-set-vector-34642427.jpg" title="user profile and avatar icons set" alt="user profile and avatar icons set vector image"></noscript></a></li>
+						<li data-id="21611336" data-title="real estate line icon" data-src="https://cdn2.vectorstock.com/i/thumbs/13/36/real-estate-line-icon-vector-21611336.jpg"><a href="//www.vectorstock.com/royalty-free-vector/real-estate-line-icon-vector-21611336" title="real estate line icon vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/13/36/real-estate-line-icon-vector-21611336.jpg" title="real estate line icon" alt="real estate line icon vector image"></noscript></a></li>
+						<li data-id="27380786" data-title="flat avatars male and female heads business" data-src="https://cdn2.vectorstock.com/i/thumbs/07/86/flat-avatars-male-and-female-heads-business-vector-27380786.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-avatars-male-and-female-heads-business-vector-27380786" title="flat avatars male and female heads business vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/07/86/flat-avatars-male-and-female-heads-business-vector-27380786.jpg" title="flat avatars male and female heads business" alt="flat avatars male and female heads business vector image"></noscript></a></li>
+						<li data-id="34886107" data-title="set avatars happy people different races" data-src="https://cdn3.vectorstock.com/i/thumbs/61/07/set-avatars-happy-people-different-races-vector-34886107.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-avatars-happy-people-different-races-vector-34886107" title="set avatars happy people different races vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/61/07/set-avatars-happy-people-different-races-vector-34886107.jpg" title="set avatars happy people different races" alt="set avatars happy people different races vector image"></noscript></a></li>
+						<li data-id="34576522" data-title="collection people avatars" data-src="https://cdn3.vectorstock.com/i/thumbs/65/22/collection-people-avatars-vector-34576522.jpg"><a href="//www.vectorstock.com/royalty-free-vector/collection-people-avatars-vector-34576522" title="collection people avatars vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/65/22/collection-people-avatars-vector-34576522.jpg" title="collection people avatars" alt="collection people avatars vector image"></noscript></a></li>
+						<li data-id="27173684" data-title="set portraits people different races" data-src="https://cdn5.vectorstock.com/i/thumbs/36/84/set-portraits-people-different-races-vector-27173684.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-portraits-people-different-races-vector-27173684" title="set portraits people different races vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/36/84/set-portraits-people-different-races-vector-27173684.jpg" title="set portraits people different races" alt="set portraits people different races vector image"></noscript></a></li>
+						<li data-id="6043185" data-title="human template" data-src="https://cdn1.vectorstock.com/i/thumbs/31/85/human-template-vector-6043185.jpg"><a href="//www.vectorstock.com/royalty-free-vector/human-template-vector-6043185" title="human template vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/31/85/human-template-vector-6043185.jpg" title="human template" alt="human template vector image"></noscript></a></li>
+						<li data-id="3104117" data-title="set of women faces icons in flat design" data-src="https://cdn3.vectorstock.com/i/thumbs/41/17/set-of-women-faces-icons-in-flat-design-vector-3104117.jpg"><a href="//www.vectorstock.com/royalty-free-vector/set-of-women-faces-icons-in-flat-design-vector-3104117" title="set of women faces icons in flat design vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/41/17/set-of-women-faces-icons-in-flat-design-vector-3104117.jpg" title="set of women faces icons in flat design" alt="set of women faces icons in flat design vector image"></noscript></a></li>
+						<li data-id="27813662" data-title="landing page template profile picture" data-src="https://cdn3.vectorstock.com/i/thumbs/36/62/landing-page-template-profile-picture-vector-27813662.jpg"><a href="//www.vectorstock.com/royalty-free-vector/landing-page-template-profile-picture-vector-27813662" title="landing page template profile picture vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/36/62/landing-page-template-profile-picture-vector-27813662.jpg" title="landing page template profile picture" alt="landing page template profile picture vector image"></noscript></a></li>
+						<li data-id="25611213" data-title="simple set womans avatars" data-src="https://cdn4.vectorstock.com/i/thumbs/12/13/simple-set-womans-avatars-vector-25611213.jpg"><a href="//www.vectorstock.com/royalty-free-vector/simple-set-womans-avatars-vector-25611213" title="simple set womans avatars vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumbs/12/13/simple-set-womans-avatars-vector-25611213.jpg" title="simple set womans avatars" alt="simple set womans avatars vector image"></noscript></a></li>
+						<li data-id="17477841" data-title="avatar thin line web icons set people head" data-src="https://cdn2.vectorstock.com/i/thumbs/78/41/avatar-thin-line-web-icons-set-people-head-vector-17477841.jpg"><a href="//www.vectorstock.com/royalty-free-vector/avatar-thin-line-web-icons-set-people-head-vector-17477841" title="avatar thin line web icons set people head vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/78/41/avatar-thin-line-web-icons-set-people-head-vector-17477841.jpg" title="avatar thin line web icons set people head" alt="avatar thin line web icons set people head vector image"></noscript></a></li>
+						<li data-id="36660502" data-title="woman flat line icon outline" data-src="https://cdn3.vectorstock.com/i/thumbs/05/02/woman-flat-line-icon-outline-vector-36660502.jpg"><a href="//www.vectorstock.com/royalty-free-vector/woman-flat-line-icon-outline-vector-36660502" title="woman flat line icon outline vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumbs/05/02/woman-flat-line-icon-outline-vector-36660502.jpg" title="woman flat line icon outline" alt="woman flat line icon outline vector image"></noscript></a></li>
+						<li class="more"><div><a href="/royalty-free-vectors/vectors-similar-to_4334111" rel="nofollow"><span class="lrg">More Images&hellip;</span><span class="sml">More</span></a></div></li>
+					</ul>
+				</div>
+			</div>
+			<div id="group-artist" class="group">
+				<h6><span class="icon"></span><strong>More by <a href="/royalty-free-vectors/vectors-by_ProVectors" rel="nofollow">ProVectors</a></strong></h6>
+
+			<div class="gallery large">
+				<ul>
+						<li data-src="https://cdn1.vectorstock.com/i/thumb-large/42/55/woman-characters-faces-avatars-user-profile-vector-4334255.jpg"><a href="//www.vectorstock.com/royalty-free-vector/woman-characters-faces-avatars-user-profile-vector-4334255" title="woman characters faces avatars user profile vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumb-large/42/55/woman-characters-faces-avatars-user-profile-vector-4334255.jpg" title="woman characters faces avatars user profile" alt="woman characters faces avatars user profile vector image"></noscript></a></li>
+						<li data-src="https://cdn2.vectorstock.com/i/thumb-large/44/86/woman-characters-faces-avatars-user-profile-vector-4334486.jpg"><a href="//www.vectorstock.com/royalty-free-vector/woman-characters-faces-avatars-user-profile-vector-4334486" title="woman characters faces avatars user profile vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumb-large/44/86/woman-characters-faces-avatars-user-profile-vector-4334486.jpg" title="woman characters faces avatars user profile" alt="woman characters faces avatars user profile vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/35/44/man-characters-faces-avatars-user-profile-cartoon-vector-4333544.jpg"><a href="//www.vectorstock.com/royalty-free-vector/man-characters-faces-avatars-user-profile-cartoon-vector-4333544" title="man characters faces avatars user profile cartoon vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/35/44/man-characters-faces-avatars-user-profile-cartoon-vector-4333544.jpg" title="man characters faces avatars user profile cartoon" alt="man characters faces avatars user profile cartoon vector image"></noscript></a></li>
+						<li data-src="https://cdn3.vectorstock.com/i/thumb-large/18/87/flat-line-personal-manager-and-support-vector-13701887.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-personal-manager-and-support-vector-13701887" title="flat line personal manager and support vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumb-large/18/87/flat-line-personal-manager-and-support-vector-13701887.jpg" title="flat line personal manager and support" alt="flat line personal manager and support vector image"></noscript></a></li>
+						<li data-src="https://cdn2.vectorstock.com/i/thumb-large/33/16/business-woman-concept-and-flat-icons-set-thumbs-vector-4333316.jpg"><a href="//www.vectorstock.com/royalty-free-vector/business-woman-concept-and-flat-icons-set-thumbs-vector-4333316" title="business woman concept and flat icons set thumbs vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumb-large/33/16/business-woman-concept-and-flat-icons-set-thumbs-vector-4333316.jpg" title="business woman concept and flat icons set thumbs" alt="business woman concept and flat icons set thumbs vector image"></noscript></a></li>
+						<li data-src="https://cdn2.vectorstock.com/i/thumb-large/34/96/flat-business-man-user-profile-avatar-in-suit-vector-4333496.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-business-man-user-profile-avatar-in-suit-vector-4333496" title="flat business man user profile avatar in suit vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumb-large/34/96/flat-business-man-user-profile-avatar-in-suit-vector-4333496.jpg" title="flat business man user profile avatar in suit" alt="flat business man user profile avatar in suit vector image"></noscript></a></li>
+						<li data-src="https://cdn3.vectorstock.com/i/thumb-large/30/97/flat-business-man-user-profile-avatar-icon-vector-4333097.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-business-man-user-profile-avatar-icon-vector-4333097" title="flat business man user profile avatar icon vector image"><noscript><img src="https://cdn3.vectorstock.com/i/thumb-large/30/97/flat-business-man-user-profile-avatar-icon-vector-4333097.jpg" title="flat business man user profile avatar icon" alt="flat business man user profile avatar icon vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/08/04/website-promotion-banners-templates-and-flat-icons-vector-33170804.jpg"><a href="//www.vectorstock.com/royalty-free-vector/website-promotion-banners-templates-and-flat-icons-vector-33170804" title="website promotion banners templates and flat icons vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/08/04/website-promotion-banners-templates-and-flat-icons-vector-33170804.jpg" title="website promotion banners templates and flat icons" alt="website promotion banners templates and flat icons vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/07/89/flat-design-icons-business-symbols-vector-33170789.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-design-icons-business-symbols-vector-33170789" title="flat design icons business symbols vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/07/89/flat-design-icons-business-symbols-vector-33170789.jpg" title="flat design icons business symbols" alt="flat design icons business symbols vector image"></noscript></a></li>
+						<li data-src="https://cdn5.vectorstock.com/i/thumb-large/07/84/flat-design-icons-business-symbols-vector-33170784.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-design-icons-business-symbols-vector-33170784" title="flat design icons business symbols vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumb-large/07/84/flat-design-icons-business-symbols-vector-33170784.jpg" title="flat design icons business symbols" alt="flat design icons business symbols vector image"></noscript></a></li>
+				</ul>
+			</div>
+				<div class="gallery small more">
+					<ul>
+						<li data-id="4333730" data-title="business man concept and flat icons set money" data-src="https://cdn1.vectorstock.com/i/thumbs/37/30/business-man-concept-and-flat-icons-set-money-vector-4333730.jpg"><a href="//www.vectorstock.com/royalty-free-vector/business-man-concept-and-flat-icons-set-money-vector-4333730" title="business man concept and flat icons set money vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/37/30/business-man-concept-and-flat-icons-set-money-vector-4333730.jpg" title="business man concept and flat icons set money" alt="business man concept and flat icons set money vector image vector image"></noscript></a></li>
+						<li data-id="4333988" data-title="business man concept and flat icons set money" data-src="https://cdn4.vectorstock.com/i/thumbs/39/88/business-man-concept-and-flat-icons-set-money-vector-4333988.jpg"><a href="//www.vectorstock.com/royalty-free-vector/business-man-concept-and-flat-icons-set-money-vector-4333988" title="business man concept and flat icons set money vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumbs/39/88/business-man-concept-and-flat-icons-set-money-vector-4333988.jpg" title="business man concept and flat icons set money" alt="business man concept and flat icons set money vector image vector image"></noscript></a></li>
+						<li data-id="7436979" data-title="flat line icons set trendy modern thin linear" data-src="https://cdn5.vectorstock.com/i/thumbs/69/79/flat-line-icons-set-trendy-modern-thin-linear-vector-7436979.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-icons-set-trendy-modern-thin-linear-vector-7436979" title="flat line icons set trendy modern thin linear vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/69/79/flat-line-icons-set-trendy-modern-thin-linear-vector-7436979.jpg" title="flat line icons set trendy modern thin linear" alt="flat line icons set trendy modern thin linear vector image vector image"></noscript></a></li>
+						<li data-id="7436969" data-title="flat line icons set trendy modern thin linear" data-src="https://cdn5.vectorstock.com/i/thumbs/69/69/flat-line-icons-set-trendy-modern-thin-linear-vector-7436969.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-icons-set-trendy-modern-thin-linear-vector-7436969" title="flat line icons set trendy modern thin linear vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/69/69/flat-line-icons-set-trendy-modern-thin-linear-vector-7436969.jpg" title="flat line icons set trendy modern thin linear" alt="flat line icons set trendy modern thin linear vector image vector image"></noscript></a></li>
+						<li data-id="7518136" data-title="flat line simple icons set thin linear stroke" data-src="https://cdn2.vectorstock.com/i/thumbs/81/36/flat-line-simple-icons-set-thin-linear-stroke-vector-7518136.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-simple-icons-set-thin-linear-stroke-vector-7518136" title="flat line simple icons set thin linear stroke vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/81/36/flat-line-simple-icons-set-thin-linear-stroke-vector-7518136.jpg" title="flat line simple icons set thin linear stroke" alt="flat line simple icons set thin linear stroke vector image vector image"></noscript></a></li>
+						<li data-id="7639815" data-title="flat line set trendy modern thin" data-src="https://cdn1.vectorstock.com/i/thumbs/98/15/flat-line-set-trendy-modern-thin-vector-7639815.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-set-trendy-modern-thin-vector-7639815" title="flat line set trendy modern thin vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/98/15/flat-line-set-trendy-modern-thin-vector-7639815.jpg" title="flat line set trendy modern thin" alt="flat line set trendy modern thin vector image vector image"></noscript></a></li>
+						<li data-id="4333025" data-title="business man concept and flat icons set thumbs up" data-src="https://cdn1.vectorstock.com/i/thumbs/30/25/business-man-concept-and-flat-icons-set-thumbs-up-vector-4333025.jpg"><a href="//www.vectorstock.com/royalty-free-vector/business-man-concept-and-flat-icons-set-thumbs-up-vector-4333025" title="business man concept and flat icons set thumbs up vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/30/25/business-man-concept-and-flat-icons-set-thumbs-up-vector-4333025.jpg" title="business man concept and flat icons set thumbs up" alt="business man concept and flat icons set thumbs up vector image vector image"></noscript></a></li>
+						<li data-id="4333859" data-title="magnifying glass zoom business man" data-src="https://cdn5.vectorstock.com/i/thumbs/38/59/magnifying-glass-zoom-business-man-vector-4333859.jpg"><a href="//www.vectorstock.com/royalty-free-vector/magnifying-glass-zoom-business-man-vector-4333859" title="magnifying glass zoom business man vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/38/59/magnifying-glass-zoom-business-man-vector-4333859.jpg" title="magnifying glass zoom business man" alt="magnifying glass zoom business man vector image vector image"></noscript></a></li>
+						<li data-id="4333151" data-title="magnifying glass zoom business man" data-src="https://cdn2.vectorstock.com/i/thumbs/31/51/magnifying-glass-zoom-business-man-vector-4333151.jpg"><a href="//www.vectorstock.com/royalty-free-vector/magnifying-glass-zoom-business-man-vector-4333151" title="magnifying glass zoom business man vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/31/51/magnifying-glass-zoom-business-man-vector-4333151.jpg" title="magnifying glass zoom business man" alt="magnifying glass zoom business man vector image vector image"></noscript></a></li>
+						<li data-id="4334276" data-title="Magnifying glass zoom social media icons" data-src="https://cdn2.vectorstock.com/i/thumbs/42/76/magnifying-glass-zoom-social-media-icons-vector-4334276.jpg"><a href="//www.vectorstock.com/royalty-free-vector/magnifying-glass-zoom-social-media-icons-vector-4334276" title="Magnifying glass zoom social media icons vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/42/76/magnifying-glass-zoom-social-media-icons-vector-4334276.jpg" title="Magnifying glass zoom social media icons" alt="Magnifying glass zoom social media icons vector image vector image"></noscript></a></li>
+						<li data-id="7826060" data-title="flat line team building and management" data-src="https://cdn1.vectorstock.com/i/thumbs/60/60/flat-line-team-building-and-management-vector-7826060.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-team-building-and-management-vector-7826060" title="flat line team building and management vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/60/60/flat-line-team-building-and-management-vector-7826060.jpg" title="flat line team building and management" alt="flat line team building and management vector image vector image"></noscript></a></li>
+						<li data-id="13206265" data-title="flat line business concept web site header" data-src="https://cdn1.vectorstock.com/i/thumbs/62/65/flat-line-business-concept-web-site-header-vector-13206265.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-business-concept-web-site-header-vector-13206265" title="flat line business concept web site header vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/62/65/flat-line-business-concept-web-site-header-vector-13206265.jpg" title="flat line business concept web site header" alt="flat line business concept web site header vector image vector image"></noscript></a></li>
+						<li data-id="8114731" data-title="flat line business team employee search" data-src="https://cdn2.vectorstock.com/i/thumbs/47/31/flat-line-business-team-employee-search-vector-8114731.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-business-team-employee-search-vector-8114731" title="flat line business team employee search vector image"><noscript><img src="https://cdn2.vectorstock.com/i/thumbs/47/31/flat-line-business-team-employee-search-vector-8114731.jpg" title="flat line business team employee search" alt="flat line business team employee search vector image vector image"></noscript></a></li>
+						<li data-id="13255889" data-title="flat line business concept" data-src="https://cdn5.vectorstock.com/i/thumbs/58/89/flat-line-business-concept-vector-13255889.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-business-concept-vector-13255889" title="flat line business concept vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/58/89/flat-line-business-concept-vector-13255889.jpg" title="flat line business concept" alt="flat line business concept vector image vector image"></noscript></a></li>
+						<li data-id="13206249" data-title="flat line modern thin linear" data-src="https://cdn5.vectorstock.com/i/thumbs/62/49/flat-line-modern-thin-linear-vector-13206249.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-modern-thin-linear-vector-13206249" title="flat line modern thin linear vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/62/49/flat-line-modern-thin-linear-vector-13206249.jpg" title="flat line modern thin linear" alt="flat line modern thin linear vector image vector image"></noscript></a></li>
+						<li data-id="8443805" data-title="flat line business concept web site header" data-src="https://cdn1.vectorstock.com/i/thumbs/38/05/flat-line-business-concept-web-site-header-vector-8443805.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-business-concept-web-site-header-vector-8443805" title="flat line business concept web site header vector image"><noscript><img src="https://cdn1.vectorstock.com/i/thumbs/38/05/flat-line-business-concept-web-site-header-vector-8443805.jpg" title="flat line business concept web site header" alt="flat line business concept web site header vector image vector image"></noscript></a></li>
+						<li data-id="13255949" data-title="flat line business concept web site header" data-src="https://cdn5.vectorstock.com/i/thumbs/59/49/flat-line-business-concept-web-site-header-vector-13255949.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-business-concept-web-site-header-vector-13255949" title="flat line business concept web site header vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/59/49/flat-line-business-concept-web-site-header-vector-13255949.jpg" title="flat line business concept web site header" alt="flat line business concept web site header vector image vector image"></noscript></a></li>
+						<li data-id="8115258" data-title="flat line analytics information brainstorming" data-src="https://cdn4.vectorstock.com/i/thumbs/52/58/flat-line-analytics-information-brainstorming-vector-8115258.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-analytics-information-brainstorming-vector-8115258" title="flat line analytics information brainstorming vector image"><noscript><img src="https://cdn4.vectorstock.com/i/thumbs/52/58/flat-line-analytics-information-brainstorming-vector-8115258.jpg" title="flat line analytics information brainstorming" alt="flat line analytics information brainstorming vector image vector image"></noscript></a></li>
+						<li data-id="8443764" data-title="flat line business concept" data-src="https://cdn5.vectorstock.com/i/thumbs/37/64/flat-line-business-concept-vector-8443764.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-business-concept-vector-8443764" title="flat line business concept vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/37/64/flat-line-business-concept-vector-8443764.jpg" title="flat line business concept" alt="flat line business concept vector image vector image"></noscript></a></li>
+						<li data-id="8091349" data-title="flat line business concept web site header" data-src="https://cdn5.vectorstock.com/i/thumbs/13/49/flat-line-business-concept-web-site-header-vector-8091349.jpg"><a href="//www.vectorstock.com/royalty-free-vector/flat-line-business-concept-web-site-header-vector-8091349" title="flat line business concept web site header vector image"><noscript><img src="https://cdn5.vectorstock.com/i/thumbs/13/49/flat-line-business-concept-web-site-header-vector-8091349.jpg" title="flat line business concept web site header" alt="flat line business concept web site header vector image vector image"></noscript></a></li>
+						<li class="more"><div><a href="/royalty-free-vectors/vectors-by_ProVectors" rel="nofollow"><span class="lrg">More Images&hellip;</span><span class="sml">More</span></a></div></li>
+					</ul>
+				</div>
+			</div>
+			<div id="group-keywords" class="group">
+				<h6><span class="icon"></span><strong>Related Searches</strong></h6>
+				<ul>
+					<li><a href="/royalty-free-vectors/icon-vectors">Icon</a></li>
+					<li><a href="/royalty-free-vectors/user-vectors">User</a></li>
+					<li><a href="/royalty-free-vectors/avatar-vectors">Avatar</a></li>
+					<li><a href="/royalty-free-vectors/profile-vectors">Profile</a></li>
+					<li><a href="/royalty-free-vectors/woman-vectors">Woman</a></li>
+					<li><a href="/royalty-free-vectors/flat-vectors">Flat</a></li>
+					<li><a href="/royalty-free-vectors/business-vectors">Business</a></li>
+					<li><a href="/royalty-free-vectors/design-vectors">Design</a></li>
+					<li><a href="/royalty-free-vectors/app-vectors">App</a></li>
+					<li><a href="/royalty-free-vectors/digital-vectors">Digital</a></li>
+					<li><a href="/royalty-free-vectors/banking-vectors">Banking</a></li>
+					<li><a href="/royalty-free-vectors/company-vectors">Company</a></li>
+					<li><a href="/royalty-free-vectors/development-vectors">Development</a></li>
+					<li><a href="/royalty-free-vectors/e-commerce-vectors">E Commerce</a></li>
+					<li><a href="/royalty-free-vectors/document-vectors">Document</a></li>
+					<li><a href="/royalty-free-vectors/concept-vectors">Concept</a></li>
+					<li><a href="/royalty-free-vectors/consulting-vectors">Consulting</a></li>
+					<li><a href="/royalty-free-vectors/banner-vectors">Banner</a></li>
+					<li><a href="/royalty-free-vectors/communication-vectors">Communication</a></li>
+					<li><a href="/royalty-free-vectors/management-vectors">Management</a></li>
+					<li><a href="/royalty-free-vectors/marketing-vectors">Marketing</a></li>
+					<li><a href="/royalty-free-vectors/idea-vectors">Idea</a></li>
+					<li><a href="/royalty-free-vectors/media-vectors">Media</a></li>
+					<li><a href="/royalty-free-vectors/header-vectors">Header</a></li>
+					<li><a href="/royalty-free-vectors/information-vectors">Information</a></li>
+					<li><a href="/royalty-free-vectors/investment-vectors">Investment</a></li>
+					<li><a href="/royalty-free-vectors/element-vectors">Element</a></li>
+					<li><a href="/royalty-free-vectors/object-vectors">Object</a></li>
+					<li><a href="/royalty-free-vectors/modern-vectors">Modern</a></li>
+					<li><a href="/royalty-free-vectors/mobile-vectors">Mobile</a></li>
+				</ul>
+			</div>
+		</section>
+	</article>
+
+	<!-- Footer -->
+	<footer>
+		<div>
+		<div class="column c1">
+			<nav class="company">
+				<h4>VectorStock</h4>
+				<ul>
+					<li><a href="/" title="Home">Home</a></li>
+					<li class="sel"><a href="/free-vectors" title="Free Vectors">Free Vectors</a></li>
+					<li class="sel"><a href="/royalty-free-vectors" title="All Royalty-Free Vectors">All Vectors</a></li>
+				</ul>
+				<ul>
+					<li><a href="/what-is-a-vector" title="What is a Vector?">What is a Vector?</a></li>
+				</ul>
+				<ul>
+					<li class="sel"><a href="/faq" title="Frequently Asked Questions"><span class="long">Frequently Asked Questions</span><span class="short">FAQs</span></a></li>
+					<li><a href="/faq/members/terms-of-use" title="Terms &amp; Conditions">Terms &amp; Conditions</a></li>
+					<li class="sel"><a href="/contact" title="Contact Us">Contact Us</a></li>
+				</ul>
+			</nav>
+		</div>
+		<div class="column c2">
+			<nav class="account">
+				<h4><span class="title">Account</span><span class="icon"></span></h4>
+					<ul>
+						<li><a href="/signup" title="Join Now">Join Now</a></li>
+						<li><a href="/pricing" title="Pricing">Pricing</a></li>
+						<li><a href="/?signup=1&contributor=1" title="Contributor Sign Up">Contributor Sign Up</a></li>
+						<li><a href="/faq/artists/why-sell-at-vectorstock" title="Contributor FAQ">Contributor FAQ</a></li>
+					</ul>
+			</nav>
+		</div>
+		<div class="column c3">
+			<nav class="social">
+				<h4>Social</h4>
+				<ul>
+					<li class="facebook sel"><a href="https://www.facebook.com/VectorStock" target="_blank" rel="noreferrer"><span class="title">Facebook</span><span class="icon"></span></a></li>
+					<li class="pinterest sel"><a href="https://pinterest.com/vectorstock/" target="_blank" rel="noreferrer"><span class="title">Pinterest</span><span class="icon"></span></a></li>
+					<li class="twitter sel"><a href="https://twitter.com/VectorStock" target="_blank" rel="noreferrer"><span class="title">Twitter</span><span class="icon"></span></a></li>
+				</ul>
+			</nav>
+			<div class="signoff">
+				<h5><a href="https://www.vectorstock.com/" title="VectorStock&reg;">VectorStock&reg;</a></h5>
+				<p>VectorStock and the VectorStock logo are registered trademarks of VectorStock Media.<br>
+				&copy; 2021. <span>All Rights Reserved.</span></p>
+			</div>
+		</div>
+		</div>
+	</footer>
+
+
+	<script type="text/javascript" nonce="32CkNzdfSFEw4xbtXpguqI5wnk7gUdZPeV30u1YmO4Y=">window.NREUM||(NREUM={});NREUM.info={"beacon":"bam-cell.nr-data.net","licenseKey":"02e09611df","applicationID":"156179534","transactionName":"ZV0ENRYCC0RYAkVbDVwXJRQXFwpaFhNeSwNeTB9MAhEAUhQXVFEWXUpJFw0GEg==","queueTime":0,"applicationTime":37,"atts":"SRoHQ14YGEo=","errorBeacon":"bam-cell.nr-data.net","agent":""}</script>
+
+</body>
+</html>

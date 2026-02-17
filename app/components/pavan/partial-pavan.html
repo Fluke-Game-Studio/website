@@ -1,0 +1,87 @@
+<head>
+  <link rel="stylesheet" href="../../../assets/css/pavan.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<div class="container" ng-controller="pavanCtrl">
+
+  <div id="tutorialModal" class="modal tut-modal">
+    <div class="modal-content" style="font-family: FlukeGame; color:rgb(110, 109, 109);">
+      <h4 class = "center">Mouse Controls</h4>
+      <p class = "center">Interact with the asteroid to begin</p>
+      <div class="row center-align">
+        <div class= "col s6 m6 l6">
+          <div class="row">
+            <div class="row"><img src="../../../assets/images/devices/Click Right.gif" alt="Animated Icon" class="responsive-img" style="max-height: 100px; padding:0; margin : 0"></div>
+            <div class="row">Right Click to interact with models and DOM</div>
+          </div>
+          <div class="row">
+            <div class="row"><img src="../../../assets/images/devices/Click Left.gif" alt="Animated Icon" class="responsive-img" style="max-height: 100px; padding:0; margin : 0"></div>
+            <div class="row">Left Click to change Orientation and Height</div>
+          </div>
+        </div>
+        <div class= "col s6 m6 l6">
+          <div class="row">
+            <div class="row"><img src="../../../assets/images/devices/Click Scroll.gif" alt="Animated Icon" class="responsive-img" style="max-height: 100px; padding:0; margin : 0"></div>
+            <div class="row">Scroll to zoom in or zoom out and to scroll the Page</div>
+          </div>
+          <div class="row">
+            <div class="row"><img src="../../../assets/images/devices/mouse move.gif" alt="Animated Icon" class="responsive-img" style="max-height: 100px; padding:0; margin : 0"></div>
+            <div class="row">Move mouse to use orbital controls on the models</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a class="modal-close waves-effect waves-green btn-flat" style="font-family: FlukeGame;">Gotchya</a>
+    </div>
+  </div>
+
+  <div class="wrapper" id="wrapper">
+    <div class="row center" id="loading-screen">
+      <div ng-include="'app/shared/hex-loader/hexloader.html'"></div>
+    </div>
+    <div id="showcaseContent" style="visibility: hidden; opacity: 0;">
+        <div class="canvasContainer" id="canvasContainer" style = "overflow : auto;">
+            <div class="world" id="world">
+              <div id="containerVideo" ></div>
+              <div id="blockerVideo" style="overflow: auto;"></div>
+            </div>
+            <span class="display1 hidden" style="font-family: PavanTitle;">in the world of rising evil and corruption</span>
+            <span class="display2 hidden" style="font-family: PavanTitle;">follows a wind of purity and devotion</span>
+        </div>
+
+        <div class="containerChangeTheme">
+          <label class="switch">
+            <input type="checkbox" id="toggleSwitch">
+            <div class="slider">
+              <div class="sun"></div>
+              <div class="moon"></div>
+              <div class="cloud cloud1"></div>
+              <div class="cloud cloud2"></div>
+              <div class="star star1"></div>
+              <div class="star star2"></div>
+              <div class="star star3"></div>
+              <div class="star star4"></div>
+              <div class="star star5"></div>
+            </div>
+          </label>
+        </div>
+          
+        <ul class="display3 hidden overSceneDisplay collapsible popout ">
+          <li class="active">
+            <div class="collapsible-header" ng-click="" style="font-family: PavanTitle; font-size:22px;">ghadha weapon</div>
+            <div class="collapsible-body frostEffect"><span>In a world plagued by corruption and lawlessness, a powerful force stirs from the depths of ancient myth, offering a path to redemption: the timeless values of faith, courage, and truth. These ideals, drawn from the rich tapestry of Hindu mythology, become the cornerstone of the player’s journey in this game—a journey that challenges them to confront a world teetering on the brink of moral collapse Lord Hanuman, renowned for his superhuman strength, wields the **Gadha** (mace) as a symbol of his unparalleled might.</span></div>
+          </li>
+          <li>
+            <div class="collapsible-header" style="font-family: PavanTitle; font-size:22px;">lord hanuman character</div>
+            <div class="collapsible-body frostEffect"><span>WIP - The mace, a blunt-force weapon, isn't merely about precision but about sheer, overwhelming power—much like Hanuman himself, who is both unyielding in his devotion and unstoppable in battle.   In the game, the **Gadha** takes on a dynamic role, bouncing back and forth across the battlefield, relentlessly targeting NPCs within the player's field of view. Its unpredictable motion mirrors Hanuman's own ferocity and force, ensuring that no foe escapes its crushing impact. </span></div>
+          </li>
+          <li>
+            <div class="collapsible-header" style="font-family: PavanTitle; font-size:22px;">gameplay videos</div>
+            <div class="collapsible-body frostEffect"><span> Lord Hanuman is a dynamic and powerful hero, blending immense strength, agility, and devotion. He embodies a celestial nature, with a muscular build, glowing **Gadha**, and divine features.   His abilities  reflect  superhuman power, with devastating melee attacks using an iconic **Gadha** (mace), dynamic movement skills like **flight** and **Divine Leap**, and supportive abilities such as **Healing Touch** (Sanjeevani) to heal allies and **Mighty Roar** to boost their strength while weakening enemies. His personality is a mix of humility, loyalty, and courage, with dialogue always highlighting his devotion to Lord Rama and his unwavering commitment to justice.   In combat, Lord Hanuman excels as a **tank and support hero**, using his strength to absorb damage and agility to outmaneuver enemies. His combat style  blends **brutal strength** with **graceful speed**, and his **Gadha**  unleashes powerful area-of-effect attacks. </span></div>
+          </li>
+        </ul>
+    </div>
+</div>
+<!-- <script src="https://www.youtube.com/iframe_api"></script> -->
+<script src="../../../assets/js/pavan.js"></script>
