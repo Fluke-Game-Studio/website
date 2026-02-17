@@ -11,11 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Load SSH key into ssh-agent (KEY MUST NOT HAVE A PASSPHRASE)
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SFTP_KEY }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Choose remote folder
         id: target
@@ -23,21 +22,32 @@ jobs:
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "REMOTE_DIR=dev" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
           else
-            echo "REMOTE_DIR=qa" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
           fi
 
-      - name: Rsync deploy
+      - name: SSH preflight (prints real SSH error)
         env:
-          SSH_HOST: ${{ secrets.SFTP_HOST }}
-          SSH_USER: ${{ secrets.SFTP_USER }}
-          SSH_PORT: ${{ secrets.SFTP_PORT }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -x
+          ssh -vvv -p "$SSH_PORT" \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            "$SSH_USER@$SSH_HOST" "echo SSH_OK && whoami && pwd"
+
+      - name: Rsync deploy (sync + deletions)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
           REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
         run: |
           set -e
 
-          # Base excludes (never upload these)
           EXCLUDES=(
             "--exclude=.git/"
             "--exclude=.github/"
@@ -53,5 +63,5 @@ jobs:
 
           rsync -az --delete \
             "${EXCLUDES[@]}" \
-            -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no" \
+            -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             ./ "${SSH_USER}@${SSH_HOST}:~/${REMOTE_DIR}/"
