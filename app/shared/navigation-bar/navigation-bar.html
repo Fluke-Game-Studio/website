@@ -1,0 +1,179 @@
+<!-- app/shared/navigation-bar/navigation-bar.html -->
+<nav class="nav" ng-class="{ 'affix': isAffixed }" role="navigation">
+  <div class="navcontainer">
+    <div class="row" style="max-height: 10px;">
+      <div class="col s4 m3 l3">
+        <div class="logo">
+          <a href="#/"><img class="normalImage" src="/assets/images/website/Fluke_Games_Logo.png"/></a>
+        </div>
+      </div>
+
+      <div class="col s8 m9 l9">
+        <div id="mainListDiv">
+          <div class="row">
+            <ul class="right">
+              <li>
+                <a href="#/careers" target="_blank" class="tooltipped" data-position="bottom" data-tooltip="Collaborate">
+                  <glownormal><i class="fas fa-hands-helping smedium"></i></glownormal>
+                </a>
+              </li>
+
+              <li>
+                <a href="https://www.linkedin.com/company/fluke-games/" target="_blank" class="tooltipped" data-position="bottom" data-tooltip="LinkedIn">
+                  <glownormal><i class="fab fa-linkedin smedium"></i></glownormal>
+                </a>
+              </li>
+
+              <li>
+                <a href="https://www.instagram.com/flukegames/" target="_blank" class="tooltipped" data-position="bottom" data-tooltip="Instagram">
+                  <glownormal><i class="fab fa-instagram smedium"></i></glownormal>
+                </a>
+              </li>
+
+              <!-- Profile icon -->
+              <li>
+                <a class="mini-photo-wrapper tooltipped" data-position="bottom" data-tooltip="Profile">
+                  <img id="dpImage1" class="circle circleBorder responsive-img" style="width:60px; height:60px;" src="assets/images/website/defaultProfilePic.png"/>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- Profile Badge Starts-->
+<div>
+  <div class="menu-container overSceneDisplay">
+    <ul class="user-menu">
+      <div>
+        <div class="row" style="position:fixed; right:50px;">
+          <a class="closeBtn"><i class="fas fa-times" style="font-size:15px;"></i></a>
+        </div>
+      </div>
+
+      <div class="profile-highlight">
+        <img id="dpImage2" src="/assets/images/website/defaultProfilePic.png" alt="profile-img" width="36" height="36">
+        <div class="details">
+          <div id="profile-name">Hey Fluker!</div>
+          <div id="profile-email">Sign in to auto-fill applications</div>
+
+          <!-- ✅ compact sign-in button -->
+          <div style="margin-top:10px;">
+            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+          </div>
+        </div>
+      </div>
+
+      <li id="BadgeTag4" class="user-menu__item hide logout">
+        <a class="user-menu-link">
+          <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1604623/book.png" alt="team_icon" width="20" height="20">
+          <div>Logout</div>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script>
+  let scrollDistance = 0;
+  $(window).scroll(function() {
+    if ($(document).scrollTop() > scrollDistance) {
+      if (!$('.nav').hasClass('affix')) $('.nav').addClass('affix');
+      if (!$('.normalImage').hasClass('shrinkImage')) $('.normalImage').addClass('shrinkImage');
+    } else {
+      if ($('.nav').hasClass('affix')) $('.nav').removeClass('affix');
+      if ($('.normalImage').hasClass('shrinkImage')) $('.normalImage').removeClass('shrinkImage');
+    }
+  });
+
+  function fgGetNavbarFactory() {
+    try {
+      var inj = angular.element(document.body).injector();
+      if (!inj) return null;
+      return inj.get('navbarFactory');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function fgSyncProfileUI(user) {
+    if (!user) return;
+    document.getElementById('profile-name').innerHTML = user.name || 'Hey Fluker!';
+    document.getElementById('profile-email').innerHTML = user.email || '';
+    if (user.imageUrl) {
+      document.getElementById("dpImage1").src = user.imageUrl;
+      document.getElementById("dpImage2").src = user.imageUrl;
+    }
+    $('#BadgeTag4').removeClass('hide');
+  }
+
+  // ✅ called by Google Sign-In button
+  function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    var userData = {
+      name: profile.getName(),
+      email: profile.getEmail(),
+      imageUrl: profile.getImageUrl()
+    };
+
+    // Persist to Angular service (and localStorage)
+    var factory = fgGetNavbarFactory();
+    if (factory && factory.setGoogleUser) factory.setGoogleUser(userData);
+
+    // Update UI
+    fgSyncProfileUI(userData);
+  }
+  window.onSignIn = onSignIn;
+
+  // ✅ programmatic sign-in (used by the Careers Apply modal)
+  window.fgGoogleSignIn = function() {
+    try {
+      if (!window.gapi || !gapi.auth2) return;
+      var auth2 = gapi.auth2.getAuthInstance();
+      if (!auth2) return;
+
+      auth2.signIn({ scope: 'profile email' }).then(function(googleUser) {
+        onSignIn(googleUser);
+      });
+    } catch (e) {
+      console.warn('fgGoogleSignIn failed:', e);
+    }
+  };
+
+  // Restore from localStorage on page load
+  (function restoreUser() {
+    var factory = fgGetNavbarFactory();
+    var u = factory && factory.getGoogleUser ? factory.getGoogleUser() : null;
+    if (u && u.email) fgSyncProfileUI(u);
+  })();
+
+  angular.element('.logout').on('click', function() {
+    try {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2 && auth2.signOut && auth2.signOut();
+    } catch (e) {}
+
+    var factory = fgGetNavbarFactory();
+    if (factory && factory.clearGoogleUser) factory.clearGoogleUser();
+
+    $('#BadgeTag4').addClass('hide');
+    document.getElementById('profile-name').innerHTML = 'Hey Fluker!';
+    document.getElementById('profile-email').innerHTML = 'Sign in to auto-fill applications';
+    document.getElementById("dpImage1").src = "/assets/images/website/defaultProfilePic.png";
+    document.getElementById("dpImage2").src = "/assets/images/website/defaultProfilePic.png";
+  });
+
+  angular.element('.mini-photo-wrapper').on('click', function() {
+    angular.element('.menu-container').toggleClass('active');
+  });
+
+  angular.element('.closeBtn').on('click', function() {
+    angular.element('.menu-container').removeClass('active');
+  });
+</script>

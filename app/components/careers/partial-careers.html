@@ -1,0 +1,230 @@
+<!-- app/components/careers/partial-careers.html -->
+<style>
+  /* ---------- Layout (NOT centered) ---------- */
+  .careers-wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 90px 18px 40px;
+    text-align: left; /* IMPORTANT */
+  }
+
+  .careers-wrap h4,
+  .careers-wrap p {
+    text-align: left; /* IMPORTANT */
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .careers-subtitle {
+    max-width: 860px;
+    margin: 10px 0 22px;
+    line-height: 1.6;
+    opacity: 0.92;
+  }
+
+  /* ---------- Loading / error ---------- */
+  .careers-note {
+    max-width: 860px;
+    margin: 12px 0 18px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+  }
+
+  /* ---------- Job cards ---------- */
+  .job-list { margin-top: 10px; }
+
+  .job-card {
+    cursor: pointer;
+    padding: 16px 18px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    transition: transform 120ms ease;
+  }
+
+  .job-card:hover { transform: translateY(-1px); }
+
+  .job-title {
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+    color: #fff;
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .job-meta {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .job-chip {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .job-right {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 2px;
+    opacity: 0.9;
+  }
+
+  /* ---------- Modal (scroll works) ---------- */
+  .job-modal {
+    width: min(920px, 92vw) !important;
+    max-height: 92vh !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+  }
+
+  .job-modal .modal-content {
+    background: #0b0b0b !important;
+    color: #fff !important;
+
+    max-height: calc(92vh - 74px);
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 18px !important;
+  }
+
+  .job-modal .modal-footer {
+    background: #0b0b0b !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+    height: auto !important;
+    padding: 10px 12px !important;
+  }
+
+  .job-hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    margin-bottom: 14px;
+  }
+
+  .job-hero-title {
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  /* Optional: make Materialize container not fight us */
+  .container.center { text-align: left !important; }
+</style>
+
+<div class="careers-wrap" ng-controller="CareersCtrl">
+  <h4 class="gold-text" style="font-family: FlukeGame; color:#fff; margin:0; margin-top:5%;">
+    Careers
+  </h4>
+
+  <p class="white-text text-darken-2 careers-subtitle">
+    We’re building an education-driven, community studio. Roles are volunteer; great for portfolio &amp; industry experience.
+  </p>
+
+  <!-- LOADING / ERROR -->
+  <div class="careers-note" ng-if="loading">
+    Loading roles…
+  </div>
+
+  <div class="careers-note" ng-if="!loading && loadError">
+    {{loadError}}
+  </div>
+
+  <div class="careers-note" ng-if="!loading && !loadError && (!jobs || !jobs.length)">
+    No active roles are available right now.
+  </div>
+
+  <!-- LIST -->
+  <div class="job-list" ng-if="!loading && !loadError && jobs && jobs.length">
+    <div
+      ng-repeat="job in jobs track by (job.jobId || $index)"
+      class="frostEffect job-card"
+      ng-click="openJob(job)"
+      role="button"
+      tabindex="0"
+      ng-keypress="$event.keyCode === 13 && openJob(job)"
+      aria-label="Open {{job.title}} details"
+    >
+      <div style="display:flex; gap:12px; min-width:0;">
+        <i class="fas fa-briefcase" aria-hidden="true" style="margin-top:2px;"></i>
+
+        <div style="min-width:0;">
+          <div class="job-title truncate">{{job.title}}</div>
+
+          <div class="job-meta">
+            <span class="job-chip">{{job.type}}</span>
+            <span class="job-chip" ng-repeat="t in job.tags track by $index">{{t}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-right">
+        <span class="white-text" style="font-weight:800;">View</span>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="jobModal" class="modal job-modal" ng-if="selectedJob">
+    <div class="modal-content">
+      <div class="job-hero">
+        <div style="min-width:0;">
+          <h5 class="job-hero-title truncate">{{selectedJob.title}}</h5>
+          <div class="job-meta">
+            <span class="job-chip">{{selectedJob.type}}</span>
+            <span class="job-chip" ng-repeat="t in selectedJob.tags track by $index">{{t}}</span>
+          </div>
+        </div>
+
+        <a class="modal-close btn-flat white-text" aria-label="Close">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <div ng-bind-html="selectedJob.descHtml" style="color:#fff; line-height:1.7;"></div>
+    </div>
+
+    <div class="modal-footer">
+      <div style="width:100%; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+        <a class="btn-flat white-text modal-close">Close</a>
+
+        <!-- Apply button -->
+        <a class="btn waves-effect waves-light amber darken-2"
+           ui-sref="careerApply({ roleTitle: selectedJob.title })">
+          Apply <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:18px;">
+    <p class="white-text text-darken-2" style="font-family: FlukeGame; margin:0 0 10px; max-width:860px;">
+      Didn’t find a role but still want to collaborate?
+    </p>
+
+    <a class="white-text" ui-sref="careerApply({ roleTitle: 'General Application' })">
+      Reach Out Here!
+    </a>
+  </div>
+</div>

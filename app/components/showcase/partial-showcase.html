@@ -1,0 +1,403 @@
+<head><style>
+.containerFloatingButton {
+  bottom: 50px;
+	right: 50px;
+  position: fixed;
+	width: 90px;
+	height: 90px;
+	background-color: #53615d;
+	border-radius: 90px;
+	transition: width 0.7s;
+	overflow: hidden;
+	box-shadow: 0px 5px 18px -2px rgba(0,0,0,0.7);
+}
+
+.itemFloatingButton {
+  position: relative;
+	width: 90px;
+	height: 90px;
+	border-radius: 90px;
+	margin-right: 22.5px;
+	z-index: 1;
+	float: left;
+	background-color: rgba(103,113,110,0);
+}
+
+.highlightFloatingButton {
+  position: absolute;
+	width: 0;
+	height: 0;
+	margin: 45px;
+	border-radius: 90px;
+	transition: 0.1s;
+	top: 0;
+	left: 0;
+}
+
+.navFloatingButton {
+  position: relative;
+	color: #2e3936;
+	top: 45px;
+	left: 45px;
+	font-size: 0px;
+	transition: font 0s;
+	z-index: 3;
+}
+
+.anchorFloatingButton {
+  top: 0;
+	right: 0;
+  z-index: 4;
+  position: absolute;
+  color: #FFF;
+	transition: transform 0.2s;
+	transition-delay: 0.2s;
+	width: 90px;
+	height: 90px;
+}
+
+.anchorFloatingButton i {
+	margin-left: 32px;
+	margin-top: 30px;
+}
+
+.containerFloatingButton:hover {
+	width: 450px;
+}
+
+.containerFloatingButton:hover .anchorFloatingButton {
+	transform:rotate(45deg);
+}
+
+.containerFloatingButton:hover .navFloatingButton {
+	font-size: xx-large;
+	transition: 0.1s;
+	top: 30px;
+	left: 32px;
+}
+
+.containerFloatingButton:hover .one {
+	transition-delay: 0.7s;
+}
+
+.containerFloatingButton:hover .two {
+	transition-delay: 0.45s;
+}
+
+.containerFloatingButton:hover .three {
+	transition-delay: 0.2s;
+}
+
+.itemFloatingButton:hover {
+	background-color: rgba(103,113,110,1);
+	transition: 0.4s;
+}
+
+.itemFloatingButton:active .highlightFloatingButton {
+  z-index: 2;
+  margin: 0;
+  width: 90px;
+	height: 90px;
+	background-color: #767f7d;
+}
+</style></head>
+
+<div class="container" ng-controller="showcaseCtrl">
+	<div class="row center" id="loading-screen">
+		<div ng-include="'app/shared/hex-loader/hexloader.html'"></div>
+	</div>
+	<div id="showcaseContent" style="visibility: hidden; opacity: 0;">
+		<div id ="canvasContainer">
+			<div id="containerVideo"></div>
+			<div id="containerParticle"></div>
+			<div id="blockerVideo"></div>
+		</div>
+
+		<ul class="waves-effect waves-light display3 hidden overSceneDisplay collapsible popout">
+			<li class="active">
+			<div class="collapsible-header" ng-click="">Ghadha Weapon</div>
+			<div class="collapsible-body"><span>WIP - The mace, a blunt-force weapon, isn't merely about precision but about sheer, overwhelming power—much like Hanuman himself, who is both unyielding in his devotion and unstoppable in battle.   In the game, the **Gadha** takes on a dynamic role, bouncing back and forth across the battlefield, relentlessly targeting NPCs within the player's field of view. Its unpredictable motion mirrors Hanuman's own ferocity and force, ensuring that no foe escapes its crushing impact.</span></div>
+			</li>
+			<li>
+			<div class="collapsible-header">Lord Hanuman Character</div>
+			<div class="collapsible-body"><span> Lord Hanuman is a dynamic and powerful hero, blending immense strength, agility, and devotion. He embodies a celestial nature, with a muscular build, glowing **Gadha**, and divine features.   His abilities  reflect  superhuman power, with devastating melee attacks using an iconic **Gadha** (mace), dynamic movement skills like **flight** and **Divine Leap**, and supportive abilities such as **Healing Touch** (Sanjeevani) to heal allies and **Mighty Roar** to boost their strength while weakening enemies. His personality is a mix of humility, loyalty, and courage, with dialogue always highlighting his devotion to Lord Rama and his unwavering commitment to justice.   In combat, Lord Hanuman excels as a **tank and support hero**, using his strength to absorb damage and agility to outmaneuver enemies. His combat style  blends **brutal strength** with **graceful speed**, and his **Gadha**  unleashes powerful area-of-effect attacks. </span></div>
+			</li>
+			<li>
+			<div class="collapsible-header">Prototype Trailer</div>
+			<div class="collapsible-body"><span></span></div>
+			</li>
+			<li>
+			<div class="collapsible-header">Gameplay Systems</div>
+			<div class="collapsible-body"><span></span></div>
+			</li>
+			<li>
+			<div class="collapsible-header">Narrative</div>
+			<div class="collapsible-body"><span> In a world plagued by corruption and lawlessness, a powerful force stirs from the depths of ancient myth, offering a path to redemption: the timeless values of faith, courage, and truth. These ideals, drawn from the rich tapestry of Hindu mythology, become the cornerstone of the player’s journey in this game—a journey that challenges them to confront a world teetering on the brink of moral collapse Lord Hanuman, renowned for his superhuman strength, wields the **Gadha** (mace) as a symbol of his unparalleled might. </span></div>
+			</li>
+			<li>
+			<div class="collapsible-header">Extended Gameplay</div>
+			<div class="collapsible-body"><span></span></div>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<script>
+	window.videoObjects = [];
+	window.currentVideoIndex = -1;
+	window.videoIds = ['NcKUwYlBdxs', 'rQiyZuMRYdA', 'LwVUdcShfzI', 'v0KCW1CtqF4'];
+	window.iframe = document.createElement('iframe');
+
+
+	// Show the loader while assets are loading
+	loadingManager = new THREE.LoadingManager(
+	// On load
+	() => {
+		
+		const appElement = document.getElementById('ng-root');
+		const injector = angular.element(appElement).injector();
+		const $rootScope = injector.get('$rootScope');
+
+		$rootScope.$apply(() => {
+			$rootScope.isLoading = false;
+		});
+
+		const canvasContainer = document.getElementById("showcaseContent");
+		canvasContainer.style.visibility = "visible";
+		canvasContainer.style.opacity = "1";
+		document.getElementById("loading-screen").style.display = "none";
+	},
+	// On progress
+	(url, itemsLoaded, itemsTotal) => {
+		const percent = Math.round((itemsLoaded / itemsTotal) * 100);
+		const percentDiv = document.getElementById("loading-percent");
+		if (percentDiv) {
+		percentDiv.innerText = `${percent}%`;
+		}
+	},
+	// On error
+	(url) => {
+		console.error(`There was an error loading ${url}`);
+	}
+	);
+
+
+
+	window.gltfLoader = new THREE.GLTFLoader(loadingManager);
+
+	window.container = document.getElementById('containerVideo');
+
+	window.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
+	window.camera.position.set(500, 350, 750);
+
+	window.scene = new THREE.Scene();
+	window.scene.add(new THREE.AmbientLight(0xffffff, 3));
+	// WebGL Renderer (for 3D models)
+	window.webglRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+	window.webglRenderer.setSize(window.innerWidth, window.innerHeight);
+	window.webglRenderer.setPixelRatio(window.devicePixelRatio);
+	window.webglRenderer.setClearColor(0x000000, 0);
+	container.appendChild(webglRenderer.domElement);
+
+	// CSS3D Renderer (for iframe)
+	window.cssRenderer = new THREE.CSS3DRenderer();
+	window.cssRenderer.setSize(window.innerWidth, window.innerHeight);
+	window.cssRenderer.domElement.style.position = 'absolute';
+	window.cssRenderer.domElement.style.top = 0;
+	container.appendChild(cssRenderer.domElement);
+	window.controls = new THREE.TrackballControls(camera, cssRenderer.domElement);
+	window.controls.rotateSpeed = 4;
+
+	$(document).ready(function () {
+		$('.collapsible').collapsible();
+	});
+
+	angular.element('.collapsible-header').each(function(index) {
+		angular.element(this).on('click', function() {
+		switch (index) {
+			case 0:
+			setActiveWeapon();
+			break;
+			case 1:
+			setActiveCharacter();
+			break;
+			case 2:
+			setActiveVideo(videoIds[0]);
+			break;
+			case 3:
+			setActiveVideo(videoIds[1]);
+			break;
+			case 4:
+			setActiveVideo(videoIds[2]);
+			break;
+			case 5:
+			setActiveVideo(videoIds[3]);
+			break;
+			default:
+			console.log('No function assigned');
+		}
+		});
+	});
+
+	function Element(id) {
+		const div = document.createElement('div');
+		div.style.width = '500px';
+		div.style.height = '400px';
+		div.style.backgroundColor = '#000';
+		div.style.backfaceVisibility = 'hidden'; // Hide back side
+		div.style.transformStyle = 'preserve-3d';
+		div.style.transform = 'rotateY(0deg)'; // Needed to apply backface visibility
+
+		
+		iframe.style.width = '100%';
+		iframe.style.height = '100%';
+		iframe.style.border = '0px';
+		
+		iframe.src = 'https://www.youtube.com/embed/' + id + '?rel=0&autoplay=1&mute=1';
+		//iframe.src = 'https://www.youtube.com/embed/QggJzZdIYPI?rel=0&autoplay=1&mute=1';
+		iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+		iframe.allowFullscreen = true;
+		window.ipadScreenFrame = iframe;
+		div.appendChild(iframe);
+		return div;
+	}
+
+	function SetModelVisibility(model, isVisible)
+	{
+		if(model) model.visible = isVisible;
+	}
+
+	function loadIpadWithVideo() {	
+		gltfLoader.load(
+		"/assets/ddd/ipad2.glb",
+		function (gltf) {
+			const model = gltf.scene;
+			model.scale.set(8, 8, 8);
+			model.position.set(0, -100, 0);
+			model.rotation.z = Math.PI / 2;
+
+			// Find screen mesh
+			let screen = null;
+			model.traverse(child => {
+				if (child.isMesh && child.name === 'screenp') {
+					screen = child;
+				}
+			});
+
+			if (!screen) {
+				console.warn('screenp not found');
+				return;
+			}
+
+			screen.updateMatrixWorld(true);
+			const localPos = screen.position.clone();
+			const localRot = screen.rotation.clone();
+
+			const ipadGroup = new THREE.Group();
+			ipadGroup.add(model); 
+			
+			const cssObject = new THREE.CSS3DObject(Element(videoIds[2]));
+			cssObject.position.copy(localPos);
+			cssObject.position.y -= 80;
+			cssObject.position.z -= 12;
+			cssObject.scale.set(0.4, 0.4, 0.25);
+
+
+			ipadGroup.add(cssObject);      
+			videoObjects.push(cssObject);
+			
+			window.ipadModel = ipadGroup;
+			window.ipadScreenModel = cssObject;
+			scene.add(ipadGroup);
+			setActiveVideo(0);
+			SetModelVisibility(window.ipadModel, false);
+			SetModelVisibility(window.ipadScreenModel, false);
+		});
+	}
+
+	function loadCharacterWeapon() {	
+		gltfLoader.load(
+		"/assets/ddd/BLudgeonL0.glb",
+		function (gltf) {
+			data = gltf.scene;
+			data.scale.set(70, 70, 70); // Adjust the scale
+			data.position.set(0, 0, 0);
+			window.characterWeapon = data;
+			scene.add(data); // Center the model
+			//SetModelVisibility(data, false);
+		});
+	}
+
+	function loadCharacterModel()
+	{
+		gltfLoader.load(
+		"/assets/ddd/goathumaun.glb",
+		function (gltf) {
+			const data = gltf.scene;
+			data.scale.set(50, 50, 50);
+			data.position.set(0, 0, 0);
+
+			mixer = new THREE.AnimationMixer(data);
+
+			const clip = gltf.animations[0];
+			if (clip) {
+			const action = mixer.clipAction(clip);
+			action.play();
+			}
+			scene.add(data);
+			window.characterModel = data;
+			SetModelVisibility(data, false);
+		},
+		undefined,
+		function (error) {
+			console.error("An error occurred while loading the GLTF model:", error);
+		});
+	}
+
+	
+
+	function setActiveVideo(id) {
+		SetModelVisibility(window.characterModel, false);
+		SetModelVisibility(window.characterWeapon, false);
+		SetModelVisibility(window.ipadModel, true);
+		SetModelVisibility(window.ipadScreenModel, true);
+		window.ipadScreenFrame.src = 'https://www.youtube.com/embed/' + id + '?rel=0&autoplay=1&mute=1';
+	}
+
+	function setActiveWeapon() {
+		SetModelVisibility(window.characterModel, false);
+		SetModelVisibility(window.characterWeapon, true);
+		SetModelVisibility(window.ipadModel, false);
+		SetModelVisibility(window.ipadScreenModel, false);
+	}
+
+	function setActiveCharacter() {
+		SetModelVisibility(window.characterModel, true);
+		SetModelVisibility(window.characterWeapon, false);
+		SetModelVisibility(window.ipadModel, false);
+		SetModelVisibility(window.ipadScreenModel, false);
+	}
+
+	loadCharacterModel();
+	loadCharacterWeapon();
+	loadIpadWithVideo();
+	animate();
+
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		webglRenderer.setSize(window.innerWidth, window.innerHeight);
+		cssRenderer.setSize(window.innerWidth, window.innerHeight);
+	}
+
+	function animate() {
+		requestAnimationFrame(animate);
+		controls.update();
+		webglRenderer.render(scene, camera); // Render 3D models
+		cssRenderer.render(scene, camera);   // Render iframe
+	}
+</script>
+
+
+
