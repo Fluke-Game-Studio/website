@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<meta charset="UTF-8">
+    <!-- <meta http-equiv="Content-Security-Policy" content=" style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com/ https://apis.google.com; img-src * data: blob: *; frame-src *;"> -->
+	<meta http-equiv="Content-Security-Policy" content="style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://accounts.google.com; frame-src * https://accounts.google.com https://www.gstatic.com https://apis.google.com; img-src * data: blob:;">
+	<meta name="google-signin-client_id" content="795367262906-dk93nfkpo7v5fnnlt1g8nh0iralh8i8m.apps.googleusercontent.com">
+	<meta name="facebook-domain-verification" content="fq165u5gav4yvnni0j9h7v2m58k53a" />
+	<title>Fluke Games</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<link rel="stylesheet" href="assets/css/CustomStyleSheet.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+	<link rel="icon" href="assets/images/website/Fluke_Games_Icon.png">	
+
+	<!-- Angular links -->
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+	
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-sanitize.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-animate.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+	<script src="assets/three-nebula/build/three-nebula.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/renderers/CSS3DRenderer.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/TrackballControls.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-1H51WPB5XW"></script>
+	
+	<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'G-1H51WPB5XW');
+	</script>
+
+
+	<!-- angularBootstrap link -->
+	<script type="text/javascript" src="assets/js/ui-bootstrap-tpls-0.13.4.js"></script>
+</head>
+
+<bod ng-app="myApp" id="ng-root"y>
+	<!-- Navigation Bar-->
+	<nav-dir></nav-dir>
+	<div ng-controller="MainCtrl"></div>
+	<!-- Angular Templates called here -->
+	<div ui-view></div>
+	<background-canvas-dir ng-if="!(['/login', '/pavan', '/home'].includes(location.path()) || isLoading)"></background-canvas-dir>
+		<footer class="overSceneFooter">
+
+			<div class="row">
+				<div class="col l12 m12 s12">
+					<div class="row">
+						<div class="col l6 m6 s6">
+							<a href="#/home">Home</a><br>
+							<a href="#/about">About Us</a><br>
+							<a href="#/careers">Careers</a><br>
+							<a href="https://www.arcade.flukegamestudio.com">Arcade Internal</a><br>
+						</div>
+						<div class="col l6 m6 s6 center">
+							Projects<br>
+							Portfolio<br>
+							<a href="#/pavan">Pavan Game</a><br>
+							<a href="#/showcase">Pavan Game Showcase</a><br>
+						</div>
+					</div>
+					<p style = "color: goldenrod;">Copyright 2019 &copy; Fluke Games <span>&#8482;</span></p>
+				</div>
+			</div>
+		</footer>
+	
+	<!-- Footer -->
+	
+	<!-- /.container -->
+
+	<!-- Angular Modules -->
+	<script type="text/javascript" src="app/app.module.js"></script>
+	<script type="text/javascript" src="app/app.routes.js"></script>
+	<script type="text/javascript" src="app/components/WIPLanding/wipCtrl.js"></script>
+	<script type="text/javascript" src="app/components/home/homeCtrl.js"></script>
+	<script type="text/javascript" src="app/components/home/homeService.js"></script>
+	<script type="text/javascript" src="app/components/QueenBeeGame/qbgCtrl.js"></script>
+	<script type="text/javascript" src="app/components/QueenBeeGame/qbgService.js"></script>
+	<script type="text/javascript" src="app/components/pavan/pavanCtrl.js"></script>
+	<script type="text/javascript" src="app/components/showcase/showcaseCtrl.js"></script>
+	<script type="text/javascript" src="app/components/pavan/pavanService.js"></script>
+	<script type="text/javascript" src="app/components/showcase/showcaseService.js"></script>
+	<script type="text/javascript" src="app/shared/navigation-bar/navbarDirective.js"></script>
+	<script type="text/javascript" src="app/shared/background-canvas/backgroundCanvasDirective.js"></script>
+	<script type="text/javascript" src="app/shared/navigation-bar/navbarService.js"></script>
+	<script type="text/javascript" src="app/components/login/loginService.js"></script>
+	<script type="text/javascript" src="app/components/login/loginCtrl.js"></script>
+	<script type="text/javascript" src="app/components/careers/careerService.js"></script>
+	<script type="text/javascript" src="app/components/careers/careerCtrl.js"></script>
+	<script type="text/javascript" src="app/components/candidateApplication/careerApplyService.js"></script>
+	<script type="text/javascript" src="app/components/candidateApplication/careerApplyCtrl.js"></script>
+
+
+</body>
+<script>
+angular.module('myApp')
+.controller('MainCtrl', function($scope, $location) {
+    $scope.location = $location;
+    $scope.isLoading = false;
+});
+</script>
+
+
+
+</html>

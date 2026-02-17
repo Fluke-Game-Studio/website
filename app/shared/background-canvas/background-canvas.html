@@ -1,0 +1,15 @@
+<head>
+    <style>
+    #background-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -999; /* Set to the lowest or explicitly behind content */
+        background: rgba(50, 50, 50, 0.05);
+        pointer-events: none; /* So you can still interact with page content */
+    }
+    </style>
+</head>
+<canvas id="background-canvas"></canvas>
