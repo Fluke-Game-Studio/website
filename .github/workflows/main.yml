@@ -1,4 +1,4 @@
-name: Deploy to Namecheap (FTP)
+name: Deploy to Namecheap (FTPS)
 
 on:
   push:
@@ -8,7 +8,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Choose remote folder + clean mode
         id: target
@@ -24,19 +25,19 @@ jobs:
             echo "CLEAN=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Deploy via FTP
+      - name: Deploy via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}   # ftp.flukegamestudio.com
+          username: ${{ secrets.FTP_USERNAME }} # githubdeploymain@flukegamestudio.com
           password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
+          port: ${{ secrets.FTP_PORT }}       # 21
+          protocol: ftps
           local-dir: ./
           server-dir: ${{ steps.target.outputs.REMOTE_DIR }}
           dangerous-clean-slate: ${{ steps.target.outputs.CLEAN }}
           exclude: |
             **/.git*
             **/.github/**
-            dev/**
-            qa/**
+            **/node_modules/**
             README*
