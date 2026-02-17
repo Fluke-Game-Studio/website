@@ -28,10 +28,10 @@ jobs:
       - name: Deploy via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}   # ftp.flukegamestudio.com
-          username: ${{ secrets.FTP_USERNAME }} # githubdeploymain@flukegamestudio.com
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}       # 21
+          server: ${{ secrets.SFTP_SERVER }}   # ftp.flukegamestudio.com
+          username: ${{ secrets.SFTP_USERNAME }} # githubdeploymain@flukegamestudio.com
+          password: ${{ secrets.SFTP_PASSWORD }}
+          port: ${{ secrets.SFTP_PORT }}       # 21
           protocol: ftps
           local-dir: ./
           server-dir: ${{ steps.target.outputs.REMOTE_DIR }}
