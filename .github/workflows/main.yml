@@ -37,7 +37,7 @@ jobs:
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PORT: ${{ secrets.SFTP_PORT }}
         run: |
-          ssh -p "$SFTP_PORT" \
+          ssh -vvv -p "$SFTP_PORT" \
             -i ~/.ssh/deploy_key \
             -o IdentitiesOnly=yes \
             -o PreferredAuthentications=publickey \
