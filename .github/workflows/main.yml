@@ -23,9 +23,9 @@ jobs:
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=dev" >> $GITHUB_OUTPUT
           else
-            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=qa" >> $GITHUB_OUTPUT
           fi
 
       - name: Rsync deploy
