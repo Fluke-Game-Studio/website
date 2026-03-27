@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/Projects/fluke-games-websiteV1/fluke-site/app/template.tsx"],"sourcesContent":["\"use client\";\nimport { motion } from \"framer-motion\";\n\nexport default function Template({ children }: { children: React.ReactNode }) {\n  return (\n    <motion.div\n      initial={{ opacity: 0, y: 15, filter: \"blur(5px)\" }}\n      animate={{ opacity: 1, y: 0, filter: \"blur(0px)\" }}\n      exit={{ opacity: 0, y: -15, filter: \"blur(5px)\" }}\n      transition={{ duration: 0.5, ease: \"easeOut\" }}\n    >\n      {children}\n    </motion.div>\n  );\n}\n"],"names":[],"mappings":";;;;;AACA;AADA;;;AAGe,SAAS,SAAS,EAAE,QAAQ,EAAiC;IAC1E,qBACE,8OAAC,oMAAM,CAAC,GAAG;QACT,SAAS;YAAE,SAAS;YAAG,GAAG;YAAI,QAAQ;QAAY;QAClD,SAAS;YAAE,SAAS;YAAG,GAAG;YAAG,QAAQ;QAAY;QACjD,MAAM;YAAE,SAAS;YAAG,GAAG,CAAC;YAAI,QAAQ;QAAY;QAChD,YAAY;YAAE,UAAU;YAAK,MAAM;QAAU;kBAE5C;;;;;;AAGP"}}]
+}
