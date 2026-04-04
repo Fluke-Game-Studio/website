@@ -1,5 +1,6 @@
-const JOBS_API = "/api/jobs";
-const APPLY_API = "/api/apply";
+const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
+const JOBS_API = `${API_BASE}/jobs`;
+const APPLY_API = `${API_BASE}/apply`;
 
 export interface Job {
     jobId?: string;
