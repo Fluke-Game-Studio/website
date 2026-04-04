@@ -1388,7 +1388,6 @@ time {
   filter: brightness(80%) contrast(110%);
 }
 
-@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400);
 body{
   font-family: 'Source Sans Pro', sans-serif;
   font-weight:300;
