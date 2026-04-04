@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 
 const API_BASE = 'https://xtipeal88c.execute-api.us-east-1.amazonaws.com';
 
@@ -35,9 +34,11 @@ export default function CareersPage() {
   useEffect(() => {
     let isMounted = true;
 
-    axios.get(`${API_BASE}/jobs`, { headers: { Accept: '*/*' } })
-      .then((resp) => {
-        const body = typeof resp.data?.body === 'string' ? JSON.parse(resp.data.body) : resp.data;
+    fetch(`${API_BASE}/jobs`, { headers: { Accept: '*/*' } })
+      .then(async (resp) => {
+        if (!resp.ok) throw new Error('Failed to load jobs');
+        const data = await resp.json();
+        const body = typeof data?.body === 'string' ? JSON.parse(data.body) : data;
         if (!isMounted) return;
         setJobs(normalizeJobs(body));
       })

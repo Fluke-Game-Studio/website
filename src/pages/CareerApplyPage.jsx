@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from 'axios';
 
 const JOBS_API_URL = 'https://xtipeal88c.execute-api.us-east-1.amazonaws.com/jobs';
 const APPLY_API_URL = 'https://xtipeal88c.execute-api.us-east-1.amazonaws.com/apply';
@@ -66,9 +65,11 @@ export default function CareerApplyPage() {
   const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
-    axios.get(JOBS_API_URL, { headers: { Accept: 'application/json' } })
-      .then((resp) => {
-        const items = resp.data?.items || [];
+    fetch(JOBS_API_URL, { headers: { Accept: 'application/json' } })
+      .then(async (resp) => {
+        if (!resp.ok) throw new Error('Unable to load application form.');
+        const data = await resp.json();
+        const items = data?.items || [];
         const found = items.find((j) => safeStr(j.jobId) === jobId)
           || items.find((j) => safeStr(j.title).toLowerCase() === safeStr(roleTitle).toLowerCase())
           || null;
@@ -146,9 +147,16 @@ export default function CareerApplyPage() {
       answersReadable: form
     };
 
-    axios.post(APPLY_API_URL, payload, { headers: { 'Content-Type': 'application/json' } })
-      .then((resp) => {
-        const data = resp?.data || {};
+    fetch(APPLY_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (resp) => {
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          throw new Error(data?.message || data?.error || 'Submit failed. Please try again.');
+        }
         setSubmitted(true);
         setReceipt({
           roleTitle: form.roleTitle,
@@ -159,7 +167,7 @@ export default function CareerApplyPage() {
         window.scrollTo(0, 0);
       })
       .catch((err) => {
-        const msg = err?.data?.message || err?.message || 'Submit failed. Please try again.';
+        const msg = err?.message || 'Submit failed. Please try again.';
         setError(msg);
       })
       .finally(() => setSubmitting(false));
