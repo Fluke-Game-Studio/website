@@ -1,0 +1,140 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { portfolio } from "@/lib/data/content";
+import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
+
+const icons = [Gamepad2, Package, Clapperboard, Globe, Palette, Joystick];
+
+const categories = ["All", "Games", "Assets", "Trailers", "Websites", "Art"] as const;
+
+const categoryColors: Record<string, string> = {
+  Games: "#22c55e",
+  Assets: "#3b82f6",
+  Trailers: "#ec4899",
+  Websites: "#8b5cf6",
+  Art: "#f97316",
+};
+
+export default function PortfolioPage() {
+  const [active, setActive] = useState("All");
+
+  const filtered = active === "All" ? portfolio : portfolio.filter((p) => p.category === active);
+
+  return (
+    <div className="min-h-screen bg-fluke-bg pt-28 pb-20">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header */}
+        <div className="mb-16">
+          <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
+            Proof of Work
+          </p>
+          <h1 className="font-bebas text-6xl sm:text-8xl text-fluke-text yellow-line mb-4">
+            Portfolio
+          </h1>
+          <p className="font-sora text-fluke-muted max-w-xl mt-6">
+            A curated look at our best work across games, art, trailers, websites, and asset packs.
+          </p>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 mb-10">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActive(cat)}
+              className={`px-5 py-2 rounded-full font-sora text-sm border transition-all duration-300 ${
+                active === cat
+                  ? "bg-fluke-yellow border-fluke-yellow text-fluke-bg font-semibold"
+                  : "border-fluke-yellow/20 text-fluke-muted hover:border-fluke-yellow/40"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((item, i) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                whileHover={{ y: -10, scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ 
+                  duration: 0.35, 
+                  delay: i * 0.04,
+                  layout: { type: "spring", stiffness: 300, damping: 25 },
+                  y: { type: "spring", stiffness: 400, damping: 20 }
+                }}
+                className="group relative rounded-2xl overflow-hidden cursor-pointer isolate"
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  border: '1px solid var(--card-border)',
+                  boxShadow: 'var(--card-shadow)',
+                }}
+              >
+                {/* Visual Area */}
+                <div
+                  className="h-52 flex items-center justify-center text-6xl relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, hsl(${i * 55}, 30%, var(--thumb-lightness, 8%)) 0%, hsl(${i * 55 + 40}, 50%, var(--thumb-lightness-hi, 14%)) 100%)`,
+                  }}
+                >
+                  <span className="opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-500 text-fluke-yellow">
+                    {(() => {
+                      const Icon = icons[i % 6];
+                      return <Icon size={56} strokeWidth={1.5} />;
+                    })()}
+                  </span>
+                  <div
+                    className="absolute top-3 left-3 text-xs font-orbitron tracking-widest px-3 py-1 rounded-full"
+                    style={{
+                      background: `${categoryColors[item.category]}22`,
+                      color: categoryColors[item.category],
+                      border: `1px solid ${categoryColors[item.category]}44`,
+                    }}
+                  >
+                    {item.category}
+                  </div>
+                  <div className="absolute top-3 right-3 text-xs font-sora text-fluke-muted bg-fluke-bg/60 px-2 py-0.5 rounded backdrop-blur-sm">
+                    {item.year}
+                  </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="p-5">
+                  <h3 className="font-sora font-semibold text-sm text-fluke-text group-hover:text-fluke-yellow transition-colors mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="font-sora text-xs text-fluke-muted mb-3 line-clamp-2">{item.description}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {item.tools.map((tool) => (
+                      <span key={tool} className="text-[10px] font-sora px-2 py-0.5 rounded bg-fluke-surface text-fluke-muted border border-fluke-yellow/10">
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hover state overlay */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-30" 
+                  style={{ 
+                    border: '2px solid var(--card-hover-border)',
+                    boxShadow: 'var(--card-hover-shadow)',
+                    borderRadius: 'inherit'
+                  }} 
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
