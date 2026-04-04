@@ -1,0 +1,12 @@
+[00:00:02.312] Server  LOG     ✓ Ready in 1628ms
+[00:00:05.432] Server  LOG     ○ Compiling / ...
+[00:00:07.370] Server  WARN    ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+[00:00:10.634] Browser WARN    Image with src "/logo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[00:00:10.634] Browser WARN    Image with src "/logo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[00:00:11.731] Browser WARN    Image with src "/logo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[00:00:45.339] Server  LOG     ✓ Compiled in 710ms
+[00:01:08.255] Server  LOG     ✓ Compiled in 1316ms
+[00:01:17.110] Server  LOG     ✓ Compiled in 229ms
+[00:01:39.183] Server  LOG     ✓ Compiled in 132ms
+[00:02:00.094] Browser WARN    Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.
+[00:02:00.094] Browser WARN    THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.

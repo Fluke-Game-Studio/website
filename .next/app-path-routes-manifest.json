@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/about/page": "/about",
+  "/careers/page": "/careers",
+  "/contact/page": "/contact",
+  "/devlogs/page": "/devlogs",
+  "/favicon.ico/route": "/favicon.ico",
+  "/games/[slug]/page": "/games/[slug]",
+  "/games/page": "/games",
+  "/page": "/",
+  "/portfolio/page": "/portfolio",
+  "/services/page": "/services"
+}

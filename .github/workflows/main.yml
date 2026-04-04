@@ -1,73 +1,69 @@
-name: Deploy to Namecheap (rsync)
+name: Deploy to Namecheap (FTP)
 
 on:
   push:
     branches: ["main", "dev", "qa"]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install SSH key from base64
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set production API base URL
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SFTP_KEY_B64 }}" | base64 -d > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          if [ -n "${{ vars.VITE_API_BASE }}" ]; then
+            echo "VITE_API_BASE=${{ vars.VITE_API_BASE }}" >> $GITHUB_ENV
+          else
+            echo "VITE_API_BASE=https://xtipeal88c.execute-api.us-east-1.amazonaws.com" >> $GITHUB_ENV
+          fi
 
-      - name: Verify deploy key fingerprint (must be cyglfMd...)
+      - name: Build production assets
+        run: npm run build
+
+      - name: Add SPA fallback for Apache hosting
         run: |
-          ssh-keygen -y -f ~/.ssh/deploy_key | ssh-keygen -lf -
+          cat > dist/.htaccess << 'EOF'
+          RewriteEngine On
+          RewriteBase /
+          RewriteCond %{REQUEST_FILENAME} -f [OR]
+          RewriteCond %{REQUEST_FILENAME} -d
+          RewriteRule ^ - [L]
+          RewriteRule . /index.html [L]
+          EOF
 
-      - name: Choose remote folder
+      - name: Choose remote folder + clean mode
         id: target
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=/public_html/" >> $GITHUB_OUTPUT
+            echo "CLEAN=false" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=/public_html/dev/" >> $GITHUB_OUTPUT
+            echo "CLEAN=true" >> $GITHUB_OUTPUT
           else
-            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
+            echo "REMOTE_DIR=/public_html/qa/" >> $GITHUB_OUTPUT
+            echo "CLEAN=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: SSH preflight
-        env:
-          SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_USER: ${{ secrets.SFTP_USER }}
-          SFTP_PORT: ${{ secrets.SFTP_PORT }}
-        run: |
-          ssh -vvv -p "$SFTP_PORT" \
-            -i ~/.ssh/deploy_key \
-            -o IdentitiesOnly=yes \
-            -o PreferredAuthentications=publickey \
-            -o PasswordAuthentication=no \
-            -o KbdInteractiveAuthentication=no \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            "$SFTP_USER@$SFTP_HOST" "echo SSH_OK && whoami"
-
-      - name: Rsync deploy (sync + deletions)
-        env:
-          SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_USER: ${{ secrets.SFTP_USER }}
-          SFTP_PORT: ${{ secrets.SFTP_PORT }}
-          REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
-        run: |
-          set -e
-          EXCLUDES=(
-            "--exclude=.git/"
-            "--exclude=.github/"
-            "--exclude=node_modules/"
-            "--exclude=README*"
-          )
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            EXCLUDES+=("--exclude=dev/")
-            EXCLUDES+=("--exclude=qa/")
-          fi
-
-          rsync -az --delete \
-            "${EXCLUDES[@]}" \
-            -e "ssh -p ${SFTP_PORT} -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            ./ "${SFTP_USER}@${SFTP_HOST}:~/${REMOTE_DIR}/"
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: ./dist/
+          server-dir: ${{ steps.target.outputs.REMOTE_DIR }}
+          dangerous-clean-slate: ${{ steps.target.outputs.CLEAN }}
