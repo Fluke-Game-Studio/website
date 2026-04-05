@@ -1,6 +1,8 @@
 // src/services/applicationService.ts
 
-const API_BASE = "/api";
+const API_BASE = import.meta.env.DEV 
+    ? "/api" 
+    : "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
 
 export interface Question {
     id: string;

@@ -1,5 +1,9 @@
-const JOBS_API = "/api/jobs";
-const APPLY_API = "/api/apply";
+const API_BASE = import.meta.env.DEV 
+    ? "/api" 
+    : "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
+
+const JOBS_API = `${API_BASE}/jobs`;
+const APPLY_API = `${API_BASE}/apply`;
 
 export interface Job {
     jobId?: string;
