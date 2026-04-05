@@ -1,0 +1,401 @@
+﻿// src/pages/CareersApply.tsx
+import React from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+// Controller (Business Logic)
+import { useApplicationController } from "../controllers/applicationController";
+import "../styles/careers.css";
+
+// --- Field Renderers --------------------------------------------------------
+
+interface FieldInputProps {
+  field: any;
+  value: any;
+  onChange: (key: string, value: any) => void;
+}
+
+const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange }) => {
+  const base = "apply-field";
+
+  if (field.type === "textarea") {
+    return (
+      <textarea
+        className="careers-apply-form-input"
+        id={field.id}
+        value={value || ""}
+        onChange={(e) => onChange(field.id, e.target.value)}
+        placeholder={field.placeholder}
+        required={field.required}
+        rows={5}
+        style={{ resize: "none", display: "block", width: "100%" }}
+      />
+    );
+  }
+
+  if (field.type === "radio" && field.options?.length) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+        {field.options.map((opt: string) => (
+          <label
+            key={opt}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.8rem",
+              cursor: "pointer",
+              padding: "1rem",
+              borderRadius: "8px",
+              border: "1px solid var(--cs-border)",
+              background:
+                value === opt ? "rgba(255, 215, 0, 0.05)" : "transparent",
+              borderColor:
+                value === opt ? "var(--gold-primary)" : "var(--cs-border)",
+              color: "var(--cs-text)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <input
+              type="radio"
+              name={field.id}
+              value={opt}
+              checked={value === opt}
+              onChange={() => onChange(field.id, opt)}
+              required={field.required}
+              style={{ accentColor: "var(--gold-primary)" }}
+            />
+            <span
+              style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem" }}
+            >
+              {opt}
+            </span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  if (field.type === "checkbox" && field.options?.length) {
+    const checked = Array.isArray(value) ? value : [];
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+        {field.options.map((opt: string) => (
+          <label
+            key={opt}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.8rem",
+              cursor: "pointer",
+              padding: "1rem",
+              borderRadius: "8px",
+              border: "1px solid var(--cs-border)",
+              background: checked.includes(opt)
+                ? "rgba(255, 215, 0, 0.05)"
+                : "transparent",
+              borderColor: checked.includes(opt)
+                ? "var(--gold-primary)"
+                : "var(--cs-border)",
+              color: "var(--cs-text)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <input
+              type="checkbox"
+              value={opt}
+              checked={checked.includes(opt)}
+              onChange={(e) => {
+                const next = e.target.checked
+                  ? [...checked, opt]
+                  : checked.filter((v) => v !== opt);
+                onChange(field.id, next);
+              }}
+              style={{ accentColor: "var(--gold-primary)" }}
+            />
+            <span
+              style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem" }}
+            >
+              {opt}
+            </span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <input
+      className="careers-apply-form-input"
+      id={field.id}
+      type={field.type}
+      value={value || ""}
+      onChange={(e) => onChange(field.id, e.target.value)}
+      placeholder={field.placeholder}
+      required={field.required}
+      style={{ width: "100%" }}
+    />
+  );
+};
+
+interface ApplyFieldProps {
+  field: any;
+  value: any;
+  onChange: (key: string, value: any) => void;
+}
+
+const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange }) => (
+  <div style={{ marginBottom: "2rem" }}>
+    <label className="careers-apply-label" htmlFor={field.id}>
+      {field.label}
+      {field.required && (
+        <span style={{ color: "var(--gold-primary)" }}> *</span>
+      )}
+    </label>
+    {field.helpText && (
+      <p
+        style={{
+          fontSize: "0.85rem",
+          color: "var(--cs-muted)",
+          marginBottom: "0.8rem",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        {field.helpText}
+      </p>
+    )}
+    <FieldInput field={field} value={value} onChange={onChange} />
+  </div>
+);
+
+// --- Chapter ----------------------------------------------------------------
+
+interface ChapterProps {
+  chapter: any;
+  answers: any;
+  setAnswer: (key: string, value: any) => void;
+  chapterIndex: number;
+}
+
+const Chapter: React.FC<ChapterProps> = ({
+  chapter,
+  answers,
+  setAnswer,
+  chapterIndex,
+}) => (
+  <motion.div
+    key={chapterIndex}
+    initial={{ opacity: 0, x: 40 }}
+    animate={{ opacity: 1, x: 0 }}
+  >
+    <h2
+      style={{
+        fontSize: "1.8rem",
+        color: "var(--cs-text)",
+        marginBottom: "1rem",
+        fontFamily: "var(--font-heading)",
+      }}
+    >
+      {chapter.title}
+    </h2>
+    <p
+      style={{
+        color: "var(--cs-muted)",
+        marginBottom: "2.5rem",
+        fontFamily: "var(--font-body)",
+        lineHeight: 1.6,
+      }}
+    >
+      {chapter.description}
+    </p>
+
+    {chapter.fields.map((field: any) => (
+      <ApplyField
+        key={field.id}
+        field={field}
+        value={answers[field.id]}
+        onChange={setAnswer}
+      />
+    ))}
+  </motion.div>
+);
+
+// --- Main Component ---------------------------------------------------------
+
+const CareersApply: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const roleTitle = searchParams.get("roleTitle");
+
+  const {
+    flow,
+    loading,
+    error,
+    currentChapter,
+    nextChapter,
+    prevChapter,
+    answers,
+    setAnswer,
+    validateChapter,
+    isSubmitting,
+    isSubmitted,
+    submitError,
+    submit,
+  } = useApplicationController(roleTitle);
+
+  if (loading) {
+    return (
+      <div className="careers-standalone-wrapper">
+        <div className="careers-loading" style={{ height: "60vh" }}>
+          <div className="hex-pulse" />
+          <p>Loading application form…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !flow) {
+    return (
+      <div className="careers-standalone-wrapper">
+        <div className="careers-error" style={{ height: "60vh" }}>
+          <p>{error || "Application flow could not be created."}</p>
+          <Link to="/careers" className="btn-gold" style={{ marginTop: "2rem" }}>
+            Return to Careers
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="careers-standalone-wrapper py-32">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <h1
+              style={{
+                fontSize: "3.5rem",
+                marginBottom: "1.5rem",
+                color: "var(--gold-primary)",
+              }}
+            >
+              Application Received
+            </h1>
+            <p
+              style={{
+                fontSize: "1.2rem",
+                color: "var(--cs-text)",
+                marginBottom: "3rem",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              Thank you for your interest in joining Fluke Games. We've received
+              your application and will review it shortly.
+            </p>
+            <Link to="/careers" className="btn-gold">
+              Full Circle — Return Home
+            </Link>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  const chapter = flow.chapters[currentChapter];
+  const isFirst = currentChapter === 0;
+  const isLast = currentChapter === flow.chapters.length - 1;
+  const isValid = validateChapter(chapter);
+
+  return (
+    <div className="careers-standalone-wrapper py-32">
+      <div className="max-w-3xl mx-auto px-6">
+        <header style={{ marginBottom: "4rem" }}>
+          <span className="phi-label">
+            Portal — Step {currentChapter + 1} of {flow.chapters.length}
+          </span>
+          <h1 className="job-detail__title text-5xl mb-4">
+            Applying for
+            <br />
+            {flow.roleTitle}
+          </h1>
+        </header>
+
+        <div style={{ position: "relative" }}>
+          <AnimatePresence mode="wait">
+            <Chapter
+              key={currentChapter}
+              chapter={chapter}
+              chapterIndex={currentChapter}
+              answers={answers}
+              setAnswer={setAnswer}
+            />
+          </AnimatePresence>
+
+          {submitError && (
+            <p
+              style={{
+                color: "#ff4d4d",
+                marginTop: "2rem",
+                textAlign: "center",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              {submitError}
+            </p>
+          )}
+
+          <footer
+            style={{
+              marginTop: "4rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "1.5rem",
+              borderTop: "1px solid var(--cs-border)",
+              paddingTop: "2rem",
+            }}
+          >
+            {!isFirst ? (
+              <button
+                onClick={prevChapter}
+                className="btn-outline"
+                style={{ flex: 1 }}
+              >
+                ? Previous
+              </button>
+            ) : (
+              <div style={{ flex: 1 }} />
+            )}
+
+            {!isLast ? (
+              <button
+                onClick={nextChapter}
+                disabled={!isValid}
+                className="btn-gold"
+                style={{ flex: 1, opacity: isValid ? 1 : 0.4 }}
+              >
+                Continue ?
+              </button>
+            ) : (
+              <button
+                onClick={submit}
+                disabled={!isValid || isSubmitting}
+                className="btn-gold"
+                style={{
+                  flex: 1,
+                  opacity: isValid && !isSubmitting ? 1 : 0.4,
+                }}
+              >
+                {isSubmitting ? "Transmitting…" : "Submit Application ?"}
+              </button>
+            )}
+          </footer>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CareersApply;
+
+
