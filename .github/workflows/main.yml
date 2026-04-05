@@ -54,11 +54,11 @@ jobs:
         id: target
         run: |
           case "${{ github.ref_name }}" in
-            main)    echo "REMOTE_DIR=flukegamestudio.com" >> $GITHUB_OUTPUT ;;
-            dev)     echo "REMOTE_DIR=flukegamestudio.com/dev" >> $GITHUB_OUTPUT ;;
-            qa)      echo "REMOTE_DIR=flukegamestudio.com/qa" >> $GITHUB_OUTPUT ;;
-            sandbox) echo "REMOTE_DIR=flukegamestudio.com/sandbox" >> $GITHUB_OUTPUT ;;
-            *)       echo "REMOTE_DIR=flukegamestudio.com" >> $GITHUB_OUTPUT ;;
+            main)    echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT ;;
+            dev)     echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT ;;
+            qa)      echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT ;;
+            sandbox) echo "REMOTE_DIR=public_html/sandbox" >> $GITHUB_OUTPUT ;;
+            *)       echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT ;;
           esac
 
       - name: Ensure remote dir exists
