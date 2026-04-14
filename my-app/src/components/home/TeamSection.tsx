@@ -30,11 +30,7 @@ export default function TeamSection() {
         setError(null);
         const items = await publicStudioService.fetchTeam();
         if (cancelled) return;
-        setTeam(
-          items.sort((a, b) =>
-            safeStr(a.employee_name).localeCompare(safeStr(b.employee_name))
-          )
-        );
+        setTeam(items);
       } catch (err: any) {
         if (cancelled) return;
         setError(err?.message || "Failed to load team.");
@@ -83,7 +79,7 @@ export default function TeamSection() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {cards.map((member, i) => {
-              const picture = safeStr(member.employee_picture || member.employee_profilepicture);
+              const picture = safeStr(member.employee_profilepicture || member.employee_picture);
               const initials =
                 safeStr(member.employee_name)
                   .split(/\s+/)

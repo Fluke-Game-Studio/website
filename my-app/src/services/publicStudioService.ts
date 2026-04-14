@@ -140,6 +140,13 @@ function normalizeTeamMember(item: any): PublicTeamMember {
   };
 }
 
+function rolePriority(member: PublicTeamMember) {
+  const role = safeStr(member.employee_role || member.employee_title || "").toLowerCase();
+  if (role.includes("super")) return 0;
+  if (role.includes("admin")) return 1;
+  return 2;
+}
+
 function normalizeAward(item: any): PublicAwardItem {
   return {
     ...item,
@@ -224,7 +231,13 @@ export const publicStudioService = {
       ? payload.data
       : [];
 
-    return items.map(normalizeTeamMember);
+    return items
+      .map(normalizeTeamMember)
+      .sort((a, b) => {
+        const rank = rolePriority(a) - rolePriority(b);
+        if (rank !== 0) return rank;
+        return safeStr(a.employee_name).localeCompare(safeStr(b.employee_name));
+      });
   },
 
   async fetchRecentAwards(limit = 200) {
