@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FloatingPublicAIChat from './components/FloatingPublicAIChat';
 import { ThemeProvider } from './lib/ThemeContext';
 import Home from './pages/Home';
 import Games from './pages/Games';
@@ -12,6 +13,7 @@ import Contact from './pages/Contact';
 import About from './pages/About';
 import Careers from './pages/Careers';
 import CareersApply from './pages/CareersApply';
+import TeamMember from './pages/TeamMember';
 
 function App() {
   return (
@@ -26,6 +28,7 @@ function App() {
             <Route path="/services" element={<Services />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/about" element={<About />} />
+            <Route path="/about/team/:memberName" element={<TeamMember />} />
             <Route path="/devlogs" element={<Devlogs />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
@@ -33,6 +36,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <FloatingPublicAIChat />
       </Router>
     </ThemeProvider>
   );
