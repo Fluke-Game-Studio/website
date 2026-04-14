@@ -74,7 +74,7 @@ export default function ServicesPage() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="relative z-10 font-bebas text-3xl tracking-wide text-fluke-text group-hover:text-white transition-colors mb-4">
+                  <h3 className="relative z-10 font-bebas text-3xl tracking-wide text-fluke-text group-hover:text-fluke-yellow transition-colors mb-4">
                     {service.title}
                   </h3>
                   

@@ -14,9 +14,9 @@ const platformIcons: Record<string, React.ReactNode> = {
 };
 
 const statusColors: Record<string, string> = {
-  Released: "text-green-400 bg-green-400/10 border-green-400/20",
-  "In Development": "text-fluke-yellow bg-fluke-yellow/10 border-fluke-yellow/20",
-  "Coming Soon": "text-purple-400 bg-purple-400/10 border-purple-400/20",
+  Released: "text-green-400 bg-green-950/70 border-green-400/30",
+  "In Development": "text-yellow-400 bg-black/50 border-yellow-400/40",
+  "Coming Soon": "text-purple-300 bg-purple-950/70 border-purple-300/30",
 };
 
 export default function GamesShowcase() {
@@ -65,7 +65,7 @@ export default function GamesShowcase() {
                 }}
               >
                 {/* Game art placeholder - image background */}
-                <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
                   <div
                     className="w-full h-full transition-transform duration-300 ease-out group-hover:scale-110 flex items-center justify-center opacity-30 group-hover:opacity-40"
                     style={{
@@ -77,8 +77,8 @@ export default function GamesShowcase() {
                       return <Icon size={120} strokeWidth={0.5} className="text-fluke-yellow/40 mix-blend-overlay" />;
                     })()}
                   </div>
-                  {/* Atmospheric overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-fluke-surface via-fluke-surface/80 to-transparent z-10" />
+                  {/* Atmospheric overlay — always dark (cinematic intent, not theme-dependent) */}
+                  <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.75) 45%, transparent 100%)' }} />
                 </div>
 
                 {/* Card content */}
@@ -95,26 +95,26 @@ export default function GamesShowcase() {
                       <span className="font-orbitron text-xs text-fluke-yellow tracking-widest uppercase">
                         {game.genre}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-fluke-muted/40" />
-                      <span className="font-sora text-xs text-fluke-muted">{game.releaseYear}</span>
+                      <span className="w-1 h-1 rounded-full bg-white/30" />
+                      <span className="font-sora text-xs text-white/70">{game.releaseYear}</span>
                     </div>
 
-                    <h3 className="font-bebas text-4xl text-fluke-text group-hover:text-fluke-white transition-colors duration-200 mb-3 tracking-wide">
+                    <h3 className="font-bebas text-4xl text-white group-hover:text-fluke-yellow transition-colors duration-200 mb-3 tracking-wide">
                       {game.title}
                     </h3>
 
-                    <p className="font-sora text-sm text-fluke-muted line-clamp-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <p className="font-sora text-sm text-white/70 line-clamp-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       {game.description}
                     </p>
 
                     {/* Platforms */}
                     <div className="flex gap-2 items-center">
-                      <div className="text-xs font-sora text-fluke-muted mr-2">Platforms:</div>
+                      <div className="text-xs font-sora text-white/70 mr-2">Platforms:</div>
                       {game.platforms.map((p) => (
                         <span
                           key={p}
                           title={p}
-                          className="flex items-center justify-center w-8 h-8 text-fluke-muted/80 bg-white/5 hover:bg-white/10 hover:text-fluke-yellow border border-white/5 rounded-full backdrop-blur-sm transition-[colors,background-color] duration-200"
+                          className="flex items-center justify-center w-8 h-8 text-white/80 bg-white/5 hover:bg-white/15 hover:text-fluke-yellow border border-white/5 rounded-full backdrop-blur-sm transition-[colors,background-color] duration-200"
                         >
                           {platformIcons[p]}
                         </span>

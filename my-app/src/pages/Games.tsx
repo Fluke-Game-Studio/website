@@ -13,17 +13,11 @@ const platformIcons: Record<string, React.ReactNode> = {
 };
 
 const statusColors: Record<string, string> = {
-  Released: "text-green-600 bg-green-50 border-green-200",
-  "In Development": "text-fluke-yellow bg-fluke-yellow/10 border-fluke-yellow/20",
-  "Coming Soon": "text-purple-600 bg-purple-50 border-purple-200",
+  Released: "text-green-400 bg-green-950/70 border-green-400/30",
+  "In Development": "text-yellow-400 bg-black/50 border-yellow-400/40",
+  "Coming Soon": "text-purple-300 bg-purple-950/70 border-purple-300/30",
 };
 
-const bgGradients = [
-  "from-[hsl(20,40%,var(--thumb-lightness,8%))] to-[hsl(20,50%,var(--thumb-lightness-hi,14%))]",
-  "from-[hsl(260,40%,var(--thumb-lightness,8%))] to-[hsl(260,50%,var(--thumb-lightness-hi,14%))]",
-  "from-[hsl(160,40%,var(--thumb-lightness,8%))] to-[hsl(160,50%,var(--thumb-lightness-hi,14%))]",
-  "from-[hsl(220,40%,var(--thumb-lightness,8%))] to-[hsl(220,50%,var(--thumb-lightness-hi,14%))]",
-];
 
 export default function GamesPage() {
   return (
@@ -65,7 +59,7 @@ export default function GamesPage() {
                   }}
                 >
                 {/* Cover art area */}
-                <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
                   <div className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110 flex items-center justify-center opacity-30 group-hover:opacity-40"
                        style={{
                          background: `linear-gradient(135deg, hsl(${i * 60 + 20}, 40%, 15%) 0%, hsl(${i * 60}, 50%, 8%) 100%)`,
@@ -75,8 +69,8 @@ export default function GamesPage() {
                         return <Icon size={120} strokeWidth={0.5} className="text-fluke-yellow/40 mix-blend-overlay" />;
                       })()}
                   </div>
-                  {/* Atmospheric overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-fluke-surface via-fluke-surface/80 to-transparent z-10" />
+                  {/* Atmospheric overlay — always dark (cinematic intent, not theme-dependent) */}
+                  <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.75) 45%, transparent 100%)' }} />
                 </div>
 
                 {/* Content */}
@@ -93,23 +87,23 @@ export default function GamesPage() {
                       <span className="font-orbitron text-xs tracking-widest text-fluke-yellow/80 uppercase">
                         {game.genre}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-fluke-muted/40" />
-                      <span className="font-sora text-xs text-fluke-muted">{game.releaseYear}</span>
+                      <span className="w-1 h-1 rounded-full bg-white/30" />
+                      <span className="font-sora text-xs text-white/70">{game.releaseYear}</span>
                     </div>
 
-                    <h2 className="font-bebas text-4xl text-fluke-text group-hover:text-fluke-white transition-colors mb-3 tracking-wide">
+                    <h2 className="font-bebas text-4xl text-white group-hover:text-fluke-yellow transition-colors mb-3 tracking-wide">
                       {game.title}
                     </h2>
                     
-                    <p className="font-sora text-sm text-fluke-muted mb-6 line-clamp-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                    <p className="font-sora text-sm text-white/70 mb-6 line-clamp-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       {game.description}
                     </p>
 
                     <div className="flex items-center justify-between border-t border-fluke-yellow/10 pt-4">
                       <div className="flex gap-2 items-center">
-                        <div className="text-[10px] font-sora text-fluke-muted mr-1">PLATFORMS</div>
+                        <div className="text-[10px] font-sora text-white/70 mr-1">PLATFORMS</div>
                         {game.platforms.map((p) => (
-                          <span key={p} title={p} className="flex items-center justify-center w-7 h-7 text-fluke-muted/80 bg-fluke-surface/50 hover:bg-fluke-yellow/10 hover:text-fluke-yellow border border-fluke-yellow/10 rounded-full backdrop-blur-sm transition-all">
+                          <span key={p} title={p} className="flex items-center justify-center w-7 h-7 text-white/80 bg-white/10 hover:bg-white/20 hover:text-fluke-yellow border border-white/10 rounded-full backdrop-blur-sm transition-all">
                             {platformIcons[p]}
                           </span>
                         ))}

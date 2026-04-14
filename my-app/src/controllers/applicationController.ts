@@ -63,10 +63,33 @@ export function useApplicationController(roleTitle: string | null) {
     function validateChapter(chapter: any) {
         if (!chapter?.fields) return true;
         for (const field of chapter.fields) {
+            const val = answers[field.id];
+            
             if (field.required) {
-                const val = answers[field.id];
                 if (val === undefined || val === null || String(val).trim() === '') {
                     return false;
+                }
+                // Specifically block empty arrays for required checkboxes like WhatsApp Consent
+                if (Array.isArray(val) && val.length === 0) {
+                    return false;
+                }
+                // Specifically block false booleans for required boolean checkboxes
+                if (typeof val === 'boolean' && val === false) {
+                    return false;
+                }
+            }
+
+            // If user typed *something*, validate its pattern based on field type
+            if (val && String(val).trim() !== '') {
+                const str = String(val).trim();
+                if (field.type === 'email') {
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)) return false;
+                }
+                if (field.type === 'url') {
+                    if (!/^https?:\/\/.+\..+/.test(str)) return false;
+                }
+                if (field.type === 'tel') {
+                    if (!/^[+]?[\d\s\-\(\)]{7,20}$/.test(str)) return false;
                 }
             }
         }

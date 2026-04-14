@@ -53,31 +53,24 @@
 }
 
 html.light {
-  --fluke-yellow: #D97706; /* Amber 600 */
-  --fluke-glow: #B45309;   /* Amber 700 */
-  --fluke-bg: #FFFFFF;     /* Pure White */
-  --fluke-surface: #F8FAFC; /* Slate 50 */
-  --fluke-text: #0F172A;    /* Slate 900 */
-  --fluke-muted: #475569;   /* Slate 600 */
+  /* Yellow kept for fills/borders/glows — violet used as readable text accent */
+  --fluke-yellow: #F5C542;
+  --fluke-glow: #FFD86B;
+  --fluke-bg: #F3F1FF;       /* Soft lavender — happy, not sterile white */
+  --fluke-surface: #FFFFFF;  /* Pure white card surfaces */
+  --fluke-text: #1A1040;     /* Deep violet-black — rich, readable, on-brand */
+  --fluke-muted: #5F5A8A;   /* Purple-gray muted text — calm, not harsh */
 
-  /* Card System - Light */
+  /* Card System — light */
   --card-bg: #FFFFFF;
-  --card-border: rgba(15, 23, 42, 0.08);
-  --card-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-  --card-hover-border: var(--fluke-yellow);
-  --card-hover-shadow: 0 20px 40px rgba(217, 119, 6, 0.1);
+  --card-border: rgba(91, 33, 182, 0.15);   /* Violet border */
+  --card-shadow: 0 2px 16px rgba(91, 33, 182, 0.07);
+  --card-hover-border: rgba(91, 33, 182, 0.45);
+  --card-hover-shadow: 0 20px 50px rgba(91, 33, 182, 0.12);
 
-  --thumb-lightness: 96%;
+  --thumb-lightness: 94%;
   --thumb-lightness-hi: 98%;
-  --hero-bg-inner: rgba(217, 119, 6, 0.05);
-}
-
-/* Enforce dark text for major headlines in light mode to avoid overrides */
-html.light h1, 
-html.light h2, 
-html.light h3,
-html.light .text-fluke-text {
-  color: #0F172A !important;
+  --hero-bg-inner: rgba(245, 197, 66, 0.08);
 }
 
 /* Base Grid System */
@@ -174,11 +167,13 @@ body {
   border: 1px solid rgba(245, 197, 66, 0.08);
 }
 
-/* Light mode overrides for glass */
+/* Light mode glass — white frosted */
 html.light .glass,
 html.light .glass-dark {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(245, 197, 66, 0.2);
 }
 
 /* Gradient text */
@@ -288,19 +283,42 @@ html.light .glass-dark {
   box-shadow: 0 0 20px var(--fluke-yellow);
   transform: translateY(-2px);
 }
-/* Enforce dark text for major headlines in light mode to avoid overrides */
-html.light body,
-html.light h1, 
-html.light h2, 
-html.light h3,
-html.light .text-fluke-text {
-  color: #0F172A !important;
+/* ─── Light mode text + utility overrides ─── */
+/* ─── Light mode text + utility overrides ─── */
+/* (Base text colors are automatically handled by the --fluke-text variables updated above) */
+
+/*
+  KEY FIX: yellow as TEXT is illegible on light bg (~1.5:1 contrast).
+  Swap all yellow TEXT to deep violet (#5B21B6) — still happy, premium,
+  gaming-coded, and a ~7:1 contrast on white. Yellow is preserved for
+  filled elements (buttons, borders, glows) which aren't affected here.
+*/
+html.light .text-fluke-yellow {
+  color: #5B21B6 !important;   /* Violet-700 — readable, happy, not a warning */
 }
 
-html.light .text-fluke-muted {
-  color: #475569 !important;
-}
+/* Orbitron tracking labels inherit the violet correctly ↑ */
 
+/* Grid dots — subtle violet on lavender bg */
 html.light .bg-grid {
-  background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.05) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(91, 33, 182, 0.12) 1px, transparent 0);
 }
+
+/* Section divider — keep yellow, just slightly more visible */
+html.light .section-divider {
+  opacity: 0.4;
+}
+
+/* btn-outline — violet border in light mode (yellow border reads as warning on white) */
+html.light .btn-outline {
+  border-color: #5B21B6;
+  color: #5B21B6;
+}
+html.light .btn-outline:hover {
+  background: rgba(91, 33, 182, 0.06);
+  box-shadow: 0 0 20px rgba(91, 33, 182, 0.2);
+  border-color: #5B21B6;
+}
+
+/* yellow-line accent under headings — keep brand yellow ✓ */
+/* (yellow line works as a FAT accent, not as text — reads fine) */

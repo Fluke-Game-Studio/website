@@ -1,6 +1,4 @@
-const API_BASE = import.meta.env.DEV 
-    ? "/api" 
-    : "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
 
 const JOBS_API = `${API_BASE}/jobs`;
 const APPLY_API = `${API_BASE}/apply`;
