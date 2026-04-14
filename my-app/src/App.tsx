@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FloatingPublicAIChat from './components/FloatingPublicAIChat';
 import { ThemeProvider } from './lib/ThemeContext';
 
 import Home from './pages/Home';
@@ -51,6 +52,7 @@ function AnimatedRoutes() {
     </AnimatePresence>
   );
 }
+import TeamMember from './pages/TeamMember';
 
 function App() {
   return (
@@ -63,6 +65,24 @@ function App() {
           </main>
           <Footer />
         </div>
+        <Navbar />
+        <main className="bg-grid min-h-screen">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/games" element={<Games />} />
+            <Route path="/games/:slug" element={<GameDetail />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/about/team/:memberName" element={<TeamMember />} />
+            <Route path="/devlogs" element={<Devlogs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/careers/apply" element={<CareersApply />} />
+          </Routes>
+        </main>
+        <Footer />
+        <FloatingPublicAIChat />
       </Router>
     </ThemeProvider>
   );
