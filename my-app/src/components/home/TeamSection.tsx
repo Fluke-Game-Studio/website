@@ -69,8 +69,25 @@ export default function TeamSection() {
         </motion.div>
 
         {loading ? (
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-fluke-muted">
-            Loading team...
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div 
+                key={i} 
+                className="rounded-2xl p-6 flex flex-col items-center text-center h-[350px]"
+                style={{
+                  backgroundColor: "var(--card-bg)",
+                  border: "1px solid var(--card-border)",
+                  boxShadow: "var(--card-shadow)",
+                }}
+              >
+                <div className="w-24 h-24 rounded-full mb-4 bg-fluke-yellow/10 animate-pulse" />
+                <div className="h-5 w-3/4 bg-white/10 rounded mb-2 animate-pulse" />
+                <div className="h-3 w-1/2 bg-fluke-yellow/10 rounded mb-4 animate-pulse" />
+                <div className="h-3 w-full bg-white/5 rounded mb-2 animate-pulse" />
+                <div className="h-3 w-4/5 bg-white/5 rounded animate-pulse" />
+                <div className="mt-auto h-4 w-1/3 bg-white/10 rounded animate-pulse" />
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-red-300">

@@ -43,6 +43,7 @@ function AnimatedRoutes() {
         <Route path="/services" element={<PageWrapper><Services /></PageWrapper>} />
         <Route path="/portfolio" element={<PageWrapper><Portfolio /></PageWrapper>} />
         <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
+        <Route path="/about/team/:memberName" element={<PageWrapper><TeamMember /></PageWrapper>} />
         <Route path="/devlogs" element={<PageWrapper><Devlogs /></PageWrapper>} />
         <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
         <Route path="/careers" element={<PageWrapper><Careers /></PageWrapper>} />
@@ -64,25 +65,8 @@ function App() {
             <AnimatedRoutes />
           </main>
           <Footer />
+          <FloatingPublicAIChat />
         </div>
-        <Navbar />
-        <main className="bg-grid min-h-screen">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/games" element={<Games />} />
-            <Route path="/games/:slug" element={<GameDetail />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/about/team/:memberName" element={<TeamMember />} />
-            <Route path="/devlogs" element={<Devlogs />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/careers/apply" element={<CareersApply />} />
-          </Routes>
-        </main>
-        <Footer />
-        <FloatingPublicAIChat />
       </Router>
     </ThemeProvider>
   );

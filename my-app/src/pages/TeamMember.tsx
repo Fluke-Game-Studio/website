@@ -163,8 +163,30 @@ export default function TeamMemberPage() {
     return (
       <div className="pt-28 px-6 min-h-screen bg-fluke-bg text-fluke-text">
         <div className="max-w-7xl mx-auto">
-          <div className="rounded-3xl p-10 border border-white/10 bg-white/5 animate-pulse">
-            Loading team member...
+          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8 mt-12">
+            {/* Sidebar Skeleton */}
+            <div className="rounded-3xl p-6 border border-white/10 bg-white/5 animate-pulse h-[500px]">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-24 h-24 rounded-3xl bg-white/10" />
+                <div className="flex-1">
+                  <div className="h-6 w-3/4 bg-white/10 rounded mb-2" />
+                  <div className="h-4 w-1/2 bg-white/10 rounded" />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="h-10 w-full bg-white/5 rounded-xl" />
+                <div className="h-10 w-full bg-white/5 rounded-xl" />
+                <div className="h-32 w-full bg-white/5 rounded-xl" />
+              </div>
+            </div>
+            {/* Content Skeleton */}
+            <div className="space-y-6">
+              <div className="h-[200px] w-full bg-white/5 rounded-3xl animate-pulse" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="h-[200px] bg-white/5 rounded-3xl animate-pulse" />
+                <div className="h-[200px] bg-white/5 rounded-3xl animate-pulse" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
