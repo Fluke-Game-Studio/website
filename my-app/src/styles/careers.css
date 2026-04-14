@@ -29,12 +29,14 @@
 }
 
 html.light .careers-standalone-wrapper {
-  --cs-border:       rgba(15, 23, 42, 0.12);
-  --cs-danger:       #b42318;
-  --cs-detail-desc:  #334155;
-  --cs-input-bg:     #ffffff;
-  --cs-input-border: rgba(15, 23, 42, 0.15);
-  --cs-input-text:   #0f172a;
+  /* Violet accent system matches global light theme */
+  --cs-gold:         #5B21B6;              /* violet-700: readable labels */
+  --cs-border:       rgba(91, 33, 182, 0.18);
+  --cs-danger:       #dc2626;
+  --cs-detail-desc:  #5F5A8A;             /* purple-gray muted */
+  --cs-input-bg:     #FFFFFF;
+  --cs-input-border: rgba(91, 33, 182, 0.25);
+  --cs-input-text:   #1A1040;
 }
 
 /* ─── Container ─── */
@@ -44,18 +46,42 @@ html.light .careers-standalone-wrapper {
   padding: 0 2rem;
 }
 
-/* ─── Hex pulse loader ─── */
+/* ─── Premium Loading Spinner ─── */
 .hex-pulse {
-  width: 48px;
-  height: 48px;
-  background: var(--cs-gold);
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  animation: hexPulse 1.2s ease-in-out infinite;
-  margin: 0 auto 1.5rem;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 2rem;
+  position: relative;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--cs-gold) 40%, transparent));
 }
-@keyframes hexPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(0.8); }
+.hex-pulse::before,
+.hex-pulse::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+}
+.hex-pulse::before {
+  inset: 0;
+  border-top-color: var(--cs-gold);
+  border-right-color: var(--cs-gold);
+  animation: orbitalSpinRight 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+.hex-pulse::after {
+  inset: 8px;
+  border-bottom-color: var(--cs-gold);
+  border-left-color: var(--cs-gold);
+  animation: orbitalSpinLeft 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  opacity: 0.7;
+}
+
+@keyframes orbitalSpinRight {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes orbitalSpinLeft {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
 }
 
 /* ─── Gold button ─── */

@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Github, Twitter, Instagram, Youtube, Twitch, Mail } from "lucide-react";
+import { Github, Twitter, Instagram, Youtube, Twitch, Mail, CheckCircle } from "lucide-react";
 
 const footerLinks = {
   Studio: [
@@ -34,6 +35,23 @@ const socials = [
 ];
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "loading" | "success">("idle");
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setSubscribeStatus("loading");
+    // Simulate API call
+    setTimeout(() => {
+      setSubscribeStatus("success");
+      setEmail("");
+      // Reset back to idle after a few seconds
+      setTimeout(() => setSubscribeStatus("idle"), 4000);
+    }, 1200);
+  };
+
   return (
     <footer className="bg-fluke-surface border-t border-fluke-yellow/10 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-6">
@@ -98,14 +116,33 @@ export default function Footer() {
                 Game updates, dev insights and behind the scenes drops.
               </p>
             </div>
-            <form className="flex gap-3 w-full md:w-auto" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex gap-3 w-full md:w-auto" onSubmit={handleSubscribe}>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="flex-1 md:w-64 px-4 py-2.5 rounded-lg bg-fluke-bg border border-fluke-yellow/20 text-fluke-text text-sm font-sora placeholder:text-fluke-muted/60 focus:outline-none focus:border-fluke-yellow/60 transition-colors"
+                disabled={subscribeStatus !== "idle"}
+                className="flex-1 md:w-64 px-4 py-2.5 rounded-lg bg-fluke-bg border border-fluke-yellow/20 text-fluke-text text-sm font-sora placeholder:text-fluke-muted/60 focus:outline-none focus:border-fluke-yellow/60 transition-colors disabled:opacity-50"
               />
-              <button className="btn-primary px-5 py-2.5 rounded-lg text-sm font-sora whitespace-nowrap">
-                Subscribe
+              <button 
+                type="submit"
+                disabled={subscribeStatus !== "idle"}
+                className={`px-5 py-2.5 rounded-lg text-sm font-sora whitespace-nowrap transition-all duration-300 flex items-center justify-center gap-2 ${
+                  subscribeStatus === "success" 
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30" 
+                    : "btn-primary disabled:opacity-75"
+                }`}
+                style={subscribeStatus === "success" ? { boxShadow: "0 0 20px rgba(34, 197, 94, 0.2)" } : {}}
+              >
+                {subscribeStatus === "idle" && "Subscribe"}
+                {subscribeStatus === "loading" && "Sending..."}
+                {subscribeStatus === "success" && (
+                  <>
+                    <CheckCircle size={16} className="animate-pulse" />
+                    Subscribed!
+                  </>
+                )}
               </button>
             </form>
           </div>

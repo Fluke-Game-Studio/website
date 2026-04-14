@@ -74,7 +74,7 @@ export default function ServicesGrid() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="relative z-10 font-bebas text-2xl tracking-wide text-fluke-text group-hover:text-white transition-colors duration-200 mb-3">
+                  <h3 className="relative z-10 font-bebas text-2xl tracking-wide text-fluke-text group-hover:text-fluke-yellow transition-colors duration-200 mb-3">
                     {service.title}
                   </h3>
 
