@@ -1,4 +1,4 @@
-﻿// src/pages/CareersApply.tsx
+// src/pages/CareersApply.tsx
 import React from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,15 +12,20 @@ interface FieldInputProps {
   field: any;
   value: any;
   onChange: (key: string, value: any) => void;
+  hasError?: boolean;
 }
 
-const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange }) => {
-  const base = "apply-field";
+const COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "DR Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Other"
+];
+
+const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasError }) => {
+  const className = `careers-apply-form-input ${hasError ? "has-error" : ""}`;
 
   if (field.type === "textarea") {
     return (
       <textarea
-        className="careers-apply-form-input"
+        className={className}
         id={field.id}
         value={value || ""}
         onChange={(e) => onChange(field.id, e.target.value)}
@@ -29,6 +34,36 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange }) => {
         rows={5}
         style={{ resize: "none", display: "block", width: "100%" }}
       />
+    );
+  }
+
+  if (field.type === "country" || field.type === "location") {
+    return (
+      <div style={{ position: "relative" }}>
+        <select
+          className={className}
+          id={field.id}
+          value={value || ""}
+          onChange={(e) => onChange(field.id, e.target.value)}
+          required={field.required}
+          style={{
+            width: "100%",
+            appearance: "none",
+            backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='%23F5C542' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>")`,
+            backgroundRepeat: "no-repeat",
+            backgroundPositionX: "calc(100% - 1rem)",
+            backgroundPositionY: "center",
+            paddingRight: "2.5rem"
+          }}
+        >
+          <option value="">Select {field.label || "Country"}</option>
+          {COUNTRIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
     );
   }
 
@@ -124,7 +159,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange }) => {
 
   return (
     <input
-      className="careers-apply-form-input"
+      className={className}
       id={field.id}
       type={field.type}
       value={value || ""}
@@ -140,9 +175,10 @@ interface ApplyFieldProps {
   field: any;
   value: any;
   onChange: (key: string, value: any) => void;
+  error?: string;
 }
 
-const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange }) => (
+const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, error }) => (
   <div style={{ marginBottom: "2rem" }}>
     <label className="careers-apply-label" htmlFor={field.id}>
       {field.label}
@@ -162,7 +198,10 @@ const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange }) => (
         {field.helpText}
       </p>
     )}
-    <FieldInput field={field} value={value} onChange={onChange} />
+    <FieldInput field={field} value={value} onChange={onChange} hasError={!!error} />
+    {error && (
+      <div className="careers-form-error-msg">{error}</div>
+    )}
   </div>
 );
 
@@ -173,6 +212,8 @@ interface ChapterProps {
   answers: any;
   setAnswer: (key: string, value: any) => void;
   chapterIndex: number;
+  errors: Record<string, string>;
+  touched: Record<string, boolean>;
 }
 
 const Chapter: React.FC<ChapterProps> = ({
@@ -180,6 +221,8 @@ const Chapter: React.FC<ChapterProps> = ({
   answers,
   setAnswer,
   chapterIndex,
+  errors,
+  touched,
 }) => (
   <motion.div
     key={chapterIndex}
@@ -207,14 +250,20 @@ const Chapter: React.FC<ChapterProps> = ({
       {chapter.description}
     </p>
 
-    {chapter.fields.map((field: any) => (
-      <ApplyField
-        key={field.id}
-        field={field}
-        value={answers[field.id]}
-        onChange={setAnswer}
-      />
-    ))}
+    {chapter.fields.map((field: any) => {
+      const isTouched = touched[field.id];
+      const hasValue = answers[field.id] !== undefined && answers[field.id] !== "" && !(Array.isArray(answers[field.id]) && answers[field.id].length === 0);
+      const shouldShowError = errors[field.id] && (isTouched || hasValue);
+      return (
+        <ApplyField
+          key={field.id}
+          field={field}
+          value={answers[field.id]}
+          onChange={setAnswer}
+          error={shouldShowError ? errors[field.id] : undefined}
+        />
+      );
+    })}
   </motion.div>
 );
 
@@ -234,6 +283,8 @@ const CareersApply: React.FC = () => {
     answers,
     setAnswer,
     validateChapter,
+    getFieldErrors,
+    touched,
     isSubmitting,
     isSubmitted,
     submitError,
@@ -328,6 +379,8 @@ const CareersApply: React.FC = () => {
               chapterIndex={currentChapter}
               answers={answers}
               setAnswer={setAnswer}
+              errors={getFieldErrors(chapter)}
+              touched={touched}
             />
           </AnimatePresence>
 

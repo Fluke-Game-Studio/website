@@ -1,6 +1,16 @@
 // src/services/applicationService.ts
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
+const API_BASE = (() => {
+    const configured = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+
+    if (configured && configured !== "/api") {
+        return configured.replace(/\/$/, "");
+    }
+
+    return import.meta.env.DEV
+        ? "/api"
+        : "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
+})();
 
 export interface Question {
     id: string;
@@ -48,6 +58,8 @@ const utils = {
         if (lower.includes('url') || lower.includes('link') || lower.includes('portfolio') || lower.includes('resume')) return 'url';
         if (lower.includes('phone') || lower.includes('mobile')) return 'tel';
         if (lower.includes('desc') || lower.includes('reason') || lower.includes('about') || lower.includes('feedback') || lower.includes('message')) return 'textarea';
+        if (lower.includes('country') || lower.includes('location')) return 'country';
+        if (lower.includes('address') || lower.includes('city')) return 'text';
         return 'text';
     },
     safeStr: (x: any) => (x === null || x === undefined ? '' : String(x))

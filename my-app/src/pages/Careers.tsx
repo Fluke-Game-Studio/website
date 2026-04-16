@@ -57,16 +57,32 @@ const CareersPage: React.FC = () => {
                   {!loading && !error && jobs.length > 0 && (
                       <div className="careers-split">
                           <aside className="careers-list">
-                              {jobs.map((job) => (
-                                  <JobCard
-                                      key={job.jobId || job.title}
-                                      job={job}
-                                      isSelected={selectedJob?.jobId === job.jobId && selectedJob?.title === job.title}
-                                      onClick={setSelectedJob}
-                                  />
-                              ))}
+                              {jobs.map((job) => {
+                                  const isSelected = selectedJob?.jobId === job.jobId && selectedJob?.title === job.title;
+                                  return (
+                                      <div key={job.jobId || job.title} className="careers-list-item">
+                                          <JobCard
+                                              job={job}
+                                              isSelected={isSelected}
+                                              onClick={setSelectedJob}
+                                          />
+                                          <AnimatePresence>
+                                              {isSelected && (
+                                                  <motion.div
+                                                      initial={{ height: 0, opacity: 0 }}
+                                                      animate={{ height: "auto", opacity: 1 }}
+                                                      exit={{ height: 0, opacity: 0 }}
+                                                      className="careers-mobile-detail-wrapper"
+                                                  >
+                                                      <JobDetail job={selectedJob} onApply={handleApply} />
+                                                  </motion.div>
+                                              )}
+                                          </AnimatePresence>
+                                      </div>
+                                  );
+                              })}
                           </aside>
-
+ 
                           <div className="careers-detail">
                               <AnimatePresence mode="wait">
                                   {selectedJob ? (
