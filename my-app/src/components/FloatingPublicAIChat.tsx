@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Send, Sparkles, X } from "lucide-react";
+import { Send, Sparkles, X, Square } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PublicBotAvatar2DBit, { BotStatus } from "./PublicBotAvatar2DBit";
 
@@ -62,6 +62,7 @@ export default function FloatingPublicAIChat() {
   const [botStatus, setBotStatus] = useState<BotStatus>("neutral");
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: uid(),
@@ -123,6 +124,9 @@ export default function FloatingPublicAIChat() {
     setBotStatus("thinking");
     setError("");
 
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+
     try {
       const res = await fetch(CHAT_URL, {
         method: "POST",
@@ -130,6 +134,7 @@ export default function FloatingPublicAIChat() {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
+        signal: abortRef.current.signal,
         body: JSON.stringify({
           question: trimmed,
           clientId,
@@ -182,7 +187,24 @@ export default function FloatingPublicAIChat() {
       );
     } finally {
       setLoading(false);
+      abortRef.current = null;
     }
+  }
+
+  function stopResponse() {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    setLoading(false);
+    setBotStatus("neutral");
+    // Optionally add a truncated message or clear the pending state
+    setMessages((prev) => {
+      if (prev.length > 0 && prev[prev.length - 1].content.includes("Thinking")) {
+        return prev.slice(0, -1);
+      }
+      return prev;
+    });
   }
 
   return (
@@ -498,11 +520,21 @@ export default function FloatingPublicAIChat() {
                   <button
                     type="button"
                     className="fg-ai-send"
-                    disabled={!canSend}
-                    onClick={() => void sendMessage(input)}
-                    aria-label="Send message"
+                    disabled={!loading && !input.trim()}
+                    onClick={() => (loading ? stopResponse() : void sendMessage(input))}
+                    aria-label={loading ? "Stop response" : "Send message"}
+                    style={{
+                      background: loading ? "rgba(239, 68, 68, 0.2)" : "var(--fluke-yellow)",
+                      color: loading ? "#ef4444" : "black",
+                      borderRadius: "12px",
+                      width: "36px",
+                      height: "36px",
+                      display: "grid",
+                      placeItems: "center",
+                      transition: "all 0.2s ease"
+                    }}
                   >
-                    <Send size={16} />
+                    {loading ? <Square size={16} fill="currentColor" /> : <Send size={16} />}
                   </button>
                 </div>
               </div>

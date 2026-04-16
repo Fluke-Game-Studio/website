@@ -58,8 +58,10 @@ const utils = {
         if (lower.includes('url') || lower.includes('link') || lower.includes('portfolio') || lower.includes('resume')) return 'url';
         if (lower.includes('phone') || lower.includes('mobile')) return 'tel';
         if (lower.includes('desc') || lower.includes('reason') || lower.includes('about') || lower.includes('feedback') || lower.includes('message')) return 'textarea';
-        if (lower.includes('country') || lower.includes('location')) return 'country';
-        if (lower.includes('address') || lower.includes('city')) return 'text';
+        if (lower.includes('country')) return 'country';
+        if (lower.includes('state') || lower.includes('province') || lower.includes('region')) return 'state';
+        if (lower.includes('city') || lower.includes('town')) return 'city';
+        if (lower.includes('address')) return 'address';
         return 'text';
     },
     safeStr: (x: any) => (x === null || x === undefined ? '' : String(x))

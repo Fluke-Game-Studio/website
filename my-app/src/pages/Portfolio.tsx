@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { portfolio } from "@/lib/data/content";
 import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
@@ -17,6 +18,7 @@ const categoryColors: Record<string, string> = {
 
 export default function PortfolioPage() {
   const [active, setActive] = useState("All");
+  const navigate = useNavigate();
 
   const filtered = active === "All" ? portfolio : portfolio.filter((p) => p.category === active);
 
@@ -71,6 +73,7 @@ export default function PortfolioPage() {
                   layout: { type: "spring", stiffness: 300, damping: 25 },
                   y: { type: "spring", stiffness: 400, damping: 20 }
                 }}
+                onClick={() => navigate(`/portfolio/${item.id}`)}
                 className="group relative rounded-2xl overflow-hidden cursor-pointer isolate"
                 style={{
                   backgroundColor: 'var(--card-bg)',

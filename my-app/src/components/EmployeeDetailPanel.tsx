@@ -13,6 +13,7 @@ import {
   Sparkles,
   Trophy,
   X,
+  Square,
 } from "lucide-react";
 import PublicBotAvatar2DBit from "./PublicBotAvatar2DBit";
 import {
@@ -238,10 +239,34 @@ function MiniLineChart({
                 strokeDasharray="4 8"
               />
             ))}
-            {areaPath ? <path d={areaPath} fill={`url(#grad-${title.replace(/\s+/g, "-")})`} /> : null}
-            <path d={linePath} fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            {areaPath ? (
+              <path 
+                d={areaPath} 
+                fill={`url(#grad-${title.replace(/\s+/g, "-")})`} 
+                className="transition-all duration-700 ease-in-out"
+              />
+            ) : null}
+            <path 
+              d={linePath} 
+              fill="none" 
+              stroke={stroke} 
+              strokeWidth="4" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="chart-main-line shadow-[0_0_15px_rgba(245,197,66,0.5)]"
+              style={{ filter: `drop-shadow(0 0 8px ${stroke})` }}
+            />
             {points.map((p) => (
-              <circle key={`${p.label}-${p.value}`} cx={p.x} cy={p.y} r="4.5" fill={stroke} className="chart-dot" stroke="#0b1220" strokeWidth="2" />
+              <circle 
+                key={`${p.label}-${p.value}`} 
+                cx={p.x} 
+                cy={p.y} 
+                r="5" 
+                fill={stroke} 
+                className="chart-dot cursor-pointer transition-transform hover:scale-150" 
+                stroke="#0b1220" 
+                strokeWidth="2" 
+              />
             ))}
           </svg>
         </div>
@@ -272,6 +297,7 @@ function PublicChatDrawer({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [robotStatus, setRobotStatus] = useState<"neutral" | "speaking" | "thinking">("neutral");
+  const abortRef = useRef<AbortController | null>(null);
 
   const chips = useMemo(
     () => [
@@ -422,6 +448,9 @@ function PublicChatDrawer({
     setLoading(true);
     setRobotStatus("thinking");
 
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+
     try {
       const reply = await publicStudioService.askPublicAssistant(
         buildFollowupPrompt(member, analytics, awards, mediaCount, trimmed),
@@ -429,6 +458,7 @@ function PublicChatDrawer({
         {
           agentEmployeeId: "project_manager_core",
           username: safeStr((member as any).username || member.employee_name),
+          abortSignal: abortRef.current.signal,
         }
       );
       const finalReply = looksLikeNoUpdatesMessage(reply)
@@ -443,8 +473,29 @@ function PublicChatDrawer({
       setRobotStatus("neutral");
     } finally {
       setLoading(false);
+      abortRef.current = null;
       setTimeout(() => setRobotStatus("neutral"), 220);
     }
+  }
+
+  function stopPrompt() {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    if (typingTimerRef.current) {
+      window.clearInterval(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+    setLoading(false);
+    setRobotStatus("neutral");
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.content === "Thinking...") {
+        return prev.slice(0, -1);
+      }
+      return prev;
+    });
   }
 
   if (!open) return null;
@@ -525,11 +576,16 @@ function PublicChatDrawer({
               />
               <button
                 type="button"
-                disabled={loading || !safeStr(input)}
-                onClick={() => void sendPrompt(input)}
-                className="w-11 h-11 rounded-xl bg-fluke-yellow text-black grid place-items-center disabled:opacity-60"
+                className="w-11 h-11 rounded-xl flex items-center justify-center transition-all"
+                disabled={!loading && !safeStr(input)}
+                onClick={() => (loading ? stopPrompt() : void sendPrompt(input))}
+                style={{
+                  background: loading ? "rgba(239, 68, 68, 0.2)" : "var(--fluke-yellow)",
+                  color: loading ? "#ef4444" : "black",
+                  border: loading ? "1px solid rgba(239, 68, 68, 0.3)" : "none",
+                }}
               >
-                <Send size={16} />
+                {loading ? <Square size={16} fill="currentColor" /> : <Send size={16} />}
               </button>
             </div>
           </div>
@@ -544,23 +600,39 @@ function PublicChatDrawer({
               </div>
               <button
                 type="button"
-                onClick={() => void sendPrompt("Give me a concise public summary of this employee.")}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs"
+                onClick={() => (loading ? stopPrompt() : void sendPrompt("Give me a concise public summary of this employee."))}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs transition-colors"
+                style={{
+                  color: loading ? "#ef4444" : "inherit",
+                  borderColor: loading ? "rgba(239, 68, 68, 0.3)" : "rgba(255,255,255,0.1)"
+                }}
               >
-                <MessageSquareReply size={13} />
-                Reply
+                {loading ? <Square size={13} fill="currentColor" /> : <MessageSquareReply size={13} />}
+                {loading ? "Stop" : "Reply"}
               </button>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 min-h-[140px]">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-[#05080f] p-5 min-h-[140px] relative overflow-hidden group/readout">
+              <div className="absolute top-0 left-0 w-1 h-full bg-fluke-yellow shadow-[0_0_15px_var(--fluke-yellow)]" />
               {messages.length ? (
-                <p className="text-sm leading-7 text-fluke-text whitespace-pre-wrap">{messages[0]?.content || "Generating summary..."}</p>
+                <div className="relative z-10">
+                  <p className="text-sm leading-7 text-fluke-text/90 whitespace-pre-wrap font-mono tracking-tight">
+                    {messages[0]?.content || "Initializing secure uplink..."}
+                    <motion.span
+                      animate={{ opacity: [0, 1, 0] }}
+                      transition={{ duration: 0.8, repeat: Infinity }}
+                      className="inline-block w-2 h-4 bg-fluke-yellow ml-1 align-middle"
+                    />
+                  </p>
+                </div>
               ) : (
-                <div className="flex items-center gap-2 text-fluke-muted">
-                  <Sparkles size={15} />
-                  Generating summary...
+                <div className="flex items-center gap-3 text-fluke-yellow/50 font-mono text-xs uppercase tracking-widest animate-pulse">
+                  <Sparkles size={14} />
+                  Scanning public records...
                 </div>
               )}
+              {/* Subtle Scanline Overlay */}
+              <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
             </div>
           </div>
 
@@ -662,9 +734,13 @@ export function EmployeeDetailPanel({
   const latestLabel = latestUpdate ? fmtDate(latestUpdate.createdAt || latestUpdate.weekStart) : "—";
 
   const [mediaIndex, setMediaIndex] = useState(0);
+  const [showAllMedia, setShowAllMedia] = useState(false);
+  const [showAllAwards, setShowAllAwards] = useState(false);
 
   useEffect(() => {
     setMediaIndex(0);
+    setShowAllMedia(false);
+    setShowAllAwards(false);
   }, [member.employee_name]);
 
   const currentMedia = mediaItems[mediaIndex] || null;
@@ -883,7 +959,7 @@ export function EmployeeDetailPanel({
                     key={chip}
                     type="button"
                     onClick={() => setChatOpen(true)}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40 transition-colors"
                   >
                     <ArrowLeftRight size={12} />
                     {chip}
@@ -903,10 +979,10 @@ export function EmployeeDetailPanel({
                   Screenshots and videos surfaced from public update attachments.
                 </div>
               </div>
-              <div className="p-5">
+              <div className="p-8">
                 {currentMedia ? (
-                  <div className="edp-section rounded-3xl border border-white/10 bg-black/20 overflow-hidden">
-                    <div className="aspect-video bg-black flex items-center justify-center">
+                  <div className="group/viewer relative rounded-3xl border border-white/10 bg-black/40 overflow-hidden shadow-2xl">
+                    <div className="aspect-video bg-black flex items-center justify-center relative">
                       {currentMedia.youtubeUrl ? (
                         <iframe
                           src={currentMedia.youtubeUrl}
@@ -918,22 +994,34 @@ export function EmployeeDetailPanel({
                         <img
                           src={safeStr(currentMedia.publicUrl)}
                           alt={safeStr(currentMedia.name)}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover/viewer:scale-105"
                         />
                       ) : isVideo(safeStr(currentMedia.publicUrl)) ? (
                         <video src={safeStr(currentMedia.publicUrl)} controls className="w-full h-full object-cover" />
                       ) : (
-                        <div className="text-fluke-muted">Media unavailable.</div>
+                        <div className="text-fluke-muted font-mono text-xs uppercase tracking-widest"> Intel Corrupted // Payload Missing</div>
                       )}
+                      
+                      {/* Interactive Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/viewer:opacity-100 transition-opacity duration-300 pointer-events-none" />
                     </div>
-                    <div className="p-4">
-                      <div className="font-semibold text-fluke-text">{safeStr(currentMedia.name)}</div>
-                      <div className="text-sm text-fluke-muted mt-1">{fmtDate((currentMedia as any).updateDate)}</div>
+                    <div className="p-6 relative">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-1.5 h-4 bg-fluke-yellow rounded-full shadow-[0_0_8px_var(--fluke-yellow)]" />
+                        <div className="font-bebas text-2xl tracking-wide text-white">{safeStr(currentMedia.name)}</div>
+                      </div>
+                      <div className="text-[10px] text-fluke-yellow/60 font-mono flex items-center gap-2">
+                        <CalendarDays size={12} />
+                        POSTED_ON // {fmtDate((currentMedia as any).updateDate)}
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-8 text-fluke-muted">
-                    No public media has been published for this employee yet.
+                  <div className="rounded-[2rem] border border-dashed border-white/5 bg-white/[0.02] p-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/5">
+                      <ImageIcon className="text-white/20" size={32} />
+                    </div>
+                    <p className="text-fluke-muted font-medium text-sm">No visual intel available for this sector.</p>
                   </div>
                 )}
               </div>
@@ -943,7 +1031,6 @@ export function EmployeeDetailPanel({
               <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">All Media</div>
               <div className="mt-4">
                 {(() => {
-                  const [showAllMedia, setShowAllMedia] = useState(false);
                   const limit = 4;
                   const visible = showAllMedia ? mediaItems : mediaItems.slice(0, limit);
                   const hasMore = mediaItems.length > limit;
@@ -1017,9 +1104,8 @@ export function EmployeeDetailPanel({
               </div>
             ) : (
               (() => {
-                const [showAll, setShowAll] = useState(false);
                 const limit = 3;
-                const visible = showAll ? memberAwards : memberAwards.slice(0, limit);
+                const visible = showAllAwards ? memberAwards : memberAwards.slice(0, limit);
                 const hasMore = memberAwards.length > limit;
 
                 return (
@@ -1034,51 +1120,63 @@ export function EmployeeDetailPanel({
                       return (
                         <motion.article
                           key={`${award.id || title}-${idx}`}
-                          initial={{ opacity: 0, y: 12 }}
-                          whileInView={{ opacity: 1, y: 0 }}
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.1 }}
                           viewport={{ once: true }}
-                          className="edp-section rounded-3xl p-4 md:p-6 border border-white/10 bg-black/10 flex gap-4"
+                          className="group/award relative rounded-2xl p-6 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-fluke-yellow/30 transition-all flex gap-6 overflow-hidden"
                         >
-                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden flex-none bg-white/5 border border-white/10 flex items-center justify-center">
+                          {/* Animated Border Pulse */}
+                          <div className="absolute top-0 left-0 w-[2px] h-0 bg-fluke-yellow group-hover/award:h-full transition-all duration-500 shadow-[0_0_15px_var(--fluke-yellow)]" />
+                          
+                          <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-none bg-black/40 border border-white/10 flex items-center justify-center p-2 shadow-inner group-hover/award:scale-105 transition-transform">
                             {isTrophy ? (
                               imageUrl ? (
                                 isImage(imageUrl) ? (
-                                  <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+                                  <img src={imageUrl} alt={title} className="w-full h-full object-contain" />
                                 ) : isVideo(imageUrl) ? (
                                   <video src={imageUrl} className="w-full h-full object-cover" muted playsInline />
                                 ) : (
-                                  <Trophy className="text-fluke-yellow" size={24} />
+                                  <Trophy className="text-fluke-yellow transition-transform group-hover/award:rotate-12" size={32} />
                                 )
                               ) : (
-                                <Trophy className="text-fluke-yellow" size={24} />
+                                <Trophy className="text-fluke-yellow transition-transform group-hover/award:rotate-12" size={32} />
                               )
                             ) : (
-                              <Medal className="text-yellow-400" size={24} />
+                              <Medal className="text-emerald-400 transition-transform group-hover/award:rotate-12" size={32} />
                             )}
+                            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-start justify-between gap-3">
-                              <div>
-                                <h3 className="font-semibold text-base md:text-lg">{title}</h3>
-                                <p className="text-xs md:text-sm text-fluke-muted mt-1 line-clamp-2 md:line-clamp-none">
-                                  {description || "Public award entry"}
+                          
+                          <div className="min-w-0 flex-1 relative z-10">
+                            <div className="flex flex-wrap items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bebas text-3xl tracking-wide text-white mb-2 leading-none uppercase">{title}</h3>
+                                <p className="text-xs md:text-sm text-fluke-text/60 leading-relaxed font-medium line-clamp-2 md:line-clamp-none">
+                                  {description || "Achievement securely logged in studio records."}
                                 </p>
                               </div>
-                              <span className="tm-card inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs text-fluke-text flex-none">
-                                <CalendarDays size={12} />
-                                {fmtDate(award.awardedAt)}
-                              </span>
+                              <div className="flex flex-col items-end gap-2">
+                                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-fluke-yellow/10 border border-fluke-yellow/20 text-[10px] font-bold uppercase tracking-widest text-fluke-yellow">
+                                  <CalendarDays size={12} />
+                                  {fmtDate(award.awardedAt)}
+                                </span>
+                                <div className="text-[9px] font-mono text-fluke-muted opacity-40 uppercase tracking-widest">Record_ID_{initials}_{idx + 10}</div>
+                              </div>
                             </div>
                           </div>
+                          
+                          {/* Radial Background Glow */}
+                          <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-fluke-yellow/0 group-hover/award:bg-fluke-yellow/5 blur-[40px] rounded-full transition-colors" />
                         </motion.article>
                       );
                     })}
                     {hasMore && (
                       <button
-                        onClick={() => setShowAll(!showAll)}
+                        onClick={() => setShowAllAwards(!showAllAwards)}
                         className="w-full py-4 text-sm text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-2xl hover:bg-white/5 transition-colors"
                       >
-                        {showAll ? "Show Less" : `View All ${memberAwards.length} Awards`}
+                        {showAllAwards ? "Show Less" : `View All ${memberAwards.length} Awards`}
                       </button>
                     )}
                   </>

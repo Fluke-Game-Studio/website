@@ -108,6 +108,24 @@ function safeStr(v: any) {
   return String(v).trim();
 }
 
+// Simple cache with TTL (5 minutes)
+const CACHE_TTL = 5 * 60 * 1000;
+const cache = new Map<string, { data: any; timestamp: number }>();
+
+function getCached<T>(key: string): T | null {
+  const item = cache.get(key);
+  if (!item) return null;
+  if (Date.now() - item.timestamp > CACHE_TTL) {
+    cache.delete(key);
+    return null;
+  }
+  return item.data as T;
+}
+
+function setCached<T>(key: string, data: T): void {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 function unwrapPayload<T>(payload: any): ApiResponse<T> {
   if (!payload) return {};
   if (typeof payload === "string") {
@@ -222,6 +240,10 @@ async function readJson<T>(response: Response): Promise<ApiResponse<T>> {
 
 export const publicStudioService = {
   async fetchTeam() {
+    // Check cache first
+    const cached = getCached<PublicTeamMember[]>("team");
+    if (cached) return cached;
+
     const response = await fetch(`${API_BASE}/directory`, {
       method: "GET",
       headers: { Accept: "application/json" },
@@ -240,16 +262,24 @@ export const publicStudioService = {
       ? payload.data
       : [];
 
-    return items
+    const result = items
       .map(normalizeTeamMember)
       .sort((a, b) => {
         const rank = rolePriority(a) - rolePriority(b);
         if (rank !== 0) return rank;
         return safeStr(a.employee_name).localeCompare(safeStr(b.employee_name));
       });
+
+    setCached("team", result);
+    return result;
   },
 
   async fetchRecentAwards(limit = 200) {
+    // Check cache first
+    const cacheKey = `awards-${limit}`;
+    const cached = getCached<PublicAwardItem[]>(cacheKey);
+    if (cached) return cached;
+
     const qs = new URLSearchParams();
     qs.set("limit", String(limit));
 
@@ -271,10 +301,17 @@ export const publicStudioService = {
       ? payload.data
       : [];
 
-    return items.map(normalizeAward);
+    const result = items.map(normalizeAward);
+    setCached(cacheKey, result);
+    return result;
   },
 
   async fetchPublicUpdates(limit = 200) {
+    // Check cache first
+    const cacheKey = `updates-${limit}`;
+    const cached = getCached<any>(cacheKey);
+    if (cached) return cached;
+
     const qs = new URLSearchParams();
     qs.set("limit", String(limit));
 
@@ -297,15 +334,23 @@ export const publicStudioService = {
       : [];
     const summaries = Array.isArray(payload?.summaries) ? payload.summaries : [];
 
-    return {
+    const result = {
       items: items.map(normalizeUpdate),
       summaries: summaries.map(normalizeUpdate),
       count: Number(payload?.count || items.length) || 0,
       summaryCount: Number(payload?.summaryCount || summaries.length) || 0,
     };
+
+    setCached(cacheKey, result);
+    return result;
   },
 
   async fetchPublicAnalyticsDashboard(weekStart?: string) {
+    // Check cache first
+    const cacheKey = `analytics-${weekStart || "default"}`;
+    const cached = getCached<PublicAnalyticsDashboard>(cacheKey);
+    if (cached) return cached;
+
     const qs = new URLSearchParams();
     if (weekStart) qs.set("weekStart", weekStart);
 
@@ -322,13 +367,14 @@ export const publicStudioService = {
       );
     }
 
-    return payload as PublicAnalyticsDashboard;
+    const result = payload as PublicAnalyticsDashboard;
+    setCached(cacheKey, result);
+    return result;
   },
 
   async askPublicAssistant(
     question: string,
-    context: string,
-    options?: { agentEmployeeId?: string; agentRole?: string; username?: string }
+    options?: { agentEmployeeId?: string; agentRole?: string; username?: string; abortSignal?: AbortSignal }
   ) {
     const agentEmployeeId = safeStr(options?.agentEmployeeId);
     const agentRole = safeStr(options?.agentRole);
@@ -339,12 +385,12 @@ export const publicStudioService = {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
+      signal: options?.abortSignal,
       body: JSON.stringify({
         question,
         context: "flukegames",
         provider: "openai",
         model: "gpt-5-mini",
-        assistantContext: context,
         ...(username ? { username } : {}),
         ...(agentEmployeeId ? { agentEmployeeId } : {}),
         ...(agentRole ? { agentRole } : {}),
