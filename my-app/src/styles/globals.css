@@ -53,20 +53,20 @@
 }
 
 html.light {
-  /* Yellow kept for fills/borders/glows — violet used as readable text accent */
+  /* Yellow kept for fills/borders/glows — cyan used for small text, brand yellow for bold/large */
   --fluke-yellow: #F5C542;
-  --fluke-glow: #FFD86B;
-  --fluke-bg: #F3F1FF;       /* Soft lavender — happy, not sterile white */
+  --fluke-glow: #FFB300;
+  --fluke-bg: #F0FDFA;       /* Soft Cyan-white — fresh and clean */
   --fluke-surface: #FFFFFF;  /* Pure white card surfaces */
-  --fluke-text: #1A1040;     /* Deep violet-black — rich, readable, on-brand */
-  --fluke-muted: #5F5A8A;   /* Purple-gray muted text — calm, not harsh */
+  --fluke-text: #0E7490;     /* Cyan 700 for regular text — legible and themed */
+  --fluke-muted: #155E75;    /* Cyan 800 for muted text */
 
   /* Card System — light */
   --card-bg: #FFFFFF;
-  --card-border: rgba(91, 33, 182, 0.15);   /* Violet border */
-  --card-shadow: 0 2px 16px rgba(91, 33, 182, 0.07);
-  --card-hover-border: rgba(91, 33, 182, 0.45);
-  --card-hover-shadow: 0 20px 50px rgba(91, 33, 182, 0.12);
+  --card-border: rgba(8, 145, 178, 0.15);   /* Cyan border */
+  --card-shadow: 0 2px 16px rgba(8, 145, 178, 0.08);
+  --card-hover-border: rgba(245, 197, 66, 0.5); /* Brand yellow on hover */
+  --card-hover-shadow: 0 20px 50px rgba(8, 145, 178, 0.12);
 
   --thumb-lightness: 94%;
   --thumb-lightness-hi: 98%;
@@ -287,6 +287,82 @@ html.light .glass-dark {
 /* ─── Light mode text + utility overrides ─── */
 /* (Base text colors are automatically handled by the --fluke-text variables updated above) */
 
+:root {
+  --p-section: 1rem;
+  --p-card: 1rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --p-section: 1.5rem;
+    --p-card: 1.25rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --p-section: 2rem;
+    --p-card: 1.5rem;
+  }
+}
+
+/* Team Member & Portfolio Light Theme Surfaces */
+html.light .tm-sidebar {
+  background: linear-gradient(180deg, #FFFFFF, #F9FAFB);
+  border-color: rgba(8, 142, 178, 0.12);
+  box-shadow: 0 10px 40px rgba(8, 142, 178, 0.06);
+  padding: var(--p-section);
+}
+html.light .tm-card {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+  padding: var(--p-card);
+}
+html.light .tm-icon-box {
+  background: #F0FDFA;
+  border-color: rgba(8, 142, 178, 0.15);
+}
+
+/* Employee Detail Panel Light Theme Surfaces */
+html.light .edp-container {
+  background: linear-gradient(180deg, #FFFFFF, #F1FDFF);
+  border-color: rgba(8, 142, 178, 0.15);
+}
+html.light .edp-section {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+  box-shadow: 0 4px 20px rgba(8, 142, 178, 0.04);
+  padding: var(--p-section);
+}
+html.light .edp-chart {
+  background: #F8FAFC;
+  border-color: rgba(8, 142, 178, 0.12);
+  padding: var(--p-section);
+}
+html.light .edp-chart .chart-grid-line {
+  stroke: rgba(8, 142, 178, 0.1);
+}
+html.light .edp-chart .chart-dot {
+  stroke: #FFFFFF;
+}
+html.light .edp-chat-drawer {
+  background: linear-gradient(180deg, #F0FDFA, #FFFFFF);
+  border-color: rgba(8, 142, 178, 0.2);
+}
+html.light .edp-composer {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+}
+html.light .edp-chat-bubble.assistant {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+}
+html.light .edp-chat-bubble.user {
+  background: #0891B2;
+  color: #FFFFFF;
+  border-color: transparent;
+}
+
 /*
   KEY FIX: yellow as TEXT is illegible on light bg (~1.5:1 contrast).
   Swap all yellow TEXT to deep violet (#5B21B6) — still happy, premium,
@@ -294,14 +370,14 @@ html.light .glass-dark {
   filled elements (buttons, borders, glows) which aren't affected here.
 */
 html.light .text-fluke-yellow {
-  color: #5B21B6 !important;   /* Violet-700 — readable, happy, not a warning */
+  color: #F5C542 !important;   /* Brand Yellow — requested for bold/large highlights */
 }
 
 /* Orbitron tracking labels inherit the violet correctly ↑ */
 
-/* Grid dots — subtle violet on lavender bg */
+/* Grid dots — subtle cyan on fresh bg */
 html.light .bg-grid {
-  background-image: radial-gradient(circle at 1px 1px, rgba(91, 33, 182, 0.12) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(8, 145, 178, 0.1) 1px, transparent 0);
 }
 
 /* Section divider — keep yellow, just slightly more visible */
@@ -309,15 +385,15 @@ html.light .section-divider {
   opacity: 0.4;
 }
 
-/* btn-outline — violet border in light mode (yellow border reads as warning on white) */
+/* btn-outline — brand yellow in light mode */
 html.light .btn-outline {
-  border-color: #5B21B6;
-  color: #5B21B6;
+  border-color: #F5C542;
+  color: #F5C542;
 }
 html.light .btn-outline:hover {
-  background: rgba(91, 33, 182, 0.06);
-  box-shadow: 0 0 20px rgba(91, 33, 182, 0.2);
-  border-color: #5B21B6;
+  background: rgba(245, 197, 66, 0.08);
+  box-shadow: 0 0 20px rgba(245, 197, 66, 0.2);
+  border-color: #F5C542;
 }
 
 /* yellow-line accent under headings — keep brand yellow ✓ */

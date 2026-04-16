@@ -17,6 +17,7 @@ export function useApplicationController(roleTitle: string | null) {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitReceipt, setSubmitReceipt] = useState<any>(null);
+    const [touched, setTouched] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         if (!roleTitle) return;
@@ -44,6 +45,7 @@ export function useApplicationController(roleTitle: string | null) {
                 setFlow(built);
                 setCurrentChapter(0);
                 setAnswers({});
+                setTouched({});
             })
             .catch((err) => {
                 if (cancelled) return;
@@ -58,42 +60,108 @@ export function useApplicationController(roleTitle: string | null) {
 
     function setAnswer(key: string, value: any) {
         setAnswers((prev) => ({ ...prev, [key]: value }));
+        setTouched((prev) => ({ ...prev, [key]: true }));
     }
 
-    function validateChapter(chapter: any) {
-        if (!chapter?.fields) return true;
+    function getFieldErrors(chapter: any) {
+        const errs: Record<string, string> = {};
+        if (!chapter?.fields) return errs;
         for (const field of chapter.fields) {
             const val = answers[field.id];
             
             if (field.required) {
                 if (val === undefined || val === null || String(val).trim() === '') {
-                    return false;
+                    errs[field.id] = 'Required parameter.';
+                    continue;
                 }
-                // Specifically block empty arrays for required checkboxes like WhatsApp Consent
                 if (Array.isArray(val) && val.length === 0) {
-                    return false;
+                    errs[field.id] = 'Please select at least one option.';
+                    continue;
                 }
-                // Specifically block false booleans for required boolean checkboxes
                 if (typeof val === 'boolean' && val === false) {
-                    return false;
+                    errs[field.id] = 'This must be checked.';
+                    continue;
                 }
             }
 
-            // If user typed *something*, validate its pattern based on field type
             if (val && String(val).trim() !== '') {
                 const str = String(val).trim();
                 if (field.type === 'email') {
-                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)) return false;
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)) errs[field.id] = 'Invalid email address.';
                 }
                 if (field.type === 'url') {
-                    if (!/^https?:\/\/.+\..+/.test(str)) return false;
+                    if (!/^https?:\/\/.+\..+/.test(str)) errs[field.id] = 'Invalid URL (must start with http:// or https://).';
                 }
                 if (field.type === 'tel') {
-                    if (!/^[+]?[\d\s\-\(\)]{7,20}$/.test(str)) return false;
+                    const digitCount = (str.match(/\d/g) || []).length;
+                    if (!/^[+]?[\d\s\-\(\)]{7,25}$/.test(str) || digitCount < 10) {
+                        errs[field.id] = 'Phone number must contain at least 10 digits.';
+                    }
                 }
             }
         }
-        return true;
+        return errs;
+    }
+
+    function validateChapter(chapter: any) {
+        return Object.keys(getFieldErrors(chapter)).length === 0;
+    }
+
+    function buildApplicantProfile() {
+        const applicant: Record<string, any> = {};
+
+        if (!flow) return applicant;
+
+        for (const chapter of flow.chapters) {
+            for (const field of chapter.fields || []) {
+                const value = answers[field.id];
+                if (value === undefined || value === null || value === '') continue;
+
+                const text = String(value).trim();
+                const label = `${field.label || ''} ${field.id || ''}`.toLowerCase();
+
+                if (!applicant.email && field.type === 'email') {
+                    applicant.email = text;
+                    continue;
+                }
+
+                if (!applicant.fullName && /full\s*name|\bname\b/.test(label) && !/username/.test(label)) {
+                    applicant.fullName = text;
+                    continue;
+                }
+
+                if (!applicant.phone && field.type === 'tel') {
+                    applicant.phone = text;
+                    continue;
+                }
+
+                if (!applicant.resume && /resume|cv/.test(label)) {
+                    applicant.resume = text;
+                    continue;
+                }
+
+                if (!applicant.portfolio && /portfolio|website/.test(label)) {
+                    applicant.portfolio = text;
+                    continue;
+                }
+
+                if (!applicant.address && /address/.test(label)) {
+                    applicant.address = text;
+                    continue;
+                }
+
+                if (!applicant.city && /city/.test(label)) {
+                    applicant.city = text;
+                    continue;
+                }
+
+                if (!applicant.country && /country/.test(label)) {
+                    applicant.country = text;
+                }
+            }
+        }
+
+        return applicant;
     }
 
     function nextChapter() {
@@ -125,9 +193,12 @@ export function useApplicationController(roleTitle: string | null) {
         setSubmitError('');
 
         try {
+            const applicant = buildApplicantProfile();
+
             const res = await applicationService.submitApplication({
                 role: flow.roleTitle,
                 roleId: flow.roleId,
+                applicant,
                 answers,
                 timestamp: new Date().toISOString()
             });
@@ -151,6 +222,9 @@ export function useApplicationController(roleTitle: string | null) {
         answers,
         setAnswer,
         validateChapter,
+        getFieldErrors,
+        touched,
+        setTouched,
         isSubmitting,
         isSubmitted,
         submitError,

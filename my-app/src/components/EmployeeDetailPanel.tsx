@@ -207,7 +207,7 @@ function MiniLineChart({
     : "";
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
+    <div className="edp-chart rounded-3xl border border-white/10 bg-black/15 p-5">
       <div className="mb-4">
         <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">{title}</div>
         <div className="text-sm text-fluke-muted mt-1">{subtitle}</div>
@@ -232,6 +232,7 @@ function MiniLineChart({
                 x2={width - padX}
                 y1={padY + ratio * (height - padY * 2)}
                 y2={padY + ratio * (height - padY * 2)}
+                className="chart-grid-line"
                 stroke="rgba(255,255,255,.08)"
                 strokeWidth="1"
                 strokeDasharray="4 8"
@@ -240,7 +241,7 @@ function MiniLineChart({
             {areaPath ? <path d={areaPath} fill={`url(#grad-${title.replace(/\s+/g, "-")})`} /> : null}
             <path d={linePath} fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             {points.map((p) => (
-              <circle key={`${p.label}-${p.value}`} cx={p.x} cy={p.y} r="4.5" fill={stroke} stroke="#0b1220" strokeWidth="2" />
+              <circle key={`${p.label}-${p.value}`} cx={p.x} cy={p.y} r="4.5" fill={stroke} className="chart-dot" stroke="#0b1220" strokeWidth="2" />
             ))}
           </svg>
         </div>
@@ -452,7 +453,7 @@ function PublicChatDrawer({
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-6 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(11,18,32,.98),rgba(7,12,22,.98))] shadow-2xl overflow-hidden"
+      className="edp-chat-drawer mt-6 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(11,18,32,.98),rgba(7,12,22,.98))] shadow-2xl overflow-hidden"
     >
       <div className="flex items-start justify-between gap-4 p-5 border-b border-white/10">
         <div className="flex items-start gap-3 min-w-0">
@@ -477,7 +478,7 @@ function PublicChatDrawer({
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-6 border ${
+                className={`edp-chat-bubble max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-6 border ${
                   msg.role === "user"
                     ? "ml-auto bg-blue-500/15 border-blue-400/20 text-blue-50"
                     : "bg-white/5 border-white/10 text-fluke-text"
@@ -507,7 +508,7 @@ function PublicChatDrawer({
             ))}
           </div>
 
-          <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+          <div className="edp-composer mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -535,7 +536,7 @@ function PublicChatDrawer({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
+          <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">AI Summary</div>
@@ -563,7 +564,7 @@ function PublicChatDrawer({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
+          <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
             <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold mb-3">
               Helper chips
             </div>
@@ -747,8 +748,8 @@ export function EmployeeDetailPanel({
   }, [member, analytics, memberAwards, mediaItems.length, employeeUpdates.length, employeeWeeks.length]);
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,15,28,0.92),rgba(7,11,20,0.96))] shadow-2xl overflow-hidden">
-      <div className="p-6 md:p-8 border-b border-white/10">
+    <div className="edp-container rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,15,28,0.92),rgba(7,11,20,0.96))] shadow-2xl overflow-hidden">
+      <div className="p-4 md:p-6 lg:p-8 border-b border-white/10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Employee Deep Dive</div>
@@ -791,10 +792,10 @@ export function EmployeeDetailPanel({
         </div>
       </div>
 
-      <div className="p-6 md:p-8 space-y-6">
+      <div className="p-4 md:p-6 lg:p-8 space-y-6">
         {tab === "overview" ? (
           <>
-            <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
+            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">AI Summary</div>
@@ -825,9 +826,9 @@ export function EmployeeDetailPanel({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {summaryStats.map((card) => (
-                <div key={card.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div key={card.label} className="edp-section rounded-2xl border border-white/10 bg-white/5 p-4">
                   <div className="text-[11px] uppercase tracking-[0.24em] text-fluke-muted">{card.label}</div>
                   <div
                     className={`mt-3 font-bold text-fluke-text ${
@@ -895,7 +896,7 @@ export function EmployeeDetailPanel({
 
         {tab === "media" ? (
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-4">
-            <div className="rounded-3xl border border-white/10 bg-black/15 overflow-hidden">
+            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 overflow-hidden">
               <div className="p-5 border-b border-white/10">
                 <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Media Slideshow</div>
                 <div className="text-sm text-fluke-muted mt-1">
@@ -904,7 +905,7 @@ export function EmployeeDetailPanel({
               </div>
               <div className="p-5">
                 {currentMedia ? (
-                  <div className="rounded-3xl border border-white/10 bg-black/20 overflow-hidden">
+                  <div className="edp-section rounded-3xl border border-white/10 bg-black/20 overflow-hidden">
                     <div className="aspect-video bg-black flex items-center justify-center">
                       {currentMedia.youtubeUrl ? (
                         <iframe
@@ -938,50 +939,71 @@ export function EmployeeDetailPanel({
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
+            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
               <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">All Media</div>
-              <div className="mt-4 grid grid-cols-2 gap-3 max-h-[560px] overflow-auto pr-1">
-                {mediaItems.length ? (
-                  mediaItems.map((item, idx) => {
-                    const url = safeStr(item.publicUrl || item.youtubeUrl);
-                    return (
-                      <button
-                        key={`${safeStr(item.name)}-${idx}`}
-                        type="button"
-                        onClick={() => setMediaIndex(idx)}
-                        className={`rounded-2xl border text-left overflow-hidden transition-colors ${
-                          mediaIndex === idx ? "border-fluke-yellow bg-fluke-yellow/10" : "border-white/10 bg-white/5"
-                        }`}
-                      >
-                        <div className="aspect-video bg-black/30 flex items-center justify-center overflow-hidden">
-                          {item.youtubeUrl ? (
-                            <div className="w-full h-full grid place-items-center text-fluke-yellow">
-                              <Play size={28} />
-                            </div>
-                          ) : isImage(url) ? (
-                            <img src={url} alt={safeStr(item.name)} className="w-full h-full object-cover" />
-                          ) : isVideo(url) ? (
-                            <div className="w-full h-full grid place-items-center text-fluke-yellow">
-                              <Play size={28} />
-                            </div>
-                          ) : (
-                            <div className="w-full h-full grid place-items-center text-fluke-muted">
-                              <ImageIcon size={24} />
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-3">
-                          <div className="text-sm font-semibold text-fluke-text line-clamp-1">{safeStr(item.name) || "Media"}</div>
-                          <div className="text-xs text-fluke-muted mt-1">{fmtDate((item as any).updateDate)}</div>
-                        </div>
-                      </button>
-                    );
-                  })
-                ) : (
-                  <div className="col-span-2 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-fluke-muted">
-                    No screenshots or videos available.
-                  </div>
-                )}
+              <div className="mt-4">
+                {(() => {
+                  const [showAllMedia, setShowAllMedia] = useState(false);
+                  const limit = 4;
+                  const visible = showAllMedia ? mediaItems : mediaItems.slice(0, limit);
+                  const hasMore = mediaItems.length > limit;
+
+                  return (
+                    <>
+                      <div className="grid grid-cols-2 gap-3 max-h-[560px] overflow-auto pr-1">
+                        {mediaItems.length ? (
+                          visible.map((item, idx) => {
+                            const url = safeStr(item.publicUrl || item.youtubeUrl);
+                            return (
+                              <button
+                                key={`${safeStr(item.name)}-${idx}`}
+                                type="button"
+                                onClick={() => setMediaIndex(idx)}
+                                className={`edp-section rounded-2xl border text-left overflow-hidden transition-colors ${
+                                  mediaIndex === idx ? "border-fluke-yellow bg-fluke-yellow/10" : "border-white/10 bg-white/5"
+                                }`}
+                              >
+                                <div className="aspect-video bg-black/30 flex items-center justify-center overflow-hidden">
+                                  {item.youtubeUrl ? (
+                                    <div className="w-full h-full grid place-items-center text-fluke-yellow">
+                                      <Play size={28} />
+                                    </div>
+                                  ) : isImage(url) ? (
+                                    <img src={url} alt={safeStr(item.name)} className="w-full h-full object-cover" />
+                                  ) : isVideo(url) ? (
+                                    <div className="w-full h-full grid place-items-center text-fluke-yellow">
+                                      <Play size={28} />
+                                    </div>
+                                  ) : (
+                                    <div className="w-full h-full grid place-items-center text-fluke-muted">
+                                      <ImageIcon size={24} />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="p-3 text-[10px] md:text-sm">
+                                  <div className="font-semibold text-fluke-text line-clamp-1">{safeStr(item.name) || "Media"}</div>
+                                  <div className="text-fluke-muted mt-1">{fmtDate((item as any).updateDate)}</div>
+                                </div>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="col-span-2 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-fluke-muted">
+                            No screenshots or videos available.
+                          </div>
+                        )}
+                      </div>
+                      {hasMore && (
+                        <button
+                          onClick={() => setShowAllMedia(!showAllMedia)}
+                          className="w-full mt-4 py-3 text-xs text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-xl hover:bg-white/5 transition-colors"
+                        >
+                          {showAllMedia ? "Show Less" : `View All ${mediaItems.length} media items`}
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -994,61 +1016,74 @@ export function EmployeeDetailPanel({
                 No awards or achievements have been published for this employee yet.
               </div>
             ) : (
-              memberAwards.map((award, idx) => {
-                const artwork = resolveAwardArtwork(award);
-                const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
-                const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
-                const description = safeStr(award.description);
-                const kind = safeStr(award.type || award.tier).toLowerCase();
-                const isTrophy = kind === "trophy";
+              (() => {
+                const [showAll, setShowAll] = useState(false);
+                const limit = 3;
+                const visible = showAll ? memberAwards : memberAwards.slice(0, limit);
+                const hasMore = memberAwards.length > limit;
+
                 return (
-                  <motion.article
-                    key={`${award.id || title}-${idx}`}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="rounded-3xl p-5 md:p-6 border border-white/10 bg-black/10 flex gap-4"
-                  >
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden flex-none bg-white/5 border border-white/10 flex items-center justify-center">
-                      {isTrophy ? (
-                        imageUrl ? (
-                          isImage(imageUrl) ? (
-                            <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
-                          ) : isVideo(imageUrl) ? (
-                            <video src={imageUrl} className="w-full h-full object-cover" muted playsInline />
-                          ) : (
-                            <Trophy className="text-fluke-yellow" size={30} />
-                          )
-                        ) : (
-                          <Trophy className="text-fluke-yellow" size={30} />
-                        )
-                      ) : (
-                        <Medal className="text-yellow-400" size={30} />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">{title}</h3>
-                          <p className="text-sm text-fluke-muted mt-1">{description || "Public award entry"}</p>
-                        </div>
-                        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fluke-text flex-none">
-                          <CalendarDays size={12} />
-                          {fmtDate(award.awardedAt)}
-                        </span>
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2 text-xs text-fluke-muted">
-                        {award.tier ? (
-                          <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10">{award.tier}</span>
-                        ) : null}
-                        <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
-                          {award.person?.name || member.employee_name}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.article>
+                  <>
+                    {visible.map((award, idx) => {
+                      const artwork = resolveAwardArtwork(award);
+                      const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
+                      const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
+                      const description = safeStr(award.description);
+                      const kind = safeStr(award.type || award.tier).toLowerCase();
+                      const isTrophy = kind === "trophy";
+                      return (
+                        <motion.article
+                          key={`${award.id || title}-${idx}`}
+                          initial={{ opacity: 0, y: 12 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          className="edp-section rounded-3xl p-4 md:p-6 border border-white/10 bg-black/10 flex gap-4"
+                        >
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden flex-none bg-white/5 border border-white/10 flex items-center justify-center">
+                            {isTrophy ? (
+                              imageUrl ? (
+                                isImage(imageUrl) ? (
+                                  <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+                                ) : isVideo(imageUrl) ? (
+                                  <video src={imageUrl} className="w-full h-full object-cover" muted playsInline />
+                                ) : (
+                                  <Trophy className="text-fluke-yellow" size={24} />
+                                )
+                              ) : (
+                                <Trophy className="text-fluke-yellow" size={24} />
+                              )
+                            ) : (
+                              <Medal className="text-yellow-400" size={24} />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div>
+                                <h3 className="font-semibold text-base md:text-lg">{title}</h3>
+                                <p className="text-xs md:text-sm text-fluke-muted mt-1 line-clamp-2 md:line-clamp-none">
+                                  {description || "Public award entry"}
+                                </p>
+                              </div>
+                              <span className="tm-card inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs text-fluke-text flex-none">
+                                <CalendarDays size={12} />
+                                {fmtDate(award.awardedAt)}
+                              </span>
+                            </div>
+                          </div>
+                        </motion.article>
+                      );
+                    })}
+                    {hasMore && (
+                      <button
+                        onClick={() => setShowAll(!showAll)}
+                        className="w-full py-4 text-sm text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-2xl hover:bg-white/5 transition-colors"
+                      >
+                        {showAll ? "Show Less" : `View All ${memberAwards.length} Awards`}
+                      </button>
+                    )}
+                  </>
                 );
-              })
+              })()
             )}
           </div>
         ) : null}

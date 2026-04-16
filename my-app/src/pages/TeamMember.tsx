@@ -213,7 +213,7 @@ export default function TeamMemberPage() {
   }
 
   return (
-    <div className="pt-28 px-6 pb-20 min-h-screen bg-fluke-bg text-fluke-text">
+    <div className="pt-20 lg:pt-28 px-4 md:px-6 pb-20 min-h-screen bg-fluke-bg text-fluke-text">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <Link
@@ -225,14 +225,14 @@ export default function TeamMemberPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 lg:gap-8 items-start">
           <motion.aside
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="sticky top-28 rounded-3xl p-6 border border-white/10 bg-[linear-gradient(180deg,rgba(18,27,50,0.98),rgba(10,15,28,0.95))] shadow-2xl"
+            className="tm-sidebar sticky top-28 rounded-3xl p-4 md:p-6 border border-white/10 bg-[linear-gradient(180deg,rgba(18,27,50,0.98),rgba(10,15,28,0.95))] shadow-2xl"
           >
             <div className="flex items-center gap-4">
-              <div className="w-24 h-24 rounded-3xl overflow-hidden flex items-center justify-center bg-white/10 border border-white/10">
+              <div className="tm-icon-box w-24 h-24 rounded-3xl overflow-hidden flex items-center justify-center bg-white/10 border border-white/10">
                 {heroPicture ? (
                   <img src={heroPicture} alt={safeStr(member.employee_name)} className="w-full h-full object-cover" />
                 ) : (
@@ -247,46 +247,46 @@ export default function TeamMemberPage() {
 
             <div className="mt-6 flex flex-wrap gap-2">
               {member.department ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fluke-text">
+                <span className="tm-card inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fluke-text">
                   <BadgeCheck size={12} />
                   {member.department}
                 </span>
               ) : null}
               {member.location ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fluke-text">
+                <span className="tm-card inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fluke-text">
                   <Globe2 size={12} />
                   {member.location}
                 </span>
               ) : null}
               {member.employment_type ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fluke-text">
+                <span className="tm-card inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fluke-text">
                   {member.employment_type}
                 </span>
               ) : null}
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl p-4 bg-white/5 border border-white/10">
+              <div className="tm-card rounded-2xl p-4 bg-white/5 border border-white/10">
                 <div className="text-[11px] uppercase tracking-[0.25em] text-fluke-muted mb-1">LinkedIn</div>
                 <a
                   href={linkedinProfileUrl(member) || undefined}
                   target={linkedinProfileUrl(member) ? "_blank" : undefined}
                   rel={linkedinProfileUrl(member) ? "noreferrer" : undefined}
                   className={`font-semibold ${
-                    linkedinProfileUrl(member) ? "text-green-400 hover:underline" : "text-fluke-muted"
+                    linkedinProfileUrl(member) ? "text-green-500 hover:underline" : "text-fluke-muted"
                   }`}
                 >
                   {member.linkedin_connected ? "Connected" : "Not connected"}
                 </a>
               </div>
-              <div className="rounded-2xl p-4 bg-white/5 border border-white/10">
+              <div className="tm-card rounded-2xl p-4 bg-white/5 border border-white/10">
                 <div className="text-[11px] uppercase tracking-[0.25em] text-fluke-muted mb-1">Discord</div>
                 <a
                   href={discordProfileUrl(member) || undefined}
                   target={discordProfileUrl(member) ? "_blank" : undefined}
                   rel={discordProfileUrl(member) ? "noreferrer" : undefined}
                   className={`font-semibold ${
-                    discordProfileUrl(member) ? "text-sky-400 hover:underline" : "text-fluke-muted"
+                    discordProfileUrl(member) ? "text-sky-500 hover:underline" : "text-fluke-muted"
                   }`}
                 >
                   {member.discord_connected ? "Connected" : "Not connected"}
@@ -294,7 +294,7 @@ export default function TeamMemberPage() {
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl p-4 bg-white/5 border border-white/10">
+            <div className="tm-card mt-6 rounded-2xl p-4 bg-white/5 border border-white/10">
               <div className="text-[11px] uppercase tracking-[0.25em] text-fluke-yellow mb-2">Basic Info</div>
               <div className="space-y-2 text-sm text-fluke-muted">
                 <div className="flex items-start justify-between gap-3">
@@ -319,7 +319,7 @@ export default function TeamMemberPage() {
                 href={linkedinProfileUrl(member) || undefined}
                 target={linkedinProfileUrl(member) ? "_blank" : undefined}
                 rel={linkedinProfileUrl(member) ? "noreferrer" : undefined}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:border-green-400 hover:text-green-300 transition-colors"
+                className="tm-card inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:border-green-400 hover:text-green-500 transition-colors"
               >
                 <Linkedin size={12} />
                 LinkedIn
@@ -328,7 +328,7 @@ export default function TeamMemberPage() {
                 href={discordProfileUrl(member) || undefined}
                 target={discordProfileUrl(member) ? "_blank" : undefined}
                 rel={discordProfileUrl(member) ? "noreferrer" : undefined}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:border-sky-400 hover:text-sky-300 transition-colors"
+                className="tm-card inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:border-sky-400 hover:text-sky-500 transition-colors"
               >
                 <MessageSquare size={12} />
                 Discord

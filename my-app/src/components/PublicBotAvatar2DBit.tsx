@@ -12,8 +12,6 @@ export default function PublicBotAvatar2DBit({
   status?: BotStatus;
   size?: number;
 }) {
-  const scale = size / 240;
-
   return (
     <>
       <div
@@ -26,10 +24,6 @@ export default function PublicBotAvatar2DBit({
       >
         <div
           className={`fg-public-bot ${status || "neutral"}`}
-          style={{
-            transform: `scale(${scale})`,
-            transformOrigin: "top left",
-          }}
         >
           <div className="fg-public-bot-head">
             <div className="fg-public-bot-left-ear">
@@ -56,38 +50,43 @@ export default function PublicBotAvatar2DBit({
           .fg-public-bot-wrap {
             position: relative;
             overflow: visible;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
 
           .fg-public-bot {
             position: relative;
-            width: 240px;
-            height: 240px;
-            min-width: 240px;
-            min-height: 240px;
+            width: 100%;
+            height: 100%;
           }
 
           .fg-public-bot-head {
-            position: relative;
-            display: inline-block;
-            margin-top: 15%;
-            margin-left: 10%;
-            width: 80%;
-            height: 70%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 96%;
+            height: 94%;
           }
 
           .fg-public-bot-face {
             position: absolute;
             inset: 0;
-            border: 0.4em solid #e8d7b7;
+            border: 0.4em solid #D97706;
             border-radius: 1.5em;
             background: linear-gradient(
               180deg,
-              rgba(255,248,235,0.02),
-              rgba(255,248,235,0.06)
+              #FEF3C7,
+              #FDE68A
             );
             box-shadow:
-              inset 0 0 20px rgba(255,255,255,0.02),
-              0 0 24px rgba(193,154,107,0.06);
+              inset 0 0 15px rgba(255,255,255,0.8),
+              0 0 20px rgba(245, 197, 66, 0.15);
+          }
+          html.light .fg-public-bot-face {
+            background: linear-gradient(180deg, #FFFBEB, #FEF3C7);
+            border-color: #F59E0B;
           }
 
           .fg-public-bot-left-ear,
@@ -96,8 +95,8 @@ export default function PublicBotAvatar2DBit({
             top: 30%;
             width: 6%;
             height: 25%;
-            border: 0.15em solid #e8d7b7;
-            background-color: #b88a4a;
+            border: 0.15em solid #B45309;
+            background-color: #F59E0B;
             border-radius: 0.1em;
           }
 
@@ -115,8 +114,9 @@ export default function PublicBotAvatar2DBit({
             top: 20%;
             width: 100%;
             height: 60%;
-            background-color: #d9b67a;
+            background-color: #f5c542;
             border-radius: 0.1em;
+            box-shadow: 0 0 10px rgba(245, 197, 66, 0.3);
           }
 
           .fg-public-bot-left-ear-inner {
@@ -140,9 +140,9 @@ export default function PublicBotAvatar2DBit({
             position: absolute;
             width: 35%;
             height: 100%;
-            background: linear-gradient(180deg, #9ec5ff, #5f8fd9);
+            background: linear-gradient(180deg, #F59E0B, #B45309);
             border-radius: 0.5em;
-            box-shadow: 0 0 14px rgba(116,169,255,0.24);
+            box-shadow: 0 0 14px rgba(245,197,66,0.3);
           }
 
           .fg-public-bot-right-eye {
@@ -153,18 +153,19 @@ export default function PublicBotAvatar2DBit({
             position: absolute;
             width: 30%;
             height: 4%;
-            border-left: 0.2em solid #e8d7b7;
-            border-right: 0.2em solid #e8d7b7;
-            border-bottom: 0.2em solid #e8d7b7;
+            border-left: 0.2em solid #B45309;
+            border-right: 0.2em solid #B45309;
+            border-bottom: 0.2em solid #B45309;
             border-top: 0;
             border-radius: 0.5em;
             left: 35%;
             bottom: 20%;
+            opacity: 0.9;
           }
 
           .fg-public-bot.neutral .fg-public-bot-left-eye,
           .fg-public-bot.neutral .fg-public-bot-right-eye {
-            animation: fg-public-bot-blink-eyes 3s infinite ease-in alternate;
+            animation: fg-public-bot-blink-eyes 4s infinite;
             animation-delay: 2s;
           }
 
@@ -177,23 +178,22 @@ export default function PublicBotAvatar2DBit({
           }
 
           @keyframes fg-public-bot-blink-eyes {
-            0% { height: 10%; margin-top: 10%; }
-            10% { height: 100%; margin-top: 0%; }
-            100% { height: 100%; margin-top: 0%; }
+            0%, 90%, 100% { height: 100%; margin-top: 0%; transform: scaleY(1); }
+            95% { height: 100%; margin-top: 0%; transform: scaleY(0.1); }
           }
 
           .fg-public-bot.speaking .fg-public-bot-mouth {
-            border-top: 0.2em solid #e8d7b7;
-            background-color: #f3e6cf;
+            border-top: 0.2em solid #f5c542;
+            background-color: rgba(245, 197, 66, 0.2);
+            box-shadow: 0 0 15px rgba(245, 197, 66, 0.4);
             animation: fg-public-bot-speak-mouth 1s infinite ease alternate;
           }
 
           @keyframes fg-public-bot-speak-mouth {
-            0% { width: 10%; height: 4%; left: 45%; }
-            25% { width: 30%; height: 10%; left: 35%; }
-            50% { width: 6%; height: 4%; left: 47%; }
-            75% { width: 40%; height: 8%; left: 30%; }
-            100% { width: 30%; height: 4%; left: 35%; }
+            0%, 100% { width: 30%; height: 4%; left: 35%; transform: scaleY(1); }
+            25% { width: 34%; height: 12%; left: 33%; transform: scaleY(1.2); }
+            50% { width: 26%; height: 8%; left: 37%; transform: scaleY(0.8); }
+            75% { width: 32%; height: 10%; left: 34%; transform: scaleY(1.1); }
           }
 
           .fg-public-bot.thinking .fg-public-bot-eyes {
@@ -217,13 +217,9 @@ export default function PublicBotAvatar2DBit({
           }
 
           @keyframes fg-public-bot-glance-eyes {
-            0% { margin-left: 16%; }
-            10% { margin-left: 6%; }
-            40% { margin-left: 6%; }
-            60% { margin-left: 24%; }
-            70% { margin-left: 24%; }
-            80% { margin-left: 16%; }
-            100% { margin-left: 16%; }
+            0%, 100% { margin-left: 16%; }
+            20%, 45% { margin-left: 8%; }
+            55%, 80% { margin-left: 24%; }
           }
 
           @keyframes fg-public-bot-pinch-mouth {
@@ -252,24 +248,24 @@ export default function PublicBotAvatar2DBit({
 
           .fg-public-bot.listening .fg-public-bot-left-eye,
           .fg-public-bot.listening .fg-public-bot-right-eye {
-            background: linear-gradient(180deg, #b8f0b8, #6fc56f);
+            background: linear-gradient(180deg, var(--fluke-yellow), #b45309);
             border-radius: 1em;
             transition: border-radius 0.25s linear;
             animation: none;
-            box-shadow: 0 0 14px rgba(111,197,111,0.25);
+            box-shadow: 0 0 14px rgba(245, 197, 66, 0.4);
           }
 
           .fg-public-bot.listening .fg-public-bot-left-ear,
           .fg-public-bot.listening .fg-public-bot-right-ear,
           .fg-public-bot.listening .fg-public-bot-left-ear-inner,
           .fg-public-bot.listening .fg-public-bot-right-ear-inner {
-            background-color: #7ecb7e;
+            background-color: var(--fluke-yellow);
           }
 
           .fg-public-bot.listening .fg-public-bot-face,
           .fg-public-bot.listening .fg-public-bot-left-ear,
           .fg-public-bot.listening .fg-public-bot-right-ear {
-            border-color: #8ed58e;
+            border-color: var(--fluke-yellow);
             transition: border-color 0.25s linear;
           }
 
@@ -281,7 +277,7 @@ export default function PublicBotAvatar2DBit({
 
           @keyframes fg-public-bot-border-bump {
             0% {
-              outline: 0.4em dotted #8ed58e;
+              outline: 0.4em dotted var(--fluke-yellow);
             }
             100% {
               outline: 0.2em dotted transparent;
@@ -294,13 +290,13 @@ export default function PublicBotAvatar2DBit({
             width: 25%;
             border-radius: 100%;
             transition: all 0.25s linear;
-            border: 0.3em dashed #142033;
+            border: 0.3em dashed #92400e;
             animation-delay: 0.5s;
-            background: linear-gradient(180deg, #d6f8ff, #7fd4f0);
+            background: linear-gradient(180deg, #ffffff, #fcd34d);
           }
 
           .fg-public-bot.computing .fg-public-bot-left-eye {
-            animation: fg-public-bot-border-dance 1s infinite linear reverse;
+            animation: fg-public-bot-border-dance 1s infinite linear;
           }
 
           .fg-public-bot.computing .fg-public-bot-right-eye {
@@ -312,7 +308,7 @@ export default function PublicBotAvatar2DBit({
           .fg-public-bot.computing .fg-public-bot-right-ear,
           .fg-public-bot.computing .fg-public-bot-left-ear-inner,
           .fg-public-bot.computing .fg-public-bot-right-ear-inner {
-            border-color: #8ddbf2;
+            border-color: #f5c542;
             transition: border-color 0.25s linear;
           }
 
@@ -320,12 +316,12 @@ export default function PublicBotAvatar2DBit({
           .fg-public-bot.computing .fg-public-bot-right-ear,
           .fg-public-bot.computing .fg-public-bot-left-ear-inner,
           .fg-public-bot.computing .fg-public-bot-right-ear-inner {
-            background-color: #8ddbf2;
+            background-color: var(--fluke-yellow);
             animation: none;
           }
 
           .fg-public-bot.computing .fg-public-bot-mouth {
-            border: 0.5em solid #f3e6cf;
+            border: 0.5em solid #f5c542;
             width: 10%;
             left: 45%;
           }
