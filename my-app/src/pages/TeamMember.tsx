@@ -162,10 +162,52 @@ export default function TeamMemberPage() {
 
   if (loading) {
     return (
-      <div className="pt-28 px-6 min-h-screen bg-fluke-bg text-fluke-text flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-fluke-yellow border-t-transparent rounded-full animate-spin" />
-          <p className="text-fluke-muted animate-pulse font-medium tracking-widest uppercase text-xs">Loading Personnel...</p>
+      <div className="pt-20 lg:pt-28 px-4 md:px-6 pb-20 min-h-screen bg-fluke-bg">
+        <div className="max-w-7xl mx-auto">
+          {/* Skeleton Breadcrumb */}
+          <div className="h-4 w-32 bg-white/5 rounded mb-8 animate-pulse" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 lg:gap-8 items-start">
+            {/* Sidebar Skeleton */}
+            <div className="rounded-3xl p-6 border border-white/10 bg-white/5 h-[600px] animate-pulse">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-24 h-24 rounded-3xl bg-fluke-yellow/10" />
+                <div className="flex-1 space-y-3">
+                  <div className="h-6 w-3/4 bg-white/10 rounded" />
+                  <div className="h-4 w-1/2 bg-white/5 rounded" />
+                </div>
+              </div>
+              <div className="flex gap-2 mb-8">
+                <div className="h-8 w-24 bg-white/5 rounded-full" />
+                <div className="h-8 w-24 bg-white/5 rounded-full" />
+              </div>
+              <div className="space-y-4">
+                <div className="h-32 w-full bg-white/5 rounded-2xl" />
+                <div className="h-32 w-full bg-white/5 rounded-2xl" />
+              </div>
+            </div>
+
+            {/* Main Panel Skeleton */}
+            <div className="rounded-3xl border border-white/10 bg-white/5 min-h-[800px] animate-pulse overflow-hidden">
+              <div className="p-8 border-b border-white/10 space-y-4">
+                <div className="h-4 w-32 bg-fluke-yellow/10 rounded" />
+                <div className="h-16 w-3/4 bg-white/10 rounded" />
+                <div className="h-4 w-full bg-white/5 rounded" />
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="h-48 w-full bg-white/5 rounded-3xl" />
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="h-24 w-full bg-white/5 rounded-2xl" />
+                  ))}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="h-64 w-full bg-white/5 rounded-3xl" />
+                  <div className="h-64 w-full bg-white/5 rounded-3xl" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

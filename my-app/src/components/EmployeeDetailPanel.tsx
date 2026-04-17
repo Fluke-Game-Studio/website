@@ -2,15 +2,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeftRight,
+  BarChart3,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
   Medal,
+  MessageCircle,
   MessageSquareReply,
   Play,
   Send,
   Sparkles,
+  TrendingUp,
   Trophy,
   X,
   Square,
@@ -323,7 +326,7 @@ function PublicChatDrawer({
     setRobotStatus("thinking");
 
     publicStudioService
-      .askPublicAssistant(buildSummaryPrompt(member, analytics, awards, mediaCount), context, {
+      .askPublicAssistant(buildSummaryPrompt(member, analytics, awards, mediaCount), {
         agentEmployeeId: "project_manager_core",
         username: safeStr(member.employee_name),
       })
@@ -454,7 +457,6 @@ function PublicChatDrawer({
     try {
       const reply = await publicStudioService.askPublicAssistant(
         buildFollowupPrompt(member, analytics, awards, mediaCount, trimmed),
-        context,
         {
           agentEmployeeId: "project_manager_core",
           username: safeStr((member as any).username || member.employee_name),
@@ -772,14 +774,6 @@ export function EmployeeDetailPanel({
         );
         const reply = await publicStudioService.askPublicAssistant(
           prompt,
-          buildEmployeeContext(
-            member,
-            analytics,
-            memberAwards,
-            mediaItems.length,
-            employeeUpdates.length,
-            employeeWeeks.length
-          ),
           {
             agentEmployeeId: "project_manager_core",
             username: safeStr((member as any).username || member.employee_name),
@@ -825,74 +819,154 @@ export function EmployeeDetailPanel({
 
   return (
     <div className="edp-container rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,15,28,0.92),rgba(7,11,20,0.96))] shadow-2xl overflow-hidden">
-      <div className="p-4 md:p-6 lg:p-8 border-b border-white/10">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Employee Deep Dive</div>
-            <h2 className="font-bebas text-5xl md:text-6xl uppercase tracking-tight mt-2">
-              {safeStr(member.employee_name)}
-            </h2>
-            <p className="text-fluke-muted mt-3 max-w-3xl">
-              Public-safe charts, media, awards, and an AI summary. Use the reply drawer to ask follow-up questions about this employee.
-            </p>
+      {/* Hero Header with Profile */}
+      <div className="p-4 md:p-6 lg:p-8 bg-gradient-to-r from-white/5 via-transparent to-transparent border-b border-white/10">
+        <div className="flex flex-col md:flex-row items-start gap-6 md:items-center md:justify-between">
+          <div className="flex-1">
+              <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">
+                <Sparkles size={13} />
+                AI Profile Summary
+              </div>
+              <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
+                {summaryLoading ? (
+                  <p className="text-sm md:text-base text-fluke-muted leading-relaxed animate-pulse">
+                    Generating a concise summary for this team member...
+                  </p>
+                ) : (
+                  <p className="text-sm md:text-base text-fluke-text leading-relaxed whitespace-pre-wrap">
+                    {summary || buildLocalEmployeeFallbackSummary(member, memberAwards, mediaItems.length, analytics, employeeUpdates.length, employeeWeeks.length)}
+                  </p>
+                )}
+              </div>
           </div>
           <button
             type="button"
             onClick={() => setChatOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-fluke-yellow text-black font-semibold"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-fluke-yellow text-black font-semibold hover:bg-fluke-yellow/90 transition-colors whitespace-nowrap"
           >
-            <MessageSquareReply size={16} />
-            Reply
+            <Sparkles size={16} />
+            AI Chat
           </button>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-3">
+        {/* Key Stats - Dashboard Style */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-8">
+          {summaryStats.map((card) => (
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="edp-section rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-5 hover:border-fluke-yellow/30 transition-all group"
+            >
+              <div className="text-[10px] uppercase tracking-[0.24em] text-fluke-muted group-hover:text-fluke-yellow transition-colors font-semibold">{card.label}</div>
+              <div
+                className={`mt-3 font-bold text-white group-hover:text-fluke-yellow transition-colors ${
+                  typeof card.value === "number" ? "text-3xl md:text-4xl" : "text-sm leading-5"
+                }`}
+              >
+                {card.value}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="mt-8 flex flex-wrap gap-2">
           {[
-            { key: "overview", label: "General" },
-            { key: "media", label: "Screenshots" },
-            { key: "awards", label: "Awards" },
+            { key: "overview", label: "Overview", icon: BarChart3 },
+            { key: "media", label: "Gallery", icon: ImageIcon },
+            { key: "awards", label: "Awards", icon: Trophy },
           ].map((item) => (
             <button
               key={item.key}
               type="button"
               onClick={() => setTab(item.key as any)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                 tab === item.key
-                  ? "bg-fluke-yellow text-black"
-                  : "bg-white/5 text-fluke-text border border-white/10"
+                  ? "bg-fluke-yellow text-black shadow-lg shadow-fluke-yellow/30"
+                  : "bg-white/5 text-fluke-text border border-white/10 hover:bg-white/10"
               }`}
             >
-              {item.label}
+              <span className="inline-flex items-center gap-2">
+                <item.icon size={14} />
+                {item.label}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="p-4 md:p-6 lg:p-8 space-y-6">
+      <div className="p-4 md:p-6 lg:p-8 space-y-8">
         {tab === "overview" ? (
           <>
-            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
-              <div className="flex items-start justify-between gap-4">
+            {/* Analytics Charts Row */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6 overflow-hidden"
+              >
+                <div className="mb-6">
+                  <h3 className="font-bebas text-2xl text-white inline-flex items-center gap-2">
+                    <TrendingUp size={20} className="text-fluke-yellow" />
+                    Activity Trend
+                  </h3>
+                  <p className="text-xs text-fluke-muted mt-1">Weekly submission activity</p>
+                </div>
+                <MiniLineChart title="Submission Trend" subtitle="Weekly submission count" data={submissionTrend} stroke="#38bdf8" />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6 overflow-hidden"
+              >
+                <div className="mb-6">
+                  <h3 className="font-bebas text-2xl text-white inline-flex items-center gap-2">
+                    <BarChart3 size={20} className="text-fluke-yellow" />
+                    Update Activity
+                  </h3>
+                  <p className="text-xs text-fluke-muted mt-1">Daily update frequency</p>
+                </div>
+                <MiniLineChart title="Daily Updates" subtitle="Update activity per day" data={updateTrend} stroke="#f59e0b" />
+              </motion.div>
+            </div>
+
+            {/* AI Summary Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="edp-section rounded-3xl border border-white/10 bg-gradient-to-br from-fluke-yellow/10 to-transparent p-6"
+            >
+              <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
-                  <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">AI Summary</div>
-                  <div className="text-sm text-fluke-muted mt-1">
-                    Public-safe summary generated from the employee profile, awards, media, and analytics context.
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="text-fluke-yellow" size={18} />
+                    <h3 className="font-bebas text-2xl text-white">AI Generated Summary</h3>
                   </div>
+                  <p className="text-xs text-fluke-muted">Public profile summary powered by intelligent analysis</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setChatOpen(true)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-fluke-yellow/50 bg-fluke-yellow/10 text-xs font-semibold text-fluke-yellow hover:bg-fluke-yellow/20 transition-colors flex-none"
                 >
-                  <Sparkles size={13} />
-                  Reply
+                  Ask
                 </button>
               </div>
-              <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 min-h-[120px]">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 min-h-[140px] backdrop-blur-sm">
                 {summaryLoading ? (
-                  <div className="flex items-center gap-2 text-fluke-muted">
-                    <Sparkles size={15} />
-                    Generating summary...
+                  <div className="flex items-center gap-3 text-fluke-muted animate-pulse">
+                    <motion.div
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <Sparkles size={16} />
+                    </motion.div>
+                    Analyzing profile...
                   </div>
                 ) : (
                   <p className="text-sm leading-7 text-fluke-text whitespace-pre-wrap">
@@ -900,84 +974,56 @@ export function EmployeeDetailPanel({
                   </p>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {summaryStats.map((card) => (
-                <div key={card.label} className="edp-section rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-fluke-muted">{card.label}</div>
-                  <div
-                    className={`mt-3 font-bold text-fluke-text ${
-                      typeof card.value === "number" ? "text-3xl" : "text-base leading-6"
-                    }`}
-                  >
-                    {card.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-              <MiniLineChart
-                title="Submission Trend"
-                subtitle="Public weekly update submissions."
-                data={submissionTrend}
-                stroke="#38bdf8"
-              />
-              <MiniLineChart
-                title="Update Trend"
-                subtitle="Public daily update activity."
-                data={updateTrend}
-                stroke="#f59e0b"
-              />
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Quick Prompts</div>
-                  <div className="text-sm text-fluke-muted mt-1">Ask the embedded assistant about this employee.</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setChatOpen(true)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs"
-                >
-                  <Sparkles size={13} />
-                  Open reply box
-                </button>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
+            {/* Quick Prompts */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6"
+            >
+              <h3 className="font-bebas text-xl text-white mb-4 inline-flex items-center gap-2">
+                <MessageCircle size={18} className="text-fluke-yellow" />
+                Quick Questions
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
-                  "Give me a concise public summary.",
-                  "What are the highlighted awards?",
-                  "Show media highlights.",
-                  "What should visitors know about this person?",
+                  "What are their key strengths?",
+                  "Notable achievements and awards?",
+                  "Project highlights and media?",
+                  "Department role and impact?",
                 ].map((chip) => (
-                  <button
+                  <motion.button
                     key={chip}
+                    whileHover={{ scale: 1.02 }}
                     type="button"
                     onClick={() => setChatOpen(true)}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40 transition-colors"
+                    className="text-left p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-fluke-yellow/30 transition-all group"
                   >
-                    <ArrowLeftRight size={12} />
-                    {chip}
-                  </button>
+                    <p className="text-sm font-semibold text-fluke-text group-hover:text-fluke-yellow transition-colors">
+                      {chip}
+                    </p>
+                  </motion.button>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </>
         ) : null}
 
         {tab === "media" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-4">
-            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 overflow-hidden">
-              <div className="p-5 border-b border-white/10">
-                <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Media Slideshow</div>
-                <div className="text-sm text-fluke-muted mt-1">
-                  Screenshots and videos surfaced from public update attachments.
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_.8fr] gap-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="edp-section rounded-3xl border border-white/10 bg-black/15 overflow-hidden"
+            >
+              <div className="p-6 border-b border-white/10">
+                <h3 className="font-bebas text-2xl text-white inline-flex items-center gap-2">
+                  <ImageIcon size={20} className="text-fluke-yellow" />
+                  Media Showcase
+                </h3>
+                <p className="text-xs text-fluke-muted mt-1">Featured gallery from public updates</p>
               </div>
               <div className="p-8">
                 {currentMedia ? (
@@ -1001,8 +1047,6 @@ export function EmployeeDetailPanel({
                       ) : (
                         <div className="text-fluke-muted font-mono text-xs uppercase tracking-widest"> Intel Corrupted // Payload Missing</div>
                       )}
-                      
-                      {/* Interactive Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/viewer:opacity-100 transition-opacity duration-300 pointer-events-none" />
                     </div>
                     <div className="p-6 relative">
@@ -1012,7 +1056,7 @@ export function EmployeeDetailPanel({
                       </div>
                       <div className="text-[10px] text-fluke-yellow/60 font-mono flex items-center gap-2">
                         <CalendarDays size={12} />
-                        POSTED_ON // {fmtDate((currentMedia as any).updateDate)}
+                        {fmtDate((currentMedia as any).updateDate)}
                       </div>
                     </div>
                   </div>
@@ -1021,156 +1065,126 @@ export function EmployeeDetailPanel({
                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/5">
                       <ImageIcon className="text-white/20" size={32} />
                     </div>
-                    <p className="text-fluke-muted font-medium text-sm">No visual intel available for this sector.</p>
+                    <p className="text-fluke-muted font-medium text-sm">No visual media available</p>
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
-              <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">All Media</div>
-              <div className="mt-4">
-                {(() => {
-                  const limit = 4;
-                  const visible = showAllMedia ? mediaItems : mediaItems.slice(0, limit);
-                  const hasMore = mediaItems.length > limit;
-
-                  return (
-                    <>
-                      <div className="grid grid-cols-2 gap-3 max-h-[560px] overflow-auto pr-1">
-                        {mediaItems.length ? (
-                          visible.map((item, idx) => {
-                            const url = safeStr(item.publicUrl || item.youtubeUrl);
-                            return (
-                              <button
-                                key={`${safeStr(item.name)}-${idx}`}
-                                type="button"
-                                onClick={() => setMediaIndex(idx)}
-                                className={`edp-section rounded-2xl border text-left overflow-hidden transition-colors ${
-                                  mediaIndex === idx ? "border-fluke-yellow bg-fluke-yellow/10" : "border-white/10 bg-white/5"
-                                }`}
-                              >
-                                <div className="aspect-video bg-black/30 flex items-center justify-center overflow-hidden">
-                                  {item.youtubeUrl ? (
-                                    <div className="w-full h-full grid place-items-center text-fluke-yellow">
-                                      <Play size={28} />
-                                    </div>
-                                  ) : isImage(url) ? (
-                                    <img src={url} alt={safeStr(item.name)} className="w-full h-full object-cover" />
-                                  ) : isVideo(url) ? (
-                                    <div className="w-full h-full grid place-items-center text-fluke-yellow">
-                                      <Play size={28} />
-                                    </div>
-                                  ) : (
-                                    <div className="w-full h-full grid place-items-center text-fluke-muted">
-                                      <ImageIcon size={24} />
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="p-3 text-[10px] md:text-sm">
-                                  <div className="font-semibold text-fluke-text line-clamp-1">{safeStr(item.name) || "Media"}</div>
-                                  <div className="text-fluke-muted mt-1">{fmtDate((item as any).updateDate)}</div>
-                                </div>
-                              </button>
-                            );
-                          })
-                        ) : (
-                          <div className="col-span-2 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-fluke-muted">
-                            No screenshots or videos available.
-                          </div>
-                        )}
-                      </div>
-                      {hasMore && (
-                        <button
-                          onClick={() => setShowAllMedia(!showAllMedia)}
-                          className="w-full mt-4 py-3 text-xs text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-xl hover:bg-white/5 transition-colors"
-                        >
-                          {showAllMedia ? "Show Less" : `View All ${mediaItems.length} media items`}
-                        </button>
-                      )}
-                    </>
-                  );
-                })()}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6 flex flex-col"
+            >
+              <h3 className="font-bebas text-xl text-white mb-4">📚 All Media ({mediaItems.length})</h3>
+              <div className="space-y-2 flex-1 overflow-y-auto pr-2">
+                {mediaItems.length ? (
+                  mediaItems.slice(0, showAllMedia ? undefined : 5).map((item, idx) => {
+                    const url = safeStr(item.publicUrl || item.youtubeUrl);
+                    return (
+                      <button
+                        key={`${safeStr(item.name)}-${idx}`}
+                        type="button"
+                        onClick={() => setMediaIndex(idx)}
+                        className={`w-full text-left p-3 rounded-lg border transition-all ${
+                          mediaIndex === idx
+                            ? "bg-fluke-yellow/20 border-fluke-yellow text-fluke-yellow"
+                            : "bg-white/5 border-white/10 hover:bg-white/10"
+                        }`}
+                      >
+                        <div className="text-sm font-semibold line-clamp-1">{safeStr(item.name) || "Media"}</div>
+                        <div className="text-xs text-fluke-muted/80 mt-1">{fmtDate((item as any).updateDate)}</div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="text-fluke-muted text-sm text-center py-6">No media available</div>
+                )}
               </div>
-            </div>
+              {mediaItems.length > 5 && (
+                <button
+                  onClick={() => setShowAllMedia(!showAllMedia)}
+                  className="mt-4 w-full py-2 text-xs text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  {showAllMedia ? "Show Less" : `Show All ${mediaItems.length}`}
+                </button>
+              )}
+            </motion.div>
           </div>
         ) : null}
 
         {tab === "awards" ? (
           <div className="space-y-4">
             {!memberAwards.length ? (
-              <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-8 text-fluke-muted">
-                No awards or achievements have been published for this employee yet.
+              <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-8 text-fluke-muted text-center">
+                <Trophy size={32} className="mx-auto mb-3 opacity-50" />
+                <p>No awards published yet</p>
               </div>
             ) : (
               (() => {
-                const limit = 3;
+                const limit = 6;
                 const visible = showAllAwards ? memberAwards : memberAwards.slice(0, limit);
                 const hasMore = memberAwards.length > limit;
 
                 return (
                   <>
-                    {visible.map((award, idx) => {
-                      const artwork = resolveAwardArtwork(award);
-                      const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
-                      const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
-                      const description = safeStr(award.description);
-                      const kind = safeStr(award.type || award.tier).toLowerCase();
-                      const isTrophy = kind === "trophy";
-                      return (
-                        <motion.article
-                          key={`${award.id || title}-${idx}`}
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          viewport={{ once: true }}
-                          className="group/award relative rounded-2xl p-6 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-fluke-yellow/30 transition-all flex gap-6 overflow-hidden"
-                        >
-                          {/* Animated Border Pulse */}
-                          <div className="absolute top-0 left-0 w-[2px] h-0 bg-fluke-yellow group-hover/award:h-full transition-all duration-500 shadow-[0_0_15px_var(--fluke-yellow)]" />
-                          
-                          <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-none bg-black/40 border border-white/10 flex items-center justify-center p-2 shadow-inner group-hover/award:scale-105 transition-transform">
-                            {isTrophy ? (
-                              imageUrl ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                      {visible.map((award, idx) => {
+                        const artwork = resolveAwardArtwork(award);
+                        const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
+                        const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
+                        const description = safeStr(award.description);
+                        const kind = safeStr(award.type || award.tier).toLowerCase();
+                        const kindLabel = safeStr(award.type || award.tier || "Award");
+                        const isTrophy = kind === "trophy";
+                        return (
+                          <motion.article
+                            key={`${award.id || title}-${idx}`}
+                            initial={{ opacity: 0, y: 16 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.06 }}
+                            viewport={{ once: true }}
+                            className="group/award rounded-xl border border-white/10 bg-gradient-to-b from-white/10 to-white/[0.03] hover:border-fluke-yellow/30 hover:shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition-all overflow-hidden"
+                          >
+                            <div className="relative h-28 border-b border-white/10 bg-black/25 flex items-center justify-center p-2.5">
+                              {imageUrl ? (
                                 isImage(imageUrl) ? (
-                                  <img src={imageUrl} alt={title} className="w-full h-full object-contain" />
+                                  <img src={imageUrl} alt={title} className="h-full w-full object-contain" />
                                 ) : isVideo(imageUrl) ? (
-                                  <video src={imageUrl} className="w-full h-full object-cover" muted playsInline />
+                                  <video src={imageUrl} className="h-full w-full object-cover" muted playsInline />
+                                ) : isTrophy ? (
+                                  <Trophy className="text-fluke-yellow" size={30} />
                                 ) : (
-                                  <Trophy className="text-fluke-yellow transition-transform group-hover/award:rotate-12" size={32} />
+                                  <Medal className="text-emerald-400" size={30} />
                                 )
+                              ) : isTrophy ? (
+                                <Trophy className="text-fluke-yellow" size={30} />
                               ) : (
-                                <Trophy className="text-fluke-yellow transition-transform group-hover/award:rotate-12" size={32} />
-                              )
-                            ) : (
-                              <Medal className="text-emerald-400 transition-transform group-hover/award:rotate-12" size={32} />
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                          </div>
-                          
-                          <div className="min-w-0 flex-1 relative z-10">
-                            <div className="flex flex-wrap items-start justify-between gap-4">
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-bebas text-3xl tracking-wide text-white mb-2 leading-none uppercase">{title}</h3>
-                                <p className="text-xs md:text-sm text-fluke-text/60 leading-relaxed font-medium line-clamp-2 md:line-clamp-none">
-                                  {description || "Achievement securely logged in studio records."}
-                                </p>
-                              </div>
-                              <div className="flex flex-col items-end gap-2">
-                                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-fluke-yellow/10 border border-fluke-yellow/20 text-[10px] font-bold uppercase tracking-widest text-fluke-yellow">
-                                  <CalendarDays size={12} />
-                                  {fmtDate(award.awardedAt)}
-                                </span>
-                                <div className="text-[9px] font-mono text-fluke-muted opacity-40 uppercase tracking-widest">Record_ID_{initials}_{idx + 10}</div>
+                                <Medal className="text-emerald-400" size={30} />
+                              )}
+                              <div className="absolute top-2 right-2 rounded-full border border-white/15 bg-black/40 px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-fluke-yellow/90">
+                                {kindLabel}
                               </div>
                             </div>
-                          </div>
-                          
-                          {/* Radial Background Glow */}
-                          <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-fluke-yellow/0 group-hover/award:bg-fluke-yellow/5 blur-[40px] rounded-full transition-colors" />
-                        </motion.article>
-                      );
-                    })}
+
+                            <div className="p-3">
+                              <h3 className="font-bebas text-xl tracking-wide text-white uppercase leading-tight line-clamp-2">
+                                {title}
+                              </h3>
+                              <p className="mt-1 text-xs text-fluke-muted/85 leading-snug line-clamp-2">
+                                {description || "Achievement recorded"}
+                              </p>
+
+                              <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-fluke-yellow/30 bg-fluke-yellow/10 px-2 py-1 text-[11px] text-fluke-yellow font-semibold">
+                                <CalendarDays size={11} />
+                                {fmtDate(award.awardedAt)}
+                              </div>
+                            </div>
+                          </motion.article>
+                        );
+                      })}
+                    </div>
                     {hasMore && (
                       <button
                         onClick={() => setShowAllAwards(!showAllAwards)}
