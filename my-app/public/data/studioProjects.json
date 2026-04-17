@@ -7,8 +7,38 @@
     "tagline": "Adventure-puzzle vertical slice with crisp 3Cs, scalable gameplay systems, and readable AI encounters.",
     "summary": "Project Pavan is a mythology-inspired action adventure initiative under Fluke Games, focused on strong traversal, gameplay clarity, and scalable systems that contributors can build on.",
     "role": "Founder / Gameplay & AI Systems Lead",
-    "cover": "/images/pavan.jpg",
+    "screenshotpath": "/data/content/screenshots/CodenamePavan/",
+    "previewImage": "/data/content/screenshots/CodenamePavan/Codename-Pavan.png",
+    "mainImage": "/data/content/screenshots/CodenamePavan/Codename-Pavan.png",
+    "cover": "/data/content/screenshots/CodenamePavan/Codename-Pavan.png",
     "videoId": "dQw4w9WgXcQ",
+    "images": [
+      {
+        "img": "Screenshot1.png",
+        "headline": "Arcade Multiplayer Gameplay",
+        "description": "The game emphasized high-energy player interaction and accessible competitive chaos."
+      },
+      {
+        "img": "Screenshot2.png",
+        "headline": "Unity Gameplay Programming",
+        "description": "The systems were built with a focus on responsiveness, readability, and rapid iteration."
+      },
+      {
+        "img": "Screenshot3.png",
+        "headline": "Distinct Game Modes",
+        "description": "Different modes introduced varied pacing while keeping the core interaction loop consistent."
+      },
+      {
+        "img": "Screenshot4.png",
+        "headline": "Vehicle Combat and Action",
+        "description": "The gameplay blended destruction, movement, and timing-heavy player interaction."
+      },
+      {
+        "img": "Screenshot5.png",
+        "headline": "Competitive Play",
+        "description": "The project explored how arcade feel could coexist with structured competitive modes."
+      }
+    ],
     "stack": [
       "Unreal Engine",
       "C++",
