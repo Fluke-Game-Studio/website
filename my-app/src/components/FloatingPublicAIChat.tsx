@@ -496,7 +496,10 @@ export default function FloatingPublicAIChat() {
                     disabled={loading}
                     whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.08)' }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => void sendMessage(q)}
+                    onClick={() => {
+                      setInput(q);
+                      inputRef.current?.focus();
+                    }}
                   >
                     {q}
                   </motion.button>

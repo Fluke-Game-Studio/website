@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeftRight,
   BarChart3,
   CalendarDays,
   ChevronLeft,
@@ -9,7 +8,6 @@ import {
   Image as ImageIcon,
   Medal,
   MessageCircle,
-  MessageSquareReply,
   Play,
   Send,
   Sparkles,
@@ -285,6 +283,8 @@ function PublicChatDrawer({
   analytics,
   awards,
   mediaCount,
+  pendingQuestion,
+  onPendingQuestionConsumed,
 }: {
   open: boolean;
   onClose: () => void;
@@ -292,6 +292,8 @@ function PublicChatDrawer({
   analytics: PublicAnalyticsDashboard | null;
   awards: PublicAwardItem[];
   mediaCount: number;
+  pendingQuestion?: string | null;
+  onPendingQuestionConsumed?: () => void;
 }) {
   const listRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -317,9 +319,11 @@ function PublicChatDrawer({
     [member, analytics, awards, mediaCount]
   );
 
+  // Auto-greet on first open (no pending question)
   useEffect(() => {
     if (!open) return;
     if (messages.length) return;
+    if (pendingQuestion) return; // handled by the pendingQuestion effect below
 
     let cancelled = false;
     setLoading(true);
@@ -332,42 +336,29 @@ function PublicChatDrawer({
       })
       .then(async (reply) => {
         if (cancelled) return;
-        setMessages([
-          {
-            id: uid(),
-            role: "assistant",
-            content: "",
-            ts: Date.now(),
-          },
-        ]);
+        setMessages([{ id: uid(), role: "assistant", content: "", ts: Date.now() }]);
         await animateReply(reply || "No summary was returned.", 0);
       })
       .catch((err: any) => {
         if (cancelled) return;
-        setMessages([
-          {
-            id: uid(),
-            role: "assistant",
-            content: safeStr(err?.message || "Failed to generate summary."),
-            ts: Date.now(),
-          },
-        ]);
+        setMessages([{ id: uid(), role: "assistant", content: safeStr(err?.message || "Failed to generate summary."), ts: Date.now() }]);
       })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
+      .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => {
       cancelled = true;
-      if (typingTimerRef.current) {
-        window.clearInterval(typingTimerRef.current);
-        typingTimerRef.current = null;
-      }
+      if (typingTimerRef.current) { window.clearInterval(typingTimerRef.current); typingTimerRef.current = null; }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Fire pending question when drawer opens with a pre-selected chip
+  useEffect(() => {
+    if (!open || !pendingQuestion) return;
+    onPendingQuestionConsumed?.();
+    void sendPrompt(pendingQuestion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pendingQuestion]);
 
   useEffect(() => {
     if (!listRef.current) return;
@@ -441,7 +432,7 @@ function PublicChatDrawer({
     const assistantMsg: ChatMessage = {
       id: uid(),
       role: "assistant",
-      content: "Thinking...",
+      content: "",
       ts: Date.now(),
     };
 
@@ -502,32 +493,41 @@ function PublicChatDrawer({
 
   if (!open) return null;
 
+  const profileStats = [
+    { label: "Title", value: safeStr(member.employee_title) || "—" },
+    { label: "Dept", value: safeStr(member.department) || "—" },
+    { label: "Awards", value: String(awards.length) },
+    { label: "Media", value: String(mediaCount) },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       className="edp-chat-drawer mt-6 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(11,18,32,.98),rgba(7,12,22,.98))] shadow-2xl overflow-hidden"
     >
+      {/* Drawer Header */}
       <div className="flex items-start justify-between gap-4 p-5 border-b border-white/10">
         <div className="flex items-start gap-3 min-w-0">
           <PublicBotAvatar2DBit status={loading ? "thinking" : robotStatus} size={44} />
           <div className="min-w-0">
-            <div className="font-semibold text-fluke-text">Reply Assistant</div>
-            <div className="text-sm text-fluke-muted mt-1">Public-only context for {safeStr(member.employee_name)}.</div>
+            <div className="font-semibold text-fluke-text">Profile Assistant</div>
+            <div className="text-sm text-fluke-muted mt-1">Scoped to {safeStr(member.employee_name)}'s public data.</div>
           </div>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-fluke-text grid place-items-center"
+          className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-fluke-text grid place-items-center hover:border-fluke-yellow/40 transition-colors"
         >
           <X size={16} />
         </button>
       </div>
 
-      <div className="p-5 grid grid-cols-1 lg:grid-cols-[1.15fr_.85fr] gap-4">
-        <div className="rounded-2xl border border-white/10 bg-black/15 p-4 min-h-[360px]">
-          <div ref={listRef} className="max-h-[340px] overflow-auto pr-1 space-y-3">
+      <div className="p-5 grid grid-cols-1 lg:grid-cols-[1.2fr_.8fr] gap-4">
+        {/* Chat column */}
+        <div className="rounded-2xl border border-white/10 bg-black/15 p-4 flex flex-col min-h-[380px]">
+          <div ref={listRef} className="flex-1 overflow-auto pr-1 space-y-3 max-h-[320px]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -537,30 +537,37 @@ function PublicChatDrawer({
                     : "bg-white/5 border-white/10 text-fluke-text"
                 }`}
               >
-                {msg.content}
+                {msg.content || (msg.role === "assistant" && loading) ? (
+                  msg.content || (
+                    <span className="inline-flex items-center gap-1">
+                      <span className="animate-bounce [animation-delay:0ms] w-1.5 h-1.5 bg-fluke-yellow/60 rounded-full inline-block" />
+                      <span className="animate-bounce [animation-delay:150ms] w-1.5 h-1.5 bg-fluke-yellow/60 rounded-full inline-block" />
+                      <span className="animate-bounce [animation-delay:300ms] w-1.5 h-1.5 bg-fluke-yellow/60 rounded-full inline-block" />
+                    </span>
+                  )
+                ) : null}
               </div>
-            ))}
-            {loading ? (
-              <div className="max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-6 border bg-white/5 border-white/10 text-fluke-text">
-                Thinking...
-              </div>
-            ) : null}
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {chips.map((chip) => (
-              <button
-                key={chip}
-                type="button"
-                disabled={loading}
-                onClick={() => void sendPrompt(chip)}
-                className="px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40"
-              >
-                {chip}
-              </button>
             ))}
           </div>
 
+          {/* Quick chips inside chat */}
+          {!messages.length && !loading ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {chips.map((chip) => (
+                <button
+                  key={chip}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void sendPrompt(chip)}
+                  className="px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40 transition-colors"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          {/* Composer */}
           <div className="edp-composer mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
             <div className="flex items-end gap-2">
               <textarea
@@ -593,65 +600,38 @@ function PublicChatDrawer({
           </div>
         </div>
 
+        {/* Profile context sidebar – no duplicate summary */}
         <div className="space-y-4">
+          {/* Stat tiles */}
           <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">AI Summary</div>
-                <div className="text-sm text-fluke-muted mt-1">Generated from the public profile, awards, media, and analytics context.</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => (loading ? stopPrompt() : void sendPrompt("Give me a concise public summary of this employee."))}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs transition-colors"
-                style={{
-                  color: loading ? "#ef4444" : "inherit",
-                  borderColor: loading ? "rgba(239, 68, 68, 0.3)" : "rgba(255,255,255,0.1)"
-                }}
-              >
-                {loading ? <Square size={13} fill="currentColor" /> : <MessageSquareReply size={13} />}
-                {loading ? "Stop" : "Reply"}
-              </button>
+            <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold mb-4">
+              Profile Context
             </div>
-
-            <div className="mt-4 rounded-2xl border border-white/10 bg-[#05080f] p-5 min-h-[140px] relative overflow-hidden group/readout">
-              <div className="absolute top-0 left-0 w-1 h-full bg-fluke-yellow shadow-[0_0_15px_var(--fluke-yellow)]" />
-              {messages.length ? (
-                <div className="relative z-10">
-                  <p className="text-sm leading-7 text-fluke-text/90 whitespace-pre-wrap font-mono tracking-tight">
-                    {messages[0]?.content || "Initializing secure uplink..."}
-                    <motion.span
-                      animate={{ opacity: [0, 1, 0] }}
-                      transition={{ duration: 0.8, repeat: Infinity }}
-                      className="inline-block w-2 h-4 bg-fluke-yellow ml-1 align-middle"
-                    />
-                  </p>
+            <div className="grid grid-cols-2 gap-3">
+              {profileStats.map((s) => (
+                <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="text-[10px] uppercase tracking-widest text-fluke-muted mb-1">{s.label}</div>
+                  <div className="text-xs font-semibold text-fluke-text line-clamp-2">{s.value}</div>
                 </div>
-              ) : (
-                <div className="flex items-center gap-3 text-fluke-yellow/50 font-mono text-xs uppercase tracking-widest animate-pulse">
-                  <Sparkles size={14} />
-                  Scanning public records...
-                </div>
-              )}
-              {/* Subtle Scanline Overlay */}
-              <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+              ))}
             </div>
           </div>
 
+          {/* Ask chips */}
           <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
             <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold mb-3">
-              Helper chips
+              Ask a question
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2">
               {chips.map((chip) => (
                 <button
-                  key={`small-${chip}`}
+                  key={`side-${chip}`}
                   type="button"
                   disabled={loading}
                   onClick={() => void sendPrompt(chip)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40"
+                  className="w-full text-left inline-flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40 hover:bg-white/10 transition-colors"
                 >
-                  <ArrowLeftRight size={12} />
+                  <MessageCircle size={11} className="flex-none text-fluke-yellow/70" />
                   {chip}
                 </button>
               ))}
@@ -676,6 +656,12 @@ export function EmployeeDetailPanel({
 }) {
   const [tab, setTab] = useState<"overview" | "media" | "awards">("overview");
   const [chatOpen, setChatOpen] = useState(false);
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+
+  function openChatWithQuestion(q: string) {
+    setPendingQuestion(q);
+    setChatOpen(true);
+  }
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(true);
   const media = useMemo(() => normalizeMedia(updates), [updates]);
@@ -841,7 +827,7 @@ export function EmployeeDetailPanel({
           </div>
           <button
             type="button"
-            onClick={() => setChatOpen(true)}
+            onClick={() => openChatWithQuestion("Give me a concise public summary of this employee.")}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-fluke-yellow text-black font-semibold hover:bg-fluke-yellow/90 transition-colors whitespace-nowrap"
           >
             <Sparkles size={16} />
@@ -934,53 +920,11 @@ export function EmployeeDetailPanel({
               </motion.div>
             </div>
 
-            {/* AI Summary Card */}
+            {/* Quick Questions */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="edp-section rounded-3xl border border-white/10 bg-gradient-to-br from-fluke-yellow/10 to-transparent p-6"
-            >
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="text-fluke-yellow" size={18} />
-                    <h3 className="font-bebas text-2xl text-white">AI Generated Summary</h3>
-                  </div>
-                  <p className="text-xs text-fluke-muted">Public profile summary powered by intelligent analysis</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setChatOpen(true)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-fluke-yellow/50 bg-fluke-yellow/10 text-xs font-semibold text-fluke-yellow hover:bg-fluke-yellow/20 transition-colors flex-none"
-                >
-                  Ask
-                </button>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 min-h-[140px] backdrop-blur-sm">
-                {summaryLoading ? (
-                  <div className="flex items-center gap-3 text-fluke-muted animate-pulse">
-                    <motion.div
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <Sparkles size={16} />
-                    </motion.div>
-                    Analyzing profile...
-                  </div>
-                ) : (
-                  <p className="text-sm leading-7 text-fluke-text whitespace-pre-wrap">
-                    {summary || "No summary available yet."}
-                  </p>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Quick Prompts */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
               className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6"
             >
               <h3 className="font-bebas text-xl text-white mb-4 inline-flex items-center gap-2">
@@ -998,7 +942,7 @@ export function EmployeeDetailPanel({
                     key={chip}
                     whileHover={{ scale: 1.02 }}
                     type="button"
-                    onClick={() => setChatOpen(true)}
+                    onClick={() => openChatWithQuestion(chip)}
                     className="text-left p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-fluke-yellow/30 transition-all group"
                   >
                     <p className="text-sm font-semibold text-fluke-text group-hover:text-fluke-yellow transition-colors">
@@ -1202,11 +1146,13 @@ export function EmployeeDetailPanel({
 
         <PublicChatDrawer
           open={chatOpen}
-          onClose={() => setChatOpen(false)}
+          onClose={() => { setChatOpen(false); setPendingQuestion(null); }}
           member={member}
           analytics={analytics}
           awards={memberAwards}
           mediaCount={mediaItems.length}
+          pendingQuestion={pendingQuestion}
+          onPendingQuestionConsumed={() => setPendingQuestion(null)}
         />
       </div>
     </div>

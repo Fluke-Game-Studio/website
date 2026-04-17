@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-=======
 import { useMemo, useState } from "react";
->>>>>>> fc7ec8830e8b87233845900f809c1ed783133af5
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
 import StudioProjectModal from "@/components/StudioProjectModal";
@@ -23,11 +19,8 @@ const categoryColors: Record<string, string> = {
 
 export default function PortfolioPage() {
   const [active, setActive] = useState("All");
-<<<<<<< HEAD
   const navigate = useNavigate();
-=======
   const [selectedProject, setSelectedProject] = useState<StudioProject | null>(null);
->>>>>>> fc7ec8830e8b87233845900f809c1ed783133af5
 
   const items = useMemo(() => toStudioPortfolioItems(getStudioProjects()), []);
   const filtered = active === "All" ? items : items.filter((p) => p.category === active);
@@ -83,7 +76,6 @@ export default function PortfolioPage() {
                   layout: { type: "spring", stiffness: 300, damping: 25 },
                   y: { type: "spring", stiffness: 400, damping: 20 }
                 }}
-                onClick={() => navigate(`/portfolio/${item.id}`)}
                 className="group relative rounded-2xl overflow-hidden cursor-pointer isolate"
                 onClick={() => setSelectedProject(item.raw)}
                 style={{

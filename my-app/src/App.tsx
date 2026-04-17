@@ -20,7 +20,27 @@ import CareersApply from './pages/CareersApply';
 import TeamMember from './pages/TeamMember';
 import NotFound from './pages/NotFound';
 
+const scrollPositions = new Map<string, number>();
+
 function PageWrapper({ children }: { children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  
+  useLayoutEffect(() => {
+    // Restore scroll position when new page mounts
+    const savedPosition = scrollPositions.get(pathname);
+    window.scrollTo({ 
+      top: savedPosition ?? 0, 
+      behavior: 'instant' 
+    });
+  }, [pathname]);
+
+  useLayoutEffect(() => {
+    // Save scroll position when the current page instance unmounts
+    return () => {
+      scrollPositions.set(pathname, window.scrollY);
+    };
+  }, [pathname]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -58,31 +78,7 @@ function AnimatedRoutes() {
   );
 }
 
-const scrollPositions = new Map<string, number>();
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  const prevPathnameRef = useRef<string>('');
-
-  useLayoutEffect(() => {
-    // Save scroll position of previous page
-    if (prevPathnameRef.current && prevPathnameRef.current !== pathname) {
-      scrollPositions.set(prevPathnameRef.current, window.scrollY);
-    }
-
-    // Restore scroll position if we've been to this page before, otherwise scroll to top
-    const savedPosition = scrollPositions.get(pathname);
-    if (savedPosition !== undefined) {
-      window.scrollTo({ top: savedPosition, behavior: 'instant' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }
-    
-    prevPathnameRef.current = pathname;
-  }, [pathname]);
-
-  return null;
-}
 
 function App() {
   useLayoutEffect(() => {
@@ -94,7 +90,6 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <ScrollToTop />
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
