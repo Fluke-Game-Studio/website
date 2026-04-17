@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, MapPin, Send, CheckCircle } from "lucide-react";
+import { submitPublicContact } from "@/services/publicIntakeService";
 
 const projectTypes = [
   "Indie Game Development",
@@ -26,6 +27,8 @@ const budgetRanges = [
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -39,9 +42,29 @@ export default function ContactPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    if (submitting) return;
+    setError("");
+    setSubmitting(true);
+
+    try {
+      await submitPublicContact({
+        context: "flukegames",
+        name: form.name,
+        email: form.email,
+        company: form.company,
+        budget: form.budget,
+        type: form.type,
+        message: form.message,
+        pageUrl: typeof window !== "undefined" ? window.location.href : "",
+      });
+      setSent(true);
+    } catch (err: any) {
+      setError(err?.message || "Failed to send message.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -88,6 +111,11 @@ export default function ContactPage() {
                   boxShadow: 'var(--card-shadow)',
                 }}
               >
+                {error ? (
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                    {error}
+                  </div>
+                ) : null}
                 {/* Row 1 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
@@ -171,10 +199,11 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="btn-primary w-full py-4 rounded-xl font-sora flex items-center justify-center gap-2"
+                  disabled={submitting}
+                  className="btn-primary w-full py-4 rounded-xl font-sora flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   <Send size={16} />
-                  Send Message
+                  {submitting ? "Sending..." : "Send Message"}
                 </button>
               </form>
             )}
