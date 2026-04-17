@@ -14,69 +14,102 @@ export interface Game {
   tags: string[];
 }
 
-export const games: Game[] = [
-  {
-    id: "1",
-    slug: "neon-drift",
-    title: "Neon Drift",
-    genre: "Racing / Arcade",
-    platforms: ["PC", "Mobile"],
-    status: "Released",
-    releaseYear: 2024,
-    description: "A high-octane neon racing experience through cyberpunk cityscapes.",
-    longDescription:
-      "Neon Drift is a fast-paced arcade racing game set in a sprawling cyberpunk metropolis. Drift through neon-lit streets, dodge obstacles, and race to the top of the leaderboard.",
-    coverImage: "/games/neon-drift.jpg",
-    screenshots: [],
-    features: ["40+ tracks", "Online leaderboards", "Procedural city generation", "Custom car skins"],
-    tags: ["Racing", "Neon", "Arcade", "Cyberpunk"],
-  },
-  {
-    id: "2",
-    slug: "shadow-realm",
-    title: "Shadow Realm",
-    genre: "Action RPG",
-    platforms: ["PC", "Console"],
-    status: "In Development",
-    releaseYear: 2025,
-    description: "Descend into a dark fantasy realm where shadows are your greatest weapon.",
-    longDescription:
-      "Shadow Realm is an action RPG where you play as a Shade Hunter navigating a world consumed by darkness. Master shadow magic, craft powerful gear, and unravel ancient mysteries.",
-    coverImage: "/games/shadow-realm.jpg",
-    screenshots: [],
-    features: ["Open world", "Dynamic shadow mechanics", "Deep crafting system", "Co-op mode"],
-    tags: ["RPG", "Dark Fantasy", "Action", "Open World"],
-  },
-  {
-    id: "3",
-    slug: "pixel-warriors",
-    title: "Pixel Warriors",
-    genre: "Platformer",
-    platforms: ["PC", "Mobile", "Web"],
-    status: "Released",
-    releaseYear: 2023,
-    description: "A retro pixel platformer with modern gameplay twists.",
-    longDescription:
-      "Pixel Warriors blends classic platformer nostalgia with modern design philosophy. Fight through 80+ levels of increasing challenge with tight controls and satisfying combat.",
-    coverImage: "/games/pixel-warriors.jpg",
-    screenshots: [],
-    features: ["80+ levels", "Boss fights", "Unlockable characters", "Speedrun mode"],
-    tags: ["Platformer", "Pixel Art", "Retro", "Action"],
-  },
-  {
-    id: "4",
-    slug: "star-forge",
-    title: "Star Forge",
-    genre: "Strategy / Survival",
-    platforms: ["PC"],
-    status: "Coming Soon",
-    releaseYear: 2025,
-    description: "Build your galactic empire from nothing but cosmic dust.",
-    longDescription:
-      "Star Forge is a space survival strategy game where you mine asteroids, build space stations, recruit crew members, and expand your empire across the galaxy.",
-    coverImage: "/games/star-forge.jpg",
-    screenshots: [],
-    features: ["Procedural galaxy", "Base building", "Resource management", "Multiplayer"],
-    tags: ["Strategy", "Survival", "Space", "Building"],
-  },
-];
+import { getProjectCarousel, getStudioProjects, StudioProject, toStudioPortfolioItems } from "@/lib/studioProjects";
+
+function safeStr(v: unknown) {
+  if (v === null || v === undefined) return "";
+  return String(v).trim();
+}
+
+function normalizePlatform(p: string) {
+  const token = safeStr(p).toLowerCase();
+  if (!token) return "";
+  if (token.includes("web")) return "Web";
+  if (token.includes("android") || token.includes("ios") || token.includes("mobile")) return "Mobile";
+  if (token.includes("ps") || token.includes("xbox") || token.includes("switch") || token.includes("console")) return "Console";
+  if (token.includes("mac") || token.includes("windows") || token.includes("pc")) return "PC";
+  return "PC";
+}
+
+function deriveStatus(project: StudioProject): Game["status"] {
+  const names = Array.isArray(project.milestones)
+    ? project.milestones.map((m) => safeStr(m?.name).toLowerCase()).filter(Boolean)
+    : [];
+
+  if (names.some((n) => n.includes("release") || n.includes("shipped"))) return "Released";
+  if (names.some((n) => n.includes("polish"))) return "Released";
+  if (names.length) return "In Development";
+  return "Coming Soon";
+}
+
+function deriveFeatures(project: StudioProject) {
+  const list: string[] = [];
+  const pushAll = (items: unknown) => {
+    if (!Array.isArray(items)) return;
+    for (const item of items) {
+      const t = safeStr(item);
+      if (t) list.push(t);
+    }
+  };
+
+  pushAll(project.highlights);
+  pushAll(project.scope);
+  pushAll(project.systems);
+
+  return Array.from(new Set(list)).slice(0, 10);
+}
+
+function deriveTags(project: StudioProject) {
+  const tags: string[] = [];
+  const pushAll = (items: unknown) => {
+    if (!Array.isArray(items)) return;
+    for (const item of items) {
+      const t = safeStr(item);
+      if (t) tags.push(t);
+    }
+  };
+  pushAll(project.tags);
+  pushAll(project.stack);
+  return Array.from(new Set(tags)).slice(0, 12);
+}
+
+export const games: Game[] = (() => {
+  const items = toStudioPortfolioItems(getStudioProjects()).filter((p) => p.category === "Games");
+
+  return items.map((item, idx) => {
+    const project = item.raw;
+    const carousel = getProjectCarousel(project);
+    const cover = safeStr(project.cover) || safeStr(project.previewImage) || safeStr(project.mainImage) || safeStr(carousel[0]?.url);
+    const screenshots = carousel.map((c) => safeStr(c.url)).filter(Boolean);
+
+    const platforms = Array.isArray(project.platforms)
+      ? Array.from(new Set(project.platforms.map((p) => normalizePlatform(p)).filter(Boolean)))
+      : [];
+
+    const status = deriveStatus(project);
+    const releaseYear = new Date().getFullYear();
+    const genre = safeStr(project.projectType) || "Game";
+    const description = safeStr(project.tagline || project.summary);
+
+    const longDescription = [safeStr(project.summary), safeStr(project.tagline)]
+      .filter(Boolean)
+      .filter((v, i, self) => self.indexOf(v) === i)
+      .join("\n\n");
+
+    return {
+      id: `${item.id}`,
+      slug: safeStr(project.slug) || `${item.id}`,
+      title: safeStr(project.title) || item.title,
+      genre,
+      platforms: platforms.length ? platforms : ["PC"],
+      status,
+      releaseYear,
+      description,
+      longDescription: longDescription || description,
+      coverImage: cover || "",
+      screenshots,
+      features: deriveFeatures(project),
+      tags: deriveTags(project),
+    };
+  });
+})();

@@ -66,17 +66,26 @@ export default function GamesShowcase() {
               >
                 {/* Game art placeholder - image background */}
                 <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
-                  <div
-                    className="w-full h-full transition-transform duration-300 ease-out group-hover:scale-110 flex items-center justify-center opacity-30 group-hover:opacity-40"
-                    style={{
-                      background: `linear-gradient(135deg, hsl(${i * 60 + 20}, 40%, 15%) 0%, hsl(${i * 60}, 50%, 8%) 100%)`,
-                    }}
-                  >
-                    {(() => {
-                      const Icon = artworkIcons[i % 4];
-                      return <Icon size={120} strokeWidth={0.5} className="text-fluke-yellow/40 mix-blend-overlay" />;
-                    })()}
-                  </div>
+                  {game.coverImage ? (
+                    <img
+                      src={game.coverImage}
+                      alt={game.title}
+                      className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full transition-transform duration-300 ease-out group-hover:scale-110 flex items-center justify-center opacity-30 group-hover:opacity-40"
+                      style={{
+                        background: `linear-gradient(135deg, hsl(${i * 60 + 20}, 40%, 15%) 0%, hsl(${i * 60}, 50%, 8%) 100%)`,
+                      }}
+                    >
+                      {(() => {
+                        const Icon = artworkIcons[i % 4];
+                        return <Icon size={120} strokeWidth={0.5} className="text-fluke-yellow/40 mix-blend-overlay" />;
+                      })()}
+                    </div>
+                  )}
                   {/* Atmospheric overlay — always dark (cinematic intent, not theme-dependent) */}
                   <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.75) 45%, transparent 100%)' }} />
                 </div>

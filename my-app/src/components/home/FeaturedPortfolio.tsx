@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { portfolio } from "@/lib/data/content";
 import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
+import StudioProjectModal from "@/components/StudioProjectModal";
+import { getStudioProjects, toStudioPortfolioItems, StudioProject } from "@/lib/studioProjects";
 
 const icons = [Gamepad2, Package, Clapperboard, Globe, Palette, Joystick];
 
@@ -11,9 +12,10 @@ export default function FeaturedPortfolio() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [active, setActive] = useState<string>("All");
+  const [selectedProject, setSelectedProject] = useState<StudioProject | null>(null);
 
-  const filtered =
-    active === "All" ? portfolio : portfolio.filter((p) => p.category === active);
+  const items = useMemo(() => toStudioPortfolioItems(getStudioProjects()), []);
+  const filtered = active === "All" ? items : items.filter((p) => p.category === active);
 
   const categoryColors: Record<string, string> = {
     Games: "#22c55e",
@@ -85,6 +87,7 @@ export default function FeaturedPortfolio() {
                   y: { type: "spring", stiffness: 400, damping: 20 }
                 }}
                 className="group relative rounded-2xl overflow-hidden cursor-pointer isolate"
+                onClick={() => setSelectedProject(item.raw)}
                 style={{
                   backgroundColor: 'var(--card-bg)',
                   border: '1px solid var(--card-border)',
@@ -151,6 +154,8 @@ export default function FeaturedPortfolio() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      <StudioProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </section>
   );
 }

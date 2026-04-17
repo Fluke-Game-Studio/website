@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+=======
+import { useMemo, useState } from "react";
+>>>>>>> fc7ec8830e8b87233845900f809c1ed783133af5
 import { motion, AnimatePresence } from "framer-motion";
-import { portfolio } from "@/lib/data/content";
 import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
+import StudioProjectModal from "@/components/StudioProjectModal";
+import { getStudioProjects, toStudioPortfolioItems, StudioProject } from "@/lib/studioProjects";
 
 const icons = [Gamepad2, Package, Clapperboard, Globe, Palette, Joystick];
 
@@ -18,9 +23,14 @@ const categoryColors: Record<string, string> = {
 
 export default function PortfolioPage() {
   const [active, setActive] = useState("All");
+<<<<<<< HEAD
   const navigate = useNavigate();
+=======
+  const [selectedProject, setSelectedProject] = useState<StudioProject | null>(null);
+>>>>>>> fc7ec8830e8b87233845900f809c1ed783133af5
 
-  const filtered = active === "All" ? portfolio : portfolio.filter((p) => p.category === active);
+  const items = useMemo(() => toStudioPortfolioItems(getStudioProjects()), []);
+  const filtered = active === "All" ? items : items.filter((p) => p.category === active);
 
   return (
     <div className="min-h-screen bg-fluke-bg pt-28 pb-20">
@@ -75,6 +85,7 @@ export default function PortfolioPage() {
                 }}
                 onClick={() => navigate(`/portfolio/${item.id}`)}
                 className="group relative rounded-2xl overflow-hidden cursor-pointer isolate"
+                onClick={() => setSelectedProject(item.raw)}
                 style={{
                   backgroundColor: 'var(--card-bg)',
                   border: '1px solid var(--card-border)',
@@ -105,7 +116,7 @@ export default function PortfolioPage() {
                     {item.category}
                   </div>
                   <div className="absolute top-3 right-3 text-xs font-sora text-fluke-muted bg-fluke-bg/60 px-2 py-0.5 rounded backdrop-blur-sm">
-                    {item.year}
+                    {item.yearLabel}
                   </div>
                 </div>
 
@@ -138,6 +149,8 @@ export default function PortfolioPage() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      <StudioProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </div>
   );
 }
