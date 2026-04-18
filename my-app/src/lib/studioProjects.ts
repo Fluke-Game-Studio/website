@@ -1,4 +1,4 @@
-import studioProjectsRaw from "../../public/data/studioProjects.json";
+import studioProjectsRaw from "../data/studioProjects.json";
 
 export type StudioProjectImage = {
   img: string;
