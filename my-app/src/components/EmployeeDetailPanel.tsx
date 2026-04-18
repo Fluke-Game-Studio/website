@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence, useScroll } from "framer-motion";
 import {
   BarChart3,
   CalendarDays,
@@ -15,6 +15,11 @@ import {
   Trophy,
   X,
   Square,
+  Zap,
+  Star,
+  Target,
+  Sword,
+  Crown,
 } from "lucide-react";
 import PublicBotAvatar2DBit from "./PublicBotAvatar2DBit";
 import {
@@ -177,6 +182,239 @@ function looksLikeNoUpdatesMessage(reply: string) {
     text.includes("could not find submitted updates") ||
     text.includes("no submitted updates") ||
     text.includes("try a different week/project filter")
+  );
+}
+
+// --- NEW REDESIGN COMPONENTS ---
+
+function AwardParallaxCard({ award, idx }: { award: PublicAwardItem; idx: number }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+    
+    // Set CSS variables for the glare effect
+    e.currentTarget.style.setProperty("--mouse-x", `${(mouseX / width) * 100}%`);
+    e.currentTarget.style.setProperty("--mouse-y", `${(mouseY / height) * 100}%`);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const artwork = resolveAwardArtwork(award);
+  const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
+  const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
+  const description = safeStr(award.description);
+  const kind = safeStr(award.type || award.tier).toLowerCase();
+  const kindLabel = safeStr(award.type || award.tier || "Award");
+  const isTrophy = kind === "trophy" || kind.includes("trophy") || kind.includes("official");
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.05 }}
+      viewport={{ once: true }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      className="group/award relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-transparent p-1 transition-all hover:border-fluke-yellow/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+    >
+      <div className="relative h-full rounded-xl bg-fluke-bg/40 backdrop-blur-sm overflow-hidden" style={{ transform: "translateZ(20px)" }}>
+        {/* Parallax Image Area */}
+        <div className="relative h-24 flex items-center justify-center p-1 bg-gradient-to-b from-white/5 to-transparent overflow-hidden">
+          <motion.div 
+            style={{ transform: "translateZ(40px)" }}
+            className="relative z-10 w-full h-full flex items-center justify-center"
+          >
+            {imageUrl ? (
+              isImage(imageUrl) ? (
+                <img src={imageUrl} alt={title} className="h-full object-contain filter drop-shadow-[0_0_15px_rgba(245,197,66,0.3)]" />
+              ) : (
+                <Trophy size={64} className="text-fluke-yellow" />
+              )
+            ) : isTrophy ? (
+              <Trophy size={64} className="text-fluke-yellow" />
+            ) : (
+              <Medal size={64} className="text-emerald-400" />
+            )}
+          </motion.div>
+          
+          {/* Glare Effect */}
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover/award:opacity-100 transition-opacity duration-500"
+            style={{ 
+               background: `radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 80%)`
+            }}
+          />
+        </div>
+
+        <div className="p-4" style={{ transform: "translateZ(30px)" }}>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="px-2 py-0.5 rounded-full bg-fluke-yellow/10 border border-fluke-yellow/20 text-[9px] text-fluke-yellow uppercase font-bold tracking-widest">
+              {kindLabel}
+            </span>
+            <div className="text-[10px] text-fluke-muted font-mono">{fmtDate(award.awardedAt)}</div>
+          </div>
+          <h3 className="font-bebas text-lg text-white tracking-wide line-clamp-1 group-hover/award:text-fluke-yellow transition-colors">
+            {title}
+          </h3>
+          <p className="mt-0.5 text-[10px] text-fluke-muted line-clamp-2 leading-tight">
+            {description || "Studio recognition for excellence."}
+          </p>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+function AchievementTimeline({ achievements }: { achievements: PublicAwardItem[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Track horizontal scroll progress
+  const { scrollXProgress } = useScroll({
+    container: containerRef,
+  });
+
+  // Smooth the progress for the line
+  const scaleX = useSpring(scrollXProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  const getIcon = (type: string) => {
+    const t = type.toLowerCase();
+    if (t.includes("code") || t.includes("dev")) return Sword;
+    if (t.includes("art") || t.includes("design")) return Target;
+    if (t.includes("lead") || t.includes("manager")) return Crown;
+    if (t.includes("milestone") || t.includes("release")) return Zap;
+    return Star;
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      if (containerRef.current) {
+        e.preventDefault();
+        containerRef.current.scrollLeft += e.deltaY;
+      }
+    }
+  };
+
+  return (
+    <div className="relative pt-20 pb-8 group/track">
+      {/* Background Line (Ghost) */}
+      <div className="absolute top-[102px] left-4 right-4 h-1 bg-white/5 z-0 rounded-full" />
+      
+      {/* Animated Growth Line */}
+      <motion.div 
+        className="absolute top-[102px] left-4 right-4 h-1 bg-gradient-to-r from-fluke-yellow via-fluke-yellow to-fluke-yellow shadow-[0_0_15px_rgba(245,197,66,0.8)] z-1 origin-left rounded-full"
+        style={{ scaleX }}
+      />
+      
+      <div 
+        ref={containerRef}
+        onWheel={handleWheel}
+        className="flex flex-row gap-6 overflow-x-auto pb-4 px-4 relative z-10 custom-horizontal-scrollbar"
+      >
+        <style dangerouslySetInnerHTML={{ __html: `
+          .custom-horizontal-scrollbar::-webkit-scrollbar {
+            height: 4px;
+          }
+          .custom-horizontal-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+          }
+          .custom-horizontal-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(245, 197, 66, 0.4);
+            border-radius: 10px;
+          }
+          .custom-horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 197, 66, 0.8);
+          }
+        `}} />
+        {achievements.map((item, idx) => {
+          const Icon = getIcon(safeStr(item.type || item.title));
+          return (
+            <motion.div
+              key={item.id || idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              viewport={{ once: true }}
+              className="relative flex flex-col items-center flex-shrink-0 w-[220px] group"
+            >
+              {/* Level Node (Dot on the line) */}
+              <div className="absolute top-[32px] left-1/2 -translate-x-1/2 z-20">
+                <div className="w-10 h-10 rounded-full bg-fluke-bg border-4 border-fluke-yellow flex items-center justify-center relative shadow-[0_0_20px_rgba(245,197,66,0.6)] group-hover:scale-110 transition-transform duration-300">
+                  <Icon size={18} className="text-fluke-yellow" />
+                  <motion.div
+                    animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 rounded-full border-2 border-fluke-yellow"
+                  />
+                </div>
+              </div>
+
+              {/* Date Badge above the node */}
+              <div className="mb-14 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-mono text-fluke-yellow tracking-widest uppercase">
+                {fmtDate(item.awardedAt)}
+              </div>
+
+              {/* Achievement Card below the node */}
+              <div className="w-full rounded-2xl border border-white/5 bg-white/[0.03] p-6 hover:bg-white/[0.06] hover:border-fluke-yellow/20 transition-all duration-300 group-hover:-translate-y-1 shadow-2xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-[1px] flex-1 bg-fluke-yellow/20" />
+                </div>
+                
+                <h4 className="font-bebas text-2xl text-white tracking-widest leading-tight mb-2 group-hover:text-fluke-yellow transition-colors">
+                  {item.title}
+                </h4>
+                <p className="text-xs text-fluke-muted leading-relaxed font-sora line-clamp-3">
+                  {item.description}
+                </p>
+
+                <div className="mt-4 flex items-center justify-between">
+                   <div className="px-2 py-0.5 rounded bg-fluke-yellow/10 text-[8px] font-orbitron text-fluke-yellow uppercase">
+                    {safeStr(item.type || "Milestone")}
+                   </div>
+                   <Sparkles className="text-fluke-yellow/30 group-hover:text-fluke-yellow opacity-0 group-hover:opacity-100 transition-all" size={14} />
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Scroll hint for desktop */}
+      <div className="mt-4 flex justify-end gap-2 pr-4 opacity-0 group-hover/track:opacity-40 transition-opacity">
+        <div className="flex items-center gap-1.5 text-[9px] font-orbitron text-fluke-muted uppercase tracking-widest">
+          Use Mouse Wheel to Scroll
+          <ChevronRight size={12} />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -678,6 +916,20 @@ export function EmployeeDetailPanel({
       .sort((a, b) => String(b.awardedAt || "").localeCompare(String(a.awardedAt || "")));
   }, [awards, member]);
 
+  const { achievements, officialAwards } = useMemo(() => {
+    const ach: PublicAwardItem[] = [];
+    const off: PublicAwardItem[] = [];
+    memberAwards.forEach((a) => {
+      const kind = safeStr(a.type || a.tier).toLowerCase();
+      if (kind.includes("achievement") || kind.includes("milestone") || kind.includes("update")) {
+        ach.push(a);
+      } else {
+        off.push(a);
+      }
+    });
+    return { achievements: ach, officialAwards: off };
+  }, [memberAwards]);
+
   const employeeWeeklyCounts = useMemo(() => {
     const map = new Map<string, number>();
     for (const item of employeeUpdates) {
@@ -804,7 +1056,7 @@ export function EmployeeDetailPanel({
   }, [member, analytics, memberAwards, mediaItems.length, employeeUpdates.length, employeeWeeks.length]);
 
   return (
-    <div className="edp-container rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,15,28,0.92),rgba(7,11,20,0.96))] shadow-2xl overflow-hidden">
+    <div className="edp-container max-w-full min-w-0 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,15,28,0.92),rgba(7,11,20,0.96))] shadow-2xl overflow-hidden">
       {/* Hero Header with Profile */}
       <div className="p-4 md:p-6 lg:p-8 bg-gradient-to-r from-white/5 via-transparent to-transparent border-b border-white/10">
         <div className="flex flex-col md:flex-row items-start gap-6 md:items-center md:justify-between">
@@ -1059,87 +1311,63 @@ export function EmployeeDetailPanel({
         ) : null}
 
         {tab === "awards" ? (
-          <div className="space-y-4">
+          <div className="space-y-16">
             {!memberAwards.length ? (
               <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-8 text-fluke-muted text-center">
                 <Trophy size={32} className="mx-auto mb-3 opacity-50" />
-                <p>No awards published yet</p>
+                <p>No accolades recorded yet</p>
               </div>
             ) : (
-              (() => {
-                const limit = 6;
-                const visible = showAllAwards ? memberAwards : memberAwards.slice(0, limit);
-                const hasMore = memberAwards.length > limit;
-
-                return (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                      {visible.map((award, idx) => {
-                        const artwork = resolveAwardArtwork(award);
-                        const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
-                        const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
-                        const description = safeStr(award.description);
-                        const kind = safeStr(award.type || award.tier).toLowerCase();
-                        const kindLabel = safeStr(award.type || award.tier || "Award");
-                        const isTrophy = kind === "trophy";
-                        return (
-                          <motion.article
-                            key={`${award.id || title}-${idx}`}
-                            initial={{ opacity: 0, y: 16 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.06 }}
-                            viewport={{ once: true }}
-                            className="group/award rounded-xl border border-white/10 bg-gradient-to-b from-white/10 to-white/[0.03] hover:border-fluke-yellow/30 hover:shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition-all overflow-hidden"
-                          >
-                            <div className="relative h-28 border-b border-white/10 bg-black/25 flex items-center justify-center p-2.5">
-                              {imageUrl ? (
-                                isImage(imageUrl) ? (
-                                  <img src={imageUrl} alt={title} className="h-full w-full object-contain" />
-                                ) : isVideo(imageUrl) ? (
-                                  <video src={imageUrl} className="h-full w-full object-cover" muted playsInline />
-                                ) : isTrophy ? (
-                                  <Trophy className="text-fluke-yellow" size={30} />
-                                ) : (
-                                  <Medal className="text-emerald-400" size={30} />
-                                )
-                              ) : isTrophy ? (
-                                <Trophy className="text-fluke-yellow" size={30} />
-                              ) : (
-                                <Medal className="text-emerald-400" size={30} />
-                              )}
-                              <div className="absolute top-2 right-2 rounded-full border border-white/15 bg-black/40 px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-fluke-yellow/90">
-                                {kindLabel}
-                              </div>
-                            </div>
-
-                            <div className="p-3">
-                              <h3 className="font-bebas text-xl tracking-wide text-white uppercase leading-tight line-clamp-2">
-                                {title}
-                              </h3>
-                              <p className="mt-1 text-xs text-fluke-muted/85 leading-snug line-clamp-2">
-                                {description || "Achievement recorded"}
-                              </p>
-
-                              <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-fluke-yellow/30 bg-fluke-yellow/10 px-2 py-1 text-[11px] text-fluke-yellow font-semibold">
-                                <CalendarDays size={11} />
-                                {fmtDate(award.awardedAt)}
-                              </div>
-                            </div>
-                          </motion.article>
-                        );
-                      })}
+              <>
+                {/* Achievements Timeline Section */}
+                {achievements.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-8"
+                  >
+                    <div className="flex items-center gap-4">
+                      <h3 className="font-bebas text-3xl text-white tracking-widest uppercase">
+                        Career <span className="text-fluke-yellow">Milestones</span>
+                      </h3>
+                      <div className="h-[1px] flex-1 bg-gradient-to-r from-fluke-yellow/40 to-transparent" />
                     </div>
-                    {hasMore && (
+
+                    <AchievementTimeline achievements={achievements} />
+                  </motion.div>
+                )}
+
+                {/* Official Awards Section */}
+                {officialAwards.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-6"
+                  >
+                    <div className="flex items-center gap-4">
+                      <h3 className="font-bebas text-3xl text-white tracking-widest uppercase">
+                        Official <span className="text-fluke-yellow">Recognition</span>
+                      </h3>
+                      <div className="h-[1px] flex-1 bg-gradient-to-r from-fluke-yellow/40 to-transparent" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                      {officialAwards.slice(0, showAllAwards ? undefined : 8).map((award, idx) => (
+                        <AwardParallaxCard key={award.id || idx} award={award} idx={idx} />
+                      ))}
+                    </div>
+
+                    {officialAwards.length > 8 && (
                       <button
                         onClick={() => setShowAllAwards(!showAllAwards)}
-                        className="w-full py-4 text-sm text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-2xl hover:bg-white/5 transition-colors"
+                        className="w-full py-4 text-xs font-orbitron text-fluke-yellow tracking-widest border border-dashed border-white/10 rounded-2xl hover:bg-white/5 transition-all"
                       >
-                        {showAllAwards ? "Show Less" : `View All ${memberAwards.length} Awards`}
+                        {showAllAwards ? "COLLAPSE TROPHY ROOM" : `VIEW ALL ${officialAwards.length} AWARDS`}
                       </button>
                     )}
-                  </>
-                );
-              })()
+                  </motion.div>
+                )}
+              </>
             )}
           </div>
         ) : null}

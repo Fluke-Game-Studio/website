@@ -19,6 +19,7 @@ import About from './pages/About';
 import Careers from './pages/Careers';
 import CareersApply from './pages/CareersApply';
 import TeamMember from './pages/TeamMember';
+import Privacy from './pages/Privacy';
 import NotFound from './pages/NotFound';
 
 const scrollPositions = new Map<string, number>();
@@ -73,6 +74,7 @@ function AnimatedRoutes() {
         <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
         <Route path="/careers" element={<PageWrapper><Careers /></PageWrapper>} />
         <Route path="/careers/apply" element={<PageWrapper><CareersApply /></PageWrapper>} />
+        <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />
         <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>
     </AnimatePresence>

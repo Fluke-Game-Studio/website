@@ -356,7 +356,7 @@ export default function TeamMemberPage() {
             </div>
           </motion.aside>
 
-          <section>
+          <section className="min-w-0 flex-1">
             <EmployeeDetailPanel member={member} awards={awards} updates={updates} analytics={analytics} />
           </section>
         </div>

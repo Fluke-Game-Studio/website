@@ -84,6 +84,11 @@ export function useApplicationController(roleTitle: string | null) {
                 }
             }
 
+            if (field.id === 'ackVolunteer' && val && String(val).trim().toLowerCase() !== 'i confirm for the volunteer position') {
+                errs[field.id] = 'Please type "I confirm for the volunteer position" to proceed.';
+                continue;
+            }
+
             if (val && String(val).trim() !== '') {
                 const str = String(val).trim();
                 if (field.type === 'email') {
@@ -184,8 +189,8 @@ export function useApplicationController(roleTitle: string | null) {
 
         // Custom validation for volunteer acknowledgement if present
         const ack = answers['ackVolunteer'];
-        if (answers.hasOwnProperty('ackVolunteer') && ack !== 'Agree and Submit') {
-            setSubmitError('Please select "Agree and Submit" to confirm the acknowledgement.');
+        if (answers.hasOwnProperty('ackVolunteer') && String(ack).trim().toLowerCase() !== 'i confirm') {
+            setSubmitError('Please type "I confirm" to acknowledge the position terms.');
             return;
         }
 

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronDown, Gamepad2, Users } from "lucide-react";
+import InteractiveGrid from "./InteractiveGrid";
 
 export default function HeroSection() {
   return (
@@ -8,14 +9,7 @@ export default function HeroSection() {
       {/* Radial gradient background */}
       <div className="absolute inset-0 bg-hero-gradient" />
       
-      {/* Grid lines overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(var(--card-border) 1px, transparent 1px), linear-gradient(90deg, var(--card-border) 1px, transparent 1px)`,
-          backgroundSize: "100px 100px",
-        }}
-      />
+      <InteractiveGrid />
 
       {/* Content */}
       <motion.div
