@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingPublicAIChat from './components/FloatingPublicAIChat';
 import { ThemeProvider } from './lib/ThemeContext';
+import { AIAssistantProvider } from './context/AIAssistantContext';
 
 import Home from './pages/Home';
 import Games from './pages/Games';
@@ -89,16 +90,18 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Router>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
-            <AnimatedRoutes />
-          </main>
-          <Footer />
-          <FloatingPublicAIChat />
-        </div>
-      </Router>
+      <AIAssistantProvider>
+        <Router>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
+              <AnimatedRoutes />
+            </main>
+            <Footer />
+            <FloatingPublicAIChat />
+          </div>
+        </Router>
+      </AIAssistantProvider>
     </ThemeProvider>
   );
 }
