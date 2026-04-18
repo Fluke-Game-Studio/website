@@ -1,17 +1,35 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import AboutAccordion from "@/components/about/AboutAccordion";
 import StudioStory from "@/components/home/StudioStory";
-import StudioCapabilities from "@/components/home/StudioCapabilities";
 import TeamSection from "@/components/home/TeamSection";
 import CtaSection from "@/components/home/CtaSection";
+import InteractiveGrid from "@/components/home/InteractiveGrid";
 
 export default function AboutPage() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const element = document.getElementById(id);
+      if (element) {
+        // Use a small timeout to ensure the component is fully rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 300);
+      }
+    }
+  }, [location]);
+
   return (
     <div className="pt-20">
       {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-fluke-bg">
+      <section className="relative h-[70vh] flex items-center justify-center overflow-hidden bg-fluke-bg">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-fluke-bg/50 to-fluke-bg z-10" />
-          <div className="absolute inset-0 opacity-20 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(ellipse_at_center,white,transparent)]" />
+          <InteractiveGrid />
         </div>
 
         <div className="relative z-20 text-center px-6">
@@ -43,11 +61,9 @@ export default function AboutPage() {
       </section>
 
       {/* Main Sections */}
-      <StudioStory />
-      <div className="bg-fluke-surface">
-        <StudioCapabilities />
-      </div>
+      <AboutAccordion />
       <TeamSection />
+      <StudioStory />
       <CtaSection />
     </div>
   );

@@ -1,7 +1,7 @@
 import HeroSection from "@/components/home/HeroSection";
 import GamesShowcase from "@/components/home/GamesShowcase";
 import ServicesGrid from "@/components/home/ServicesGrid";
-import StudioCapabilities from "@/components/home/StudioCapabilities";
+import AboutAccordion from "@/components/about/AboutAccordion";
 import FeaturedPortfolio from "@/components/home/FeaturedPortfolio";
 import DevlogsPreview from "@/components/home/DevlogsPreview";
 import StudioStory from "@/components/home/StudioStory";
@@ -14,7 +14,7 @@ export default function HomePage() {
       <HeroSection />
       <GamesShowcase />
       <ServicesGrid />
-      <StudioCapabilities />
+      <AboutAccordion />
       <FeaturedPortfolio />
       <DevlogsPreview />
       <StudioStory />

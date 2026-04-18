@@ -235,32 +235,51 @@ interface ApplyFieldProps {
   error?: string;
 }
 
-const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, answers, error }) => (
-  <div style={{ marginBottom: "2rem" }}>
-    <label className="careers-apply-label" htmlFor={field.id}>
-      {field.label}
-      {field.required && (
-        <span style={{ color: "var(--gold-primary)" }}> *</span>
+const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, answers, error }) => {
+  const isVolunteerAck = field.id === 'ackVolunteer';
+
+  if (isVolunteerAck) {
+    return (
+      <div className="careers-form-note">
+        <span className="note-label">Acknowledgment & Stipend Policy</span>
+        <p>{field.label}</p>
+        <div style={{ marginTop: "1.5rem" }}>
+          <FieldInput field={field} value={value} onChange={onChange} answers={answers} hasError={!!error} />
+          {error && (
+            <div className="careers-form-error-msg">{error}</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: "2rem" }}>
+      <label className="careers-apply-label" htmlFor={field.id}>
+        {field.label}
+        {field.required && (
+          <span style={{ color: "var(--gold-primary)" }}> *</span>
+        )}
+      </label>
+      {field.helpText && (
+        <p
+          style={{
+            fontSize: "0.85rem",
+            color: "var(--cs-muted)",
+            marginBottom: "0.8rem",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          {field.helpText}
+        </p>
       )}
-    </label>
-    {field.helpText && (
-      <p
-        style={{
-          fontSize: "0.85rem",
-          color: "var(--cs-muted)",
-          marginBottom: "0.8rem",
-          fontFamily: "var(--font-body)",
-        }}
-      >
-        {field.helpText}
-      </p>
-    )}
-    <FieldInput field={field} value={value} onChange={onChange} answers={answers} hasError={!!error} />
-    {error && (
-      <div className="careers-form-error-msg">{error}</div>
-    )}
-  </div>
-);
+      <FieldInput field={field} value={value} onChange={onChange} answers={answers} hasError={!!error} />
+      {error && (
+        <div className="careers-form-error-msg">{error}</div>
+      )}
+    </div>
+  );
+};
 
 // --- Chapter ----------------------------------------------------------------
 

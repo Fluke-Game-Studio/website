@@ -149,8 +149,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-fluke-muted/60 font-sora">
-          <span>© 2025 Fluke Game Studio. All rights reserved.</span>
+        <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 text-xs text-fluke-muted/60 font-sora">
+          <span>© 2026 Fluke Game Studio. All rights reserved.</span>
           <div className="flex items-center gap-2">
             <Mail size={12} />
             <a href="mailto:hello@flukegames.studio" className="hover:text-fluke-yellow transition-colors">
@@ -158,8 +158,8 @@ export default function Footer() {
             </a>
           </div>
           <div className="flex gap-4">
-            <Link to="#" className="hover:text-fluke-yellow transition-colors">Privacy</Link>
-            <Link to="#" className="hover:text-fluke-yellow transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-fluke-yellow transition-colors">Privacy Policy</Link>
+            <Link to="/contact" className="hover:text-fluke-yellow transition-colors">Contact</Link>
           </div>
         </div>
       </div>

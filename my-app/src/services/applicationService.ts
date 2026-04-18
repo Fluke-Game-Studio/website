@@ -162,6 +162,23 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
         fields: roleFields,
     });
 
+    // Final Acknowledgement Chapter
+    chapters.push({
+        title: 'Volunteer Acknowledgement',
+        description: 'This is a **volunteer-based position**. Please confirm that you understand no financial compensation, stipend, or salary is provided for this role.',
+        fields: [
+            {
+                id: 'ackVolunteer',
+                key: 'ackVolunteer',
+                label: 'To proceed, please type exactly: I confirm for the volunteer position',
+                type: 'text',
+                required: true,
+                placeholder: 'I confirm for the volunteer position',
+                helpText: 'By typing this, you acknowledge the volunteer nature of this position.'
+            }
+        ]
+    });
+
     return {
         roleId,
         roleTitle,

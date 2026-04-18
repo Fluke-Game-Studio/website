@@ -199,8 +199,13 @@ html.light .glass-dark {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.horizontal-scroll::-webkit-scrollbar {
+.horizontal-scroll::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 /* Section fade-in on scroll */

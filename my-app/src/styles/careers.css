@@ -368,6 +368,32 @@ html.light .careers-standalone-wrapper {
   font-family: 'Orbitron', sans-serif;
 }
 
+.careers-form-note {
+  background: color-mix(in srgb, var(--cs-gold) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cs-gold) 30%, transparent);
+  border-left: 4px solid var(--cs-gold);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.careers-form-note p {
+  margin: 0;
+  color: var(--cs-text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.careers-form-note .note-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--cs-gold);
+  margin-bottom: 0.6rem;
+  font-family: 'Orbitron', sans-serif;
+}
+
 @media (max-width: 600px) {
   .careers-apply-2col {
     grid-template-columns: 1fr !important;

@@ -11,6 +11,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'https://xtipeal88c.execute-api.us-east-1.amazonaws.com',
