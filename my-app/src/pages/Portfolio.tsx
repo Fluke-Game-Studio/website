@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
 import StudioProjectModal from "@/components/StudioProjectModal";
@@ -18,6 +19,7 @@ const categoryColors: Record<string, string> = {
 
 export default function PortfolioPage() {
   const [active, setActive] = useState("All");
+  const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = useState<StudioProject | null>(null);
 
   const items = useMemo(() => toStudioPortfolioItems(getStudioProjects()), []);

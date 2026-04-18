@@ -4,6 +4,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 // Controller (Business Logic)
 import { useApplicationController } from "../controllers/applicationController";
+import PremiumLoader from "../components/PremiumLoader";
 import "../styles/careers.css";
 
 // --- Field Renderers --------------------------------------------------------
@@ -13,13 +14,22 @@ interface FieldInputProps {
   value: any;
   onChange: (key: string, value: any) => void;
   hasError?: boolean;
+  answers: Record<string, any>;
 }
 
 const COUNTRIES = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "DR Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Other"
 ];
 
-const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasError }) => {
+const REGIONAL_STATES: Record<string, string[]> = {
+  "United States": ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"],
+  "India": ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"],
+  "Canada": ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"],
+  "Australia": ["New South Wales", "Queensland", "South Australia", "Tasmania", "Victoria", "Western Australia"],
+  "United Kingdom": ["England", "Scotland", "Wales", "Northern Ireland"]
+};
+
+const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasError, answers }) => {
   const className = `careers-apply-form-input ${hasError ? "has-error" : ""}`;
 
   if (field.type === "textarea") {
@@ -37,7 +47,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
     );
   }
 
-  if (field.type === "country" || field.type === "location") {
+  if (field.type === "country") {
     return (
       <div style={{ position: "relative" }}>
         <select
@@ -46,6 +56,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
           value={value || ""}
           onChange={(e) => onChange(field.id, e.target.value)}
           required={field.required}
+          autoComplete="country-name"
           style={{
             width: "100%",
             appearance: "none",
@@ -65,6 +76,43 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
         </select>
       </div>
     );
+  }
+
+  if (field.type === "state") {
+    // Look for any field that might be 'country' to filter states
+    const selectedCountry = Object.entries(answers).find(([k]) => k.toLowerCase().includes("country"))?.[1];
+    const states = selectedCountry ? REGIONAL_STATES[selectedCountry] : null;
+
+    if (states) {
+      return (
+        <div style={{ position: "relative" }}>
+          <select
+            className={className}
+            id={field.id}
+            value={value || ""}
+            onChange={(e) => onChange(field.id, e.target.value)}
+            required={field.required}
+            autoComplete="address-level1"
+            style={{
+              width: "100%",
+              appearance: "none",
+              backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='%23F5C542' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPositionX: "calc(100% - 1rem)",
+              backgroundPositionY: "center",
+              paddingRight: "2.5rem"
+            }}
+          >
+            <option value="">Select {field.label || "State/Province"}</option>
+            {states.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    }
   }
 
   if (field.type === "radio" && field.options?.length) {
@@ -161,11 +209,19 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
     <input
       className={className}
       id={field.id}
-      type={field.type}
+      type={field.type === "tel" ? "tel" : field.type === "email" ? "email" : "text"}
       value={value || ""}
       onChange={(e) => onChange(field.id, e.target.value)}
       placeholder={field.placeholder}
       required={field.required}
+      autoComplete={
+        field.type === "address" ? "street-address" :
+        field.type === "city" ? "address-level2" :
+        field.type === "email" ? "email" :
+        field.type === "tel" ? "tel" :
+        field.id.toLowerCase().includes("name") ? "name" :
+        undefined
+      }
       style={{ width: "100%" }}
     />
   );
@@ -175,10 +231,11 @@ interface ApplyFieldProps {
   field: any;
   value: any;
   onChange: (key: string, value: any) => void;
+  answers: Record<string, any>;
   error?: string;
 }
 
-const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, error }) => (
+const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, answers, error }) => (
   <div style={{ marginBottom: "2rem" }}>
     <label className="careers-apply-label" htmlFor={field.id}>
       {field.label}
@@ -198,7 +255,7 @@ const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, error }
         {field.helpText}
       </p>
     )}
-    <FieldInput field={field} value={value} onChange={onChange} hasError={!!error} />
+    <FieldInput field={field} value={value} onChange={onChange} answers={answers} hasError={!!error} />
     {error && (
       <div className="careers-form-error-msg">{error}</div>
     )}
@@ -260,6 +317,7 @@ const Chapter: React.FC<ChapterProps> = ({
           field={field}
           value={answers[field.id]}
           onChange={setAnswer}
+          answers={answers}
           error={shouldShowError ? errors[field.id] : undefined}
         />
       );
@@ -293,10 +351,10 @@ const CareersApply: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="careers-standalone-wrapper">
-        <div className="careers-loading" style={{ height: "60vh" }}>
-          <div className="hex-pulse" />
-          <p>Loading application form…</p>
+      <div className="careers-standalone-wrapper flex items-center justify-center" style={{ minHeight: "60vh" }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-fluke-yellow border-t-transparent rounded-full animate-spin" />
+          <p className="text-fluke-muted animate-pulse font-medium tracking-widest uppercase text-xs">Loading Application...</p>
         </div>
       </div>
     );

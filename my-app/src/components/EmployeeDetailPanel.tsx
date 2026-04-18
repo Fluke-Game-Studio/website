@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeftRight,
+  BarChart3,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
   Medal,
-  MessageSquareReply,
+  MessageCircle,
   Play,
   Send,
   Sparkles,
+  TrendingUp,
   Trophy,
   X,
+  Square,
 } from "lucide-react";
 import PublicBotAvatar2DBit from "./PublicBotAvatar2DBit";
 import {
@@ -238,10 +240,34 @@ function MiniLineChart({
                 strokeDasharray="4 8"
               />
             ))}
-            {areaPath ? <path d={areaPath} fill={`url(#grad-${title.replace(/\s+/g, "-")})`} /> : null}
-            <path d={linePath} fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            {areaPath ? (
+              <path 
+                d={areaPath} 
+                fill={`url(#grad-${title.replace(/\s+/g, "-")})`} 
+                className="transition-all duration-700 ease-in-out"
+              />
+            ) : null}
+            <path 
+              d={linePath} 
+              fill="none" 
+              stroke={stroke} 
+              strokeWidth="4" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="chart-main-line shadow-[0_0_15px_rgba(245,197,66,0.5)]"
+              style={{ filter: `drop-shadow(0 0 8px ${stroke})` }}
+            />
             {points.map((p) => (
-              <circle key={`${p.label}-${p.value}`} cx={p.x} cy={p.y} r="4.5" fill={stroke} className="chart-dot" stroke="#0b1220" strokeWidth="2" />
+              <circle 
+                key={`${p.label}-${p.value}`} 
+                cx={p.x} 
+                cy={p.y} 
+                r="5" 
+                fill={stroke} 
+                className="chart-dot cursor-pointer transition-transform hover:scale-150" 
+                stroke="#0b1220" 
+                strokeWidth="2" 
+              />
             ))}
           </svg>
         </div>
@@ -257,6 +283,8 @@ function PublicChatDrawer({
   analytics,
   awards,
   mediaCount,
+  pendingQuestion,
+  onPendingQuestionConsumed,
 }: {
   open: boolean;
   onClose: () => void;
@@ -264,6 +292,8 @@ function PublicChatDrawer({
   analytics: PublicAnalyticsDashboard | null;
   awards: PublicAwardItem[];
   mediaCount: number;
+  pendingQuestion?: string | null;
+  onPendingQuestionConsumed?: () => void;
 }) {
   const listRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -272,6 +302,7 @@ function PublicChatDrawer({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [robotStatus, setRobotStatus] = useState<"neutral" | "speaking" | "thinking">("neutral");
+  const abortRef = useRef<AbortController | null>(null);
 
   const chips = useMemo(
     () => [
@@ -288,57 +319,46 @@ function PublicChatDrawer({
     [member, analytics, awards, mediaCount]
   );
 
+  // Auto-greet on first open (no pending question)
   useEffect(() => {
     if (!open) return;
     if (messages.length) return;
+    if (pendingQuestion) return; // handled by the pendingQuestion effect below
 
     let cancelled = false;
     setLoading(true);
     setRobotStatus("thinking");
 
     publicStudioService
-      .askPublicAssistant(buildSummaryPrompt(member, analytics, awards, mediaCount), context, {
+      .askPublicAssistant(buildSummaryPrompt(member, analytics, awards, mediaCount), {
         agentEmployeeId: "project_manager_core",
         username: safeStr(member.employee_name),
       })
       .then(async (reply) => {
         if (cancelled) return;
-        setMessages([
-          {
-            id: uid(),
-            role: "assistant",
-            content: "",
-            ts: Date.now(),
-          },
-        ]);
+        setMessages([{ id: uid(), role: "assistant", content: "", ts: Date.now() }]);
         await animateReply(reply || "No summary was returned.", 0);
       })
       .catch((err: any) => {
         if (cancelled) return;
-        setMessages([
-          {
-            id: uid(),
-            role: "assistant",
-            content: safeStr(err?.message || "Failed to generate summary."),
-            ts: Date.now(),
-          },
-        ]);
+        setMessages([{ id: uid(), role: "assistant", content: safeStr(err?.message || "Failed to generate summary."), ts: Date.now() }]);
       })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
+      .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => {
       cancelled = true;
-      if (typingTimerRef.current) {
-        window.clearInterval(typingTimerRef.current);
-        typingTimerRef.current = null;
-      }
+      if (typingTimerRef.current) { window.clearInterval(typingTimerRef.current); typingTimerRef.current = null; }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Fire pending question when drawer opens with a pre-selected chip
+  useEffect(() => {
+    if (!open || !pendingQuestion) return;
+    onPendingQuestionConsumed?.();
+    void sendPrompt(pendingQuestion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pendingQuestion]);
 
   useEffect(() => {
     if (!listRef.current) return;
@@ -412,7 +432,7 @@ function PublicChatDrawer({
     const assistantMsg: ChatMessage = {
       id: uid(),
       role: "assistant",
-      content: "Thinking...",
+      content: "",
       ts: Date.now(),
     };
 
@@ -422,13 +442,16 @@ function PublicChatDrawer({
     setLoading(true);
     setRobotStatus("thinking");
 
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+
     try {
       const reply = await publicStudioService.askPublicAssistant(
         buildFollowupPrompt(member, analytics, awards, mediaCount, trimmed),
-        context,
         {
           agentEmployeeId: "project_manager_core",
           username: safeStr((member as any).username || member.employee_name),
+          abortSignal: abortRef.current.signal,
         }
       );
       const finalReply = looksLikeNoUpdatesMessage(reply)
@@ -443,11 +466,39 @@ function PublicChatDrawer({
       setRobotStatus("neutral");
     } finally {
       setLoading(false);
+      abortRef.current = null;
       setTimeout(() => setRobotStatus("neutral"), 220);
     }
   }
 
+  function stopPrompt() {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    if (typingTimerRef.current) {
+      window.clearInterval(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+    setLoading(false);
+    setRobotStatus("neutral");
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.content === "Thinking...") {
+        return prev.slice(0, -1);
+      }
+      return prev;
+    });
+  }
+
   if (!open) return null;
+
+  const profileStats = [
+    { label: "Title", value: safeStr(member.employee_title) || "—" },
+    { label: "Dept", value: safeStr(member.department) || "—" },
+    { label: "Awards", value: String(awards.length) },
+    { label: "Media", value: String(mediaCount) },
+  ];
 
   return (
     <motion.div
@@ -455,26 +506,28 @@ function PublicChatDrawer({
       animate={{ opacity: 1, y: 0 }}
       className="edp-chat-drawer mt-6 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(11,18,32,.98),rgba(7,12,22,.98))] shadow-2xl overflow-hidden"
     >
+      {/* Drawer Header */}
       <div className="flex items-start justify-between gap-4 p-5 border-b border-white/10">
         <div className="flex items-start gap-3 min-w-0">
           <PublicBotAvatar2DBit status={loading ? "thinking" : robotStatus} size={44} />
           <div className="min-w-0">
-            <div className="font-semibold text-fluke-text">Reply Assistant</div>
-            <div className="text-sm text-fluke-muted mt-1">Public-only context for {safeStr(member.employee_name)}.</div>
+            <div className="font-semibold text-fluke-text">Profile Assistant</div>
+            <div className="text-sm text-fluke-muted mt-1">Scoped to {safeStr(member.employee_name)}'s public data.</div>
           </div>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-fluke-text grid place-items-center"
+          className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-fluke-text grid place-items-center hover:border-fluke-yellow/40 transition-colors"
         >
           <X size={16} />
         </button>
       </div>
 
-      <div className="p-5 grid grid-cols-1 lg:grid-cols-[1.15fr_.85fr] gap-4">
-        <div className="rounded-2xl border border-white/10 bg-black/15 p-4 min-h-[360px]">
-          <div ref={listRef} className="max-h-[340px] overflow-auto pr-1 space-y-3">
+      <div className="p-5 grid grid-cols-1 lg:grid-cols-[1.2fr_.8fr] gap-4">
+        {/* Chat column */}
+        <div className="rounded-2xl border border-white/10 bg-black/15 p-4 flex flex-col min-h-[380px]">
+          <div ref={listRef} className="flex-1 overflow-auto pr-1 space-y-3 max-h-[320px]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -484,30 +537,37 @@ function PublicChatDrawer({
                     : "bg-white/5 border-white/10 text-fluke-text"
                 }`}
               >
-                {msg.content}
+                {msg.content || (msg.role === "assistant" && loading) ? (
+                  msg.content || (
+                    <span className="inline-flex items-center gap-1">
+                      <span className="animate-bounce [animation-delay:0ms] w-1.5 h-1.5 bg-fluke-yellow/60 rounded-full inline-block" />
+                      <span className="animate-bounce [animation-delay:150ms] w-1.5 h-1.5 bg-fluke-yellow/60 rounded-full inline-block" />
+                      <span className="animate-bounce [animation-delay:300ms] w-1.5 h-1.5 bg-fluke-yellow/60 rounded-full inline-block" />
+                    </span>
+                  )
+                ) : null}
               </div>
-            ))}
-            {loading ? (
-              <div className="max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-6 border bg-white/5 border-white/10 text-fluke-text">
-                Thinking...
-              </div>
-            ) : null}
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {chips.map((chip) => (
-              <button
-                key={chip}
-                type="button"
-                disabled={loading}
-                onClick={() => void sendPrompt(chip)}
-                className="px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40"
-              >
-                {chip}
-              </button>
             ))}
           </div>
 
+          {/* Quick chips inside chat */}
+          {!messages.length && !loading ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {chips.map((chip) => (
+                <button
+                  key={chip}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void sendPrompt(chip)}
+                  className="px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40 transition-colors"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          {/* Composer */}
           <div className="edp-composer mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
             <div className="flex items-end gap-2">
               <textarea
@@ -525,59 +585,53 @@ function PublicChatDrawer({
               />
               <button
                 type="button"
-                disabled={loading || !safeStr(input)}
-                onClick={() => void sendPrompt(input)}
-                className="w-11 h-11 rounded-xl bg-fluke-yellow text-black grid place-items-center disabled:opacity-60"
+                className="w-11 h-11 rounded-xl flex items-center justify-center transition-all"
+                disabled={!loading && !safeStr(input)}
+                onClick={() => (loading ? stopPrompt() : void sendPrompt(input))}
+                style={{
+                  background: loading ? "rgba(239, 68, 68, 0.2)" : "var(--fluke-yellow)",
+                  color: loading ? "#ef4444" : "black",
+                  border: loading ? "1px solid rgba(239, 68, 68, 0.3)" : "none",
+                }}
               >
-                <Send size={16} />
+                {loading ? <Square size={16} fill="currentColor" /> : <Send size={16} />}
               </button>
             </div>
           </div>
         </div>
 
+        {/* Profile context sidebar – no duplicate summary */}
         <div className="space-y-4">
+          {/* Stat tiles */}
           <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">AI Summary</div>
-                <div className="text-sm text-fluke-muted mt-1">Generated from the public profile, awards, media, and analytics context.</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => void sendPrompt("Give me a concise public summary of this employee.")}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs"
-              >
-                <MessageSquareReply size={13} />
-                Reply
-              </button>
+            <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold mb-4">
+              Profile Context
             </div>
-
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 min-h-[140px]">
-              {messages.length ? (
-                <p className="text-sm leading-7 text-fluke-text whitespace-pre-wrap">{messages[0]?.content || "Generating summary..."}</p>
-              ) : (
-                <div className="flex items-center gap-2 text-fluke-muted">
-                  <Sparkles size={15} />
-                  Generating summary...
+            <div className="grid grid-cols-2 gap-3">
+              {profileStats.map((s) => (
+                <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="text-[10px] uppercase tracking-widest text-fluke-muted mb-1">{s.label}</div>
+                  <div className="text-xs font-semibold text-fluke-text line-clamp-2">{s.value}</div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
 
+          {/* Ask chips */}
           <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
             <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold mb-3">
-              Helper chips
+              Ask a question
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2">
               {chips.map((chip) => (
                 <button
-                  key={`small-${chip}`}
+                  key={`side-${chip}`}
                   type="button"
                   disabled={loading}
                   onClick={() => void sendPrompt(chip)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40"
+                  className="w-full text-left inline-flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40 hover:bg-white/10 transition-colors"
                 >
-                  <ArrowLeftRight size={12} />
+                  <MessageCircle size={11} className="flex-none text-fluke-yellow/70" />
                   {chip}
                 </button>
               ))}
@@ -602,6 +656,12 @@ export function EmployeeDetailPanel({
 }) {
   const [tab, setTab] = useState<"overview" | "media" | "awards">("overview");
   const [chatOpen, setChatOpen] = useState(false);
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+
+  function openChatWithQuestion(q: string) {
+    setPendingQuestion(q);
+    setChatOpen(true);
+  }
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(true);
   const media = useMemo(() => normalizeMedia(updates), [updates]);
@@ -662,9 +722,13 @@ export function EmployeeDetailPanel({
   const latestLabel = latestUpdate ? fmtDate(latestUpdate.createdAt || latestUpdate.weekStart) : "—";
 
   const [mediaIndex, setMediaIndex] = useState(0);
+  const [showAllMedia, setShowAllMedia] = useState(false);
+  const [showAllAwards, setShowAllAwards] = useState(false);
 
   useEffect(() => {
     setMediaIndex(0);
+    setShowAllMedia(false);
+    setShowAllAwards(false);
   }, [member.employee_name]);
 
   const currentMedia = mediaItems[mediaIndex] || null;
@@ -696,14 +760,6 @@ export function EmployeeDetailPanel({
         );
         const reply = await publicStudioService.askPublicAssistant(
           prompt,
-          buildEmployeeContext(
-            member,
-            analytics,
-            memberAwards,
-            mediaItems.length,
-            employeeUpdates.length,
-            employeeWeeks.length
-          ),
           {
             agentEmployeeId: "project_manager_core",
             username: safeStr((member as any).username || member.employee_name),
@@ -749,164 +805,174 @@ export function EmployeeDetailPanel({
 
   return (
     <div className="edp-container rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,15,28,0.92),rgba(7,11,20,0.96))] shadow-2xl overflow-hidden">
-      <div className="p-4 md:p-6 lg:p-8 border-b border-white/10">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Employee Deep Dive</div>
-            <h2 className="font-bebas text-5xl md:text-6xl uppercase tracking-tight mt-2">
-              {safeStr(member.employee_name)}
-            </h2>
-            <p className="text-fluke-muted mt-3 max-w-3xl">
-              Public-safe charts, media, awards, and an AI summary. Use the reply drawer to ask follow-up questions about this employee.
-            </p>
+      {/* Hero Header with Profile */}
+      <div className="p-4 md:p-6 lg:p-8 bg-gradient-to-r from-white/5 via-transparent to-transparent border-b border-white/10">
+        <div className="flex flex-col md:flex-row items-start gap-6 md:items-center md:justify-between">
+          <div className="flex-1">
+              <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">
+                <Sparkles size={13} />
+                AI Profile Summary
+              </div>
+              <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
+                {summaryLoading ? (
+                  <p className="text-sm md:text-base text-fluke-muted leading-relaxed animate-pulse">
+                    Generating a concise summary for this team member...
+                  </p>
+                ) : (
+                  <p className="text-sm md:text-base text-fluke-text leading-relaxed whitespace-pre-wrap">
+                    {summary || buildLocalEmployeeFallbackSummary(member, memberAwards, mediaItems.length, analytics, employeeUpdates.length, employeeWeeks.length)}
+                  </p>
+                )}
+              </div>
           </div>
           <button
             type="button"
-            onClick={() => setChatOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-fluke-yellow text-black font-semibold"
+            onClick={() => openChatWithQuestion("Give me a concise public summary of this employee.")}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-fluke-yellow text-black font-semibold hover:bg-fluke-yellow/90 transition-colors whitespace-nowrap"
           >
-            <MessageSquareReply size={16} />
-            Reply
+            <Sparkles size={16} />
+            AI Chat
           </button>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-3">
+        {/* Key Stats - Dashboard Style */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-8">
+          {summaryStats.map((card) => (
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="edp-section rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-5 hover:border-fluke-yellow/30 transition-all group"
+            >
+              <div className="text-[10px] uppercase tracking-[0.24em] text-fluke-muted group-hover:text-fluke-yellow transition-colors font-semibold">{card.label}</div>
+              <div
+                className={`mt-3 font-bold text-white group-hover:text-fluke-yellow transition-colors ${
+                  typeof card.value === "number" ? "text-3xl md:text-4xl" : "text-sm leading-5"
+                }`}
+              >
+                {card.value}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="mt-8 flex flex-wrap gap-2">
           {[
-            { key: "overview", label: "General" },
-            { key: "media", label: "Screenshots" },
-            { key: "awards", label: "Awards" },
+            { key: "overview", label: "Overview", icon: BarChart3 },
+            { key: "media", label: "Gallery", icon: ImageIcon },
+            { key: "awards", label: "Awards", icon: Trophy },
           ].map((item) => (
             <button
               key={item.key}
               type="button"
               onClick={() => setTab(item.key as any)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                 tab === item.key
-                  ? "bg-fluke-yellow text-black"
-                  : "bg-white/5 text-fluke-text border border-white/10"
+                  ? "bg-fluke-yellow text-black shadow-lg shadow-fluke-yellow/30"
+                  : "bg-white/5 text-fluke-text border border-white/10 hover:bg-white/10"
               }`}
             >
-              {item.label}
+              <span className="inline-flex items-center gap-2">
+                <item.icon size={14} />
+                {item.label}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="p-4 md:p-6 lg:p-8 space-y-6">
+      <div className="p-4 md:p-6 lg:p-8 space-y-8">
         {tab === "overview" ? (
           <>
-            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">AI Summary</div>
-                  <div className="text-sm text-fluke-muted mt-1">
-                    Public-safe summary generated from the employee profile, awards, media, and analytics context.
-                  </div>
+            {/* Analytics Charts Row */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6 overflow-hidden"
+              >
+                <div className="mb-6">
+                  <h3 className="font-bebas text-2xl text-white inline-flex items-center gap-2">
+                    <TrendingUp size={20} className="text-fluke-yellow" />
+                    Activity Trend
+                  </h3>
+                  <p className="text-xs text-fluke-muted mt-1">Weekly submission activity</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setChatOpen(true)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs"
-                >
-                  <Sparkles size={13} />
-                  Reply
-                </button>
-              </div>
-              <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 min-h-[120px]">
-                {summaryLoading ? (
-                  <div className="flex items-center gap-2 text-fluke-muted">
-                    <Sparkles size={15} />
-                    Generating summary...
-                  </div>
-                ) : (
-                  <p className="text-sm leading-7 text-fluke-text whitespace-pre-wrap">
-                    {summary || "No summary available yet."}
-                  </p>
-                )}
-              </div>
+                <MiniLineChart title="Submission Trend" subtitle="Weekly submission count" data={submissionTrend} stroke="#38bdf8" />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6 overflow-hidden"
+              >
+                <div className="mb-6">
+                  <h3 className="font-bebas text-2xl text-white inline-flex items-center gap-2">
+                    <BarChart3 size={20} className="text-fluke-yellow" />
+                    Update Activity
+                  </h3>
+                  <p className="text-xs text-fluke-muted mt-1">Daily update frequency</p>
+                </div>
+                <MiniLineChart title="Daily Updates" subtitle="Update activity per day" data={updateTrend} stroke="#f59e0b" />
+              </motion.div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {summaryStats.map((card) => (
-                <div key={card.label} className="edp-section rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-fluke-muted">{card.label}</div>
-                  <div
-                    className={`mt-3 font-bold text-fluke-text ${
-                      typeof card.value === "number" ? "text-3xl" : "text-base leading-6"
-                    }`}
-                  >
-                    {card.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-              <MiniLineChart
-                title="Submission Trend"
-                subtitle="Public weekly update submissions."
-                data={submissionTrend}
-                stroke="#38bdf8"
-              />
-              <MiniLineChart
-                title="Update Trend"
-                subtitle="Public daily update activity."
-                data={updateTrend}
-                stroke="#f59e0b"
-              />
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Quick Prompts</div>
-                  <div className="text-sm text-fluke-muted mt-1">Ask the embedded assistant about this employee.</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setChatOpen(true)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs"
-                >
-                  <Sparkles size={13} />
-                  Open reply box
-                </button>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
+            {/* Quick Questions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6"
+            >
+              <h3 className="font-bebas text-xl text-white mb-4 inline-flex items-center gap-2">
+                <MessageCircle size={18} className="text-fluke-yellow" />
+                Quick Questions
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
-                  "Give me a concise public summary.",
-                  "What are the highlighted awards?",
-                  "Show media highlights.",
-                  "What should visitors know about this person?",
+                  "What are their key strengths?",
+                  "Notable achievements and awards?",
+                  "Project highlights and media?",
+                  "Department role and impact?",
                 ].map((chip) => (
-                  <button
+                  <motion.button
                     key={chip}
+                    whileHover={{ scale: 1.02 }}
                     type="button"
-                    onClick={() => setChatOpen(true)}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs text-fluke-text hover:border-fluke-yellow/40"
+                    onClick={() => openChatWithQuestion(chip)}
+                    className="text-left p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-fluke-yellow/30 transition-all group"
                   >
-                    <ArrowLeftRight size={12} />
-                    {chip}
-                  </button>
+                    <p className="text-sm font-semibold text-fluke-text group-hover:text-fluke-yellow transition-colors">
+                      {chip}
+                    </p>
+                  </motion.button>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </>
         ) : null}
 
         {tab === "media" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-4">
-            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 overflow-hidden">
-              <div className="p-5 border-b border-white/10">
-                <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">Media Slideshow</div>
-                <div className="text-sm text-fluke-muted mt-1">
-                  Screenshots and videos surfaced from public update attachments.
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_.8fr] gap-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="edp-section rounded-3xl border border-white/10 bg-black/15 overflow-hidden"
+            >
+              <div className="p-6 border-b border-white/10">
+                <h3 className="font-bebas text-2xl text-white inline-flex items-center gap-2">
+                  <ImageIcon size={20} className="text-fluke-yellow" />
+                  Media Showcase
+                </h3>
+                <p className="text-xs text-fluke-muted mt-1">Featured gallery from public updates</p>
               </div>
-              <div className="p-5">
+              <div className="p-8">
                 {currentMedia ? (
-                  <div className="edp-section rounded-3xl border border-white/10 bg-black/20 overflow-hidden">
-                    <div className="aspect-video bg-black flex items-center justify-center">
+                  <div className="group/viewer relative rounded-3xl border border-white/10 bg-black/40 overflow-hidden shadow-2xl">
+                    <div className="aspect-video bg-black flex items-center justify-center relative">
                       {currentMedia.youtubeUrl ? (
                         <iframe
                           src={currentMedia.youtubeUrl}
@@ -918,167 +984,157 @@ export function EmployeeDetailPanel({
                         <img
                           src={safeStr(currentMedia.publicUrl)}
                           alt={safeStr(currentMedia.name)}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover/viewer:scale-105"
                         />
                       ) : isVideo(safeStr(currentMedia.publicUrl)) ? (
                         <video src={safeStr(currentMedia.publicUrl)} controls className="w-full h-full object-cover" />
                       ) : (
-                        <div className="text-fluke-muted">Media unavailable.</div>
+                        <div className="text-fluke-muted font-mono text-xs uppercase tracking-widest"> Intel Corrupted // Payload Missing</div>
                       )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/viewer:opacity-100 transition-opacity duration-300 pointer-events-none" />
                     </div>
-                    <div className="p-4">
-                      <div className="font-semibold text-fluke-text">{safeStr(currentMedia.name)}</div>
-                      <div className="text-sm text-fluke-muted mt-1">{fmtDate((currentMedia as any).updateDate)}</div>
+                    <div className="p-6 relative">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-1.5 h-4 bg-fluke-yellow rounded-full shadow-[0_0_8px_var(--fluke-yellow)]" />
+                        <div className="font-bebas text-2xl tracking-wide text-white">{safeStr(currentMedia.name)}</div>
+                      </div>
+                      <div className="text-[10px] text-fluke-yellow/60 font-mono flex items-center gap-2">
+                        <CalendarDays size={12} />
+                        {fmtDate((currentMedia as any).updateDate)}
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-8 text-fluke-muted">
-                    No public media has been published for this employee yet.
+                  <div className="rounded-[2rem] border border-dashed border-white/5 bg-white/[0.02] p-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/5">
+                      <ImageIcon className="text-white/20" size={32} />
+                    </div>
+                    <p className="text-fluke-muted font-medium text-sm">No visual media available</p>
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="edp-section rounded-3xl border border-white/10 bg-black/15 p-5">
-              <div className="text-[11px] uppercase tracking-[0.28em] text-fluke-yellow font-semibold">All Media</div>
-              <div className="mt-4">
-                {(() => {
-                  const [showAllMedia, setShowAllMedia] = useState(false);
-                  const limit = 4;
-                  const visible = showAllMedia ? mediaItems : mediaItems.slice(0, limit);
-                  const hasMore = mediaItems.length > limit;
-
-                  return (
-                    <>
-                      <div className="grid grid-cols-2 gap-3 max-h-[560px] overflow-auto pr-1">
-                        {mediaItems.length ? (
-                          visible.map((item, idx) => {
-                            const url = safeStr(item.publicUrl || item.youtubeUrl);
-                            return (
-                              <button
-                                key={`${safeStr(item.name)}-${idx}`}
-                                type="button"
-                                onClick={() => setMediaIndex(idx)}
-                                className={`edp-section rounded-2xl border text-left overflow-hidden transition-colors ${
-                                  mediaIndex === idx ? "border-fluke-yellow bg-fluke-yellow/10" : "border-white/10 bg-white/5"
-                                }`}
-                              >
-                                <div className="aspect-video bg-black/30 flex items-center justify-center overflow-hidden">
-                                  {item.youtubeUrl ? (
-                                    <div className="w-full h-full grid place-items-center text-fluke-yellow">
-                                      <Play size={28} />
-                                    </div>
-                                  ) : isImage(url) ? (
-                                    <img src={url} alt={safeStr(item.name)} className="w-full h-full object-cover" />
-                                  ) : isVideo(url) ? (
-                                    <div className="w-full h-full grid place-items-center text-fluke-yellow">
-                                      <Play size={28} />
-                                    </div>
-                                  ) : (
-                                    <div className="w-full h-full grid place-items-center text-fluke-muted">
-                                      <ImageIcon size={24} />
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="p-3 text-[10px] md:text-sm">
-                                  <div className="font-semibold text-fluke-text line-clamp-1">{safeStr(item.name) || "Media"}</div>
-                                  <div className="text-fluke-muted mt-1">{fmtDate((item as any).updateDate)}</div>
-                                </div>
-                              </button>
-                            );
-                          })
-                        ) : (
-                          <div className="col-span-2 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-fluke-muted">
-                            No screenshots or videos available.
-                          </div>
-                        )}
-                      </div>
-                      {hasMore && (
-                        <button
-                          onClick={() => setShowAllMedia(!showAllMedia)}
-                          className="w-full mt-4 py-3 text-xs text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-xl hover:bg-white/5 transition-colors"
-                        >
-                          {showAllMedia ? "Show Less" : `View All ${mediaItems.length} media items`}
-                        </button>
-                      )}
-                    </>
-                  );
-                })()}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6 flex flex-col"
+            >
+              <h3 className="font-bebas text-xl text-white mb-4">📚 All Media ({mediaItems.length})</h3>
+              <div className="space-y-2 flex-1 overflow-y-auto pr-2">
+                {mediaItems.length ? (
+                  mediaItems.slice(0, showAllMedia ? undefined : 5).map((item, idx) => {
+                    const url = safeStr(item.publicUrl || item.youtubeUrl);
+                    return (
+                      <button
+                        key={`${safeStr(item.name)}-${idx}`}
+                        type="button"
+                        onClick={() => setMediaIndex(idx)}
+                        className={`w-full text-left p-3 rounded-lg border transition-all ${
+                          mediaIndex === idx
+                            ? "bg-fluke-yellow/20 border-fluke-yellow text-fluke-yellow"
+                            : "bg-white/5 border-white/10 hover:bg-white/10"
+                        }`}
+                      >
+                        <div className="text-sm font-semibold line-clamp-1">{safeStr(item.name) || "Media"}</div>
+                        <div className="text-xs text-fluke-muted/80 mt-1">{fmtDate((item as any).updateDate)}</div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="text-fluke-muted text-sm text-center py-6">No media available</div>
+                )}
               </div>
-            </div>
+              {mediaItems.length > 5 && (
+                <button
+                  onClick={() => setShowAllMedia(!showAllMedia)}
+                  className="mt-4 w-full py-2 text-xs text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  {showAllMedia ? "Show Less" : `Show All ${mediaItems.length}`}
+                </button>
+              )}
+            </motion.div>
           </div>
         ) : null}
 
         {tab === "awards" ? (
           <div className="space-y-4">
             {!memberAwards.length ? (
-              <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-8 text-fluke-muted">
-                No awards or achievements have been published for this employee yet.
+              <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-8 text-fluke-muted text-center">
+                <Trophy size={32} className="mx-auto mb-3 opacity-50" />
+                <p>No awards published yet</p>
               </div>
             ) : (
               (() => {
-                const [showAll, setShowAll] = useState(false);
-                const limit = 3;
-                const visible = showAll ? memberAwards : memberAwards.slice(0, limit);
+                const limit = 6;
+                const visible = showAllAwards ? memberAwards : memberAwards.slice(0, limit);
                 const hasMore = memberAwards.length > limit;
 
                 return (
                   <>
-                    {visible.map((award, idx) => {
-                      const artwork = resolveAwardArtwork(award);
-                      const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
-                      const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
-                      const description = safeStr(award.description);
-                      const kind = safeStr(award.type || award.tier).toLowerCase();
-                      const isTrophy = kind === "trophy";
-                      return (
-                        <motion.article
-                          key={`${award.id || title}-${idx}`}
-                          initial={{ opacity: 0, y: 12 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          className="edp-section rounded-3xl p-4 md:p-6 border border-white/10 bg-black/10 flex gap-4"
-                        >
-                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden flex-none bg-white/5 border border-white/10 flex items-center justify-center">
-                            {isTrophy ? (
-                              imageUrl ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                      {visible.map((award, idx) => {
+                        const artwork = resolveAwardArtwork(award);
+                        const imageUrl = safeStr(artwork.imageUrl || award.imageUrl);
+                        const title = safeStr(award.title || award.type || `Award ${idx + 1}`);
+                        const description = safeStr(award.description);
+                        const kind = safeStr(award.type || award.tier).toLowerCase();
+                        const kindLabel = safeStr(award.type || award.tier || "Award");
+                        const isTrophy = kind === "trophy";
+                        return (
+                          <motion.article
+                            key={`${award.id || title}-${idx}`}
+                            initial={{ opacity: 0, y: 16 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.06 }}
+                            viewport={{ once: true }}
+                            className="group/award rounded-xl border border-white/10 bg-gradient-to-b from-white/10 to-white/[0.03] hover:border-fluke-yellow/30 hover:shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition-all overflow-hidden"
+                          >
+                            <div className="relative h-28 border-b border-white/10 bg-black/25 flex items-center justify-center p-2.5">
+                              {imageUrl ? (
                                 isImage(imageUrl) ? (
-                                  <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+                                  <img src={imageUrl} alt={title} className="h-full w-full object-contain" />
                                 ) : isVideo(imageUrl) ? (
-                                  <video src={imageUrl} className="w-full h-full object-cover" muted playsInline />
+                                  <video src={imageUrl} className="h-full w-full object-cover" muted playsInline />
+                                ) : isTrophy ? (
+                                  <Trophy className="text-fluke-yellow" size={30} />
                                 ) : (
-                                  <Trophy className="text-fluke-yellow" size={24} />
+                                  <Medal className="text-emerald-400" size={30} />
                                 )
+                              ) : isTrophy ? (
+                                <Trophy className="text-fluke-yellow" size={30} />
                               ) : (
-                                <Trophy className="text-fluke-yellow" size={24} />
-                              )
-                            ) : (
-                              <Medal className="text-yellow-400" size={24} />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-start justify-between gap-3">
-                              <div>
-                                <h3 className="font-semibold text-base md:text-lg">{title}</h3>
-                                <p className="text-xs md:text-sm text-fluke-muted mt-1 line-clamp-2 md:line-clamp-none">
-                                  {description || "Public award entry"}
-                                </p>
+                                <Medal className="text-emerald-400" size={30} />
+                              )}
+                              <div className="absolute top-2 right-2 rounded-full border border-white/15 bg-black/40 px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-fluke-yellow/90">
+                                {kindLabel}
                               </div>
-                              <span className="tm-card inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs text-fluke-text flex-none">
-                                <CalendarDays size={12} />
-                                {fmtDate(award.awardedAt)}
-                              </span>
                             </div>
-                          </div>
-                        </motion.article>
-                      );
-                    })}
+
+                            <div className="p-3">
+                              <h3 className="font-bebas text-xl tracking-wide text-white uppercase leading-tight line-clamp-2">
+                                {title}
+                              </h3>
+                              <p className="mt-1 text-xs text-fluke-muted/85 leading-snug line-clamp-2">
+                                {description || "Achievement recorded"}
+                              </p>
+
+                              <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-fluke-yellow/30 bg-fluke-yellow/10 px-2 py-1 text-[11px] text-fluke-yellow font-semibold">
+                                <CalendarDays size={11} />
+                                {fmtDate(award.awardedAt)}
+                              </div>
+                            </div>
+                          </motion.article>
+                        );
+                      })}
+                    </div>
                     {hasMore && (
                       <button
-                        onClick={() => setShowAll(!showAll)}
+                        onClick={() => setShowAllAwards(!showAllAwards)}
                         className="w-full py-4 text-sm text-fluke-yellow font-semibold border border-dashed border-white/10 rounded-2xl hover:bg-white/5 transition-colors"
                       >
-                        {showAll ? "Show Less" : `View All ${memberAwards.length} Awards`}
+                        {showAllAwards ? "Show Less" : `View All ${memberAwards.length} Awards`}
                       </button>
                     )}
                   </>
@@ -1090,11 +1146,13 @@ export function EmployeeDetailPanel({
 
         <PublicChatDrawer
           open={chatOpen}
-          onClose={() => setChatOpen(false)}
+          onClose={() => { setChatOpen(false); setPendingQuestion(null); }}
           member={member}
           analytics={analytics}
           awards={memberAwards}
           mediaCount={mediaItems.length}
+          pendingQuestion={pendingQuestion}
+          onPendingQuestionConsumed={() => setPendingQuestion(null)}
         />
       </div>
     </div>
