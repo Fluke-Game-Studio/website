@@ -308,7 +308,8 @@ export default function FloatingPublicAIChat() {
           border-color: rgba(99,102,241,0.15);
         }
         .fg-ai-quick {
-          padding: 0 14px 12px; display:flex; flex-wrap: wrap; gap: 8px;
+          padding: 12px 14px; display:flex; flex-wrap: wrap; gap: 8px;
+          border-top: 1px solid rgba(255,255,255,.05);
         }
         .fg-ai-quick button {
           border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.05);
@@ -321,10 +322,24 @@ export default function FloatingPublicAIChat() {
           background: rgba(2,6,23,.55);
         }
         .fg-ai-inputWrap {
-          display:flex; align-items:flex-end; gap: 8px;
           border-radius: 18px; border: 1px solid rgba(255,255,255,.10);
-          background: rgba(255,255,255,.04); padding: 10px;
+          background: rgba(255,255,255,.04); padding: 5px;
+          display: flex; flex-direction: column;
         }
+        .fg-ai-inputMain {
+          display:flex; align-items:flex-end; gap: 8px;
+          padding: 5px 5px 0 5px;
+        }
+        .fg-ai-quick-integrated {
+          display: flex; flex-wrap: wrap; gap: 6px;
+          padding: 8px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .fg-ai-quick-integrated button {
+          border: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.03);
+          color: #94a3b8; border-radius: 8px; padding: 4px 8px;
+          font-size: 10px; cursor: pointer; transition: all 0.15s;
+        }
+        .fg-ai-quick-integrated button:hover { border-color: rgba(245,197,66,0.3); color: var(--fluke-yellow); }
         .fg-ai-inputWrap textarea {
           width: 100%; resize: none; border: 0; outline: none;
           background: transparent; color: #f8fafc; font: inherit;
@@ -339,9 +354,12 @@ export default function FloatingPublicAIChat() {
         html.light .fg-ai-close { border-color: rgba(8,145,178,0.2); background: rgba(8,145,178,0.05); color: #0E7490; }
         html.light .fg-ai-msg.assistant { background: #ECFEFF; color: #0E7490; border-color: rgba(8,145,178,0.1); }
         html.light .fg-ai-msg.user { background: #0891B2; color: #FFFFFF; border-color: rgba(8,145,178,0.1); }
+        html.light .fg-ai-quick { border-top-color: rgba(8,145,178,0.1); }
         html.light .fg-ai-quick button { border-color: rgba(8,145,178,0.2); background: #FFFFFF; color: #0E7490; }
         html.light .fg-ai-composer { background: #FFFFFF; border-top-color: rgba(8,145,178,0.1); }
         html.light .fg-ai-inputWrap { background: #F8FAFC; border-color: rgba(8,145,178,0.15); }
+        html.light .fg-ai-quick-integrated { border-top-color: rgba(8,145,178,0.1); }
+        html.light .fg-ai-quick-integrated button { border-color: rgba(8,145,178,0.2); background: #FFFFFF; color: #0E7490; }
         html.light .fg-ai-inputWrap textarea { color: #164E63; }
         html.light .fg-ai-inputWrap textarea::placeholder { color: #64748b; }
       `}</style>
@@ -427,56 +445,59 @@ export default function FloatingPublicAIChat() {
                 ))}
               </div>
 
-              {/* Quick prompts */}
-              <div className="fg-ai-quick">
-                {quickPrompts.map((q) => (
-                  <motion.button
-                    key={q}
-                    type="button"
-                    disabled={loading}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      setInput(q);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    {q}
-                  </motion.button>
-                ))}
-              </div>
-
               {/* Composer */}
               <div className="fg-ai-composer">
                 <div className="fg-ai-inputWrap">
-                  <textarea
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder={isEmployee ? `Ask about ${memberName}...` : "Ask the public assistant..."}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        void sendMessage(input);
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="fg-ai-send"
-                    disabled={!loading && !input.trim()}
-                    onClick={() => (loading ? stopResponse() : void sendMessage(input))}
-                    aria-label={loading ? "Stop response" : "Send message"}
-                    style={{
-                      background: loading ? "rgba(239, 68, 68, 0.2)" : "var(--fluke-yellow)",
-                      color: loading ? "#ef4444" : "black",
-                      borderRadius: "12px", width: "36px", height: "36px",
-                      display: "grid", placeItems: "center", transition: "all 0.2s ease",
-                      border: loading ? "1px solid rgba(239,68,68,0.3)" : "none",
-                    }}
-                  >
-                    {loading ? <Square size={16} fill="currentColor" /> : <Send size={16} />}
-                  </button>
+                  <div className="fg-ai-inputMain">
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder={isEmployee ? `Ask about ${memberName}...` : "Ask the public assistant..."}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          void sendMessage(input);
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="fg-ai-send"
+                      disabled={!loading && !input.trim()}
+                      onClick={() => (loading ? stopResponse() : void sendMessage(input))}
+                      aria-label={loading ? "Stop response" : "Send message"}
+                      style={{
+                        background: loading ? "rgba(239, 68, 68, 0.2)" : "var(--fluke-yellow)",
+                        color: loading ? "#ef4444" : "black",
+                        borderRadius: "12px", width: "36px", height: "36px",
+                        display: "grid", placeItems: "center", transition: "all 0.2s ease",
+                        border: loading ? "1px solid rgba(239,68,68,0.3)" : "none",
+                        flexShrink: 0
+                      }}
+                    >
+                      {loading ? <Square size={16} fill="currentColor" /> : <Send size={16} />}
+                    </button>
+                  </div>
+
+                  {/* Integrated Quick prompts */}
+                  <div className="fg-ai-quick-integrated">
+                    {quickPrompts.map((q) => (
+                      <motion.button
+                        key={q}
+                        type="button"
+                        disabled={loading}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setInput(q);
+                          inputRef.current?.focus();
+                        }}
+                      >
+                        {q}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

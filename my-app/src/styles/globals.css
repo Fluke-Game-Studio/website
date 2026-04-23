@@ -317,6 +317,7 @@ html.light .tm-sidebar {
   border-color: rgba(8, 142, 178, 0.12);
   box-shadow: 0 10px 40px rgba(8, 142, 178, 0.06);
   padding: var(--p-section);
+  color: var(--fluke-text);
 }
 html.light .tm-card {
   background: #FFFFFF;
@@ -328,10 +329,22 @@ html.light .tm-icon-box {
   border-color: rgba(8, 142, 178, 0.15);
 }
 
+/* Team member page still uses several dark-mode utility classes; normalize them in light mode. */
+html.light .tm-sidebar [class*="text-white"] {
+  color: var(--fluke-text);
+}
+html.light .tm-sidebar [class*="bg-white/"] {
+  background: rgba(8, 145, 178, 0.05);
+}
+html.light .tm-sidebar [class*="border-white/"] {
+  border-color: rgba(8, 145, 178, 0.16);
+}
+
 /* Employee Detail Panel Light Theme Surfaces */
 html.light .edp-container {
   background: linear-gradient(180deg, #FFFFFF, #F1FDFF);
   border-color: rgba(8, 142, 178, 0.15);
+  color: var(--fluke-text);
 }
 html.light .edp-section {
   background: #FFFFFF;
@@ -357,6 +370,31 @@ html.light .edp-chat-drawer {
 html.light .edp-composer {
   background: #FFFFFF;
   border-color: rgba(8, 142, 178, 0.1);
+}
+
+/* Normalize dark utility classes used inside the employee panel in light mode. */
+html.light .edp-container [class*="bg-black/"] {
+  background: rgba(8, 145, 178, 0.03);
+}
+html.light .edp-container [class*="bg-white/"] {
+  background: rgba(8, 145, 178, 0.04);
+}
+html.light .edp-container [class*="border-white/"] {
+  border-color: rgba(8, 145, 178, 0.14);
+}
+html.light .edp-container h1,
+html.light .edp-container h2,
+html.light .edp-container h3,
+html.light .edp-container h4,
+html.light .edp-container h5,
+html.light .edp-container h6 {
+  color: var(--fluke-text);
+}
+html.light .edp-container [class*="text-white/"] {
+  color: var(--fluke-muted);
+}
+html.light .edp-container [class*="text-white"] {
+  color: var(--fluke-text);
 }
 html.light .edp-chat-bubble.assistant {
   background: #FFFFFF;
