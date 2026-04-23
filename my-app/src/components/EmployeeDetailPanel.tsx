@@ -314,11 +314,21 @@ function AchievementTimeline({ achievements }: { achievements: PublicAwardItem[]
   };
 
   const handleWheel = (e: React.WheelEvent) => {
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      if (containerRef.current) {
-        e.preventDefault();
-        containerRef.current.scrollLeft += e.deltaY;
-      }
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    if (!containerRef.current) return;
+
+    const el = containerRef.current;
+    const maxScrollLeft = el.scrollWidth - el.clientWidth;
+    if (maxScrollLeft <= 0) return;
+
+    const movingRight = e.deltaY > 0;
+    const atStart = el.scrollLeft <= 0;
+    const atEnd = el.scrollLeft >= maxScrollLeft - 1;
+
+    // Keep wheel scrolling in the timeline until the respective edge is reached.
+    if ((movingRight && !atEnd) || (!movingRight && !atStart)) {
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
     }
   };
 
@@ -739,33 +749,42 @@ function PublicChatDrawer({
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="edp-chat-drawer mt-6 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(11,18,32,.98),rgba(7,12,22,.98))] shadow-2xl overflow-hidden"
-    >
-      {/* Drawer Header */}
-      <div className="flex items-start justify-between gap-4 p-5 border-b border-white/10">
-        <div className="flex items-start gap-3 min-w-0">
-          <PublicBotAvatar2DBit status={loading ? "thinking" : robotStatus} size={44} />
-          <div className="min-w-0">
-            <div className="font-semibold text-fluke-text">Profile Assistant</div>
-            <div className="text-sm text-fluke-muted mt-1">Scoped to {safeStr(member.employee_name)}'s public data.</div>
+    <div className="fixed inset-0 z-1150">
+      <button
+        type="button"
+        aria-label="Close profile assistant"
+        onClick={onClose}
+        className="absolute inset-0 bg-black/55 backdrop-blur-[1px]"
+      />
+      <motion.div
+        initial={{ opacity: 0, x: 36 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 36 }}
+        transition={{ type: "spring", stiffness: 320, damping: 30 }}
+        className="edp-chat-drawer absolute inset-0 sm:top-4 sm:right-4 sm:bottom-4 sm:left-auto w-full sm:w-[min(980px,calc(100vw-2rem))] rounded-none sm:rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(11,18,32,.98),rgba(7,12,22,.98))] shadow-2xl overflow-hidden"
+      >
+        {/* Drawer Header */}
+        <div className="flex items-start justify-between gap-4 p-4 sm:p-5 border-b border-white/10">
+          <div className="flex items-start gap-3 min-w-0">
+            <PublicBotAvatar2DBit status={loading ? "thinking" : robotStatus} size={44} />
+            <div className="min-w-0">
+              <div className="font-semibold text-fluke-text">Profile Assistant</div>
+              <div className="text-sm text-fluke-muted mt-1">Scoped to {safeStr(member.employee_name)}'s public data.</div>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-fluke-text grid place-items-center hover:border-fluke-yellow/40 transition-colors"
+          >
+            <X size={16} />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-fluke-text grid place-items-center hover:border-fluke-yellow/40 transition-colors"
-        >
-          <X size={16} />
-        </button>
-      </div>
 
-      <div className="p-5 grid grid-cols-1 lg:grid-cols-[1.2fr_.8fr] gap-4">
+        <div className="p-4 sm:p-5 h-[calc(100%-76px)] grid grid-cols-1 xl:grid-cols-[1.2fr_.8fr] gap-4">
         {/* Chat column */}
-        <div className="rounded-2xl border border-white/10 bg-black/15 p-4 flex flex-col min-h-[380px]">
-          <div ref={listRef} className="flex-1 overflow-auto pr-1 space-y-3 max-h-[320px]">
+        <div className="rounded-2xl border border-white/10 bg-black/15 p-4 flex flex-col min-h-80 xl:min-h-0 xl:h-full">
+          <div ref={listRef} className="flex-1 overflow-auto pr-1 space-y-3">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -877,7 +896,8 @@ function PublicChatDrawer({
           </div>
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -1083,7 +1103,7 @@ export function EmployeeDetailPanel({
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-fluke-yellow text-black font-semibold hover:bg-fluke-yellow/90 transition-colors whitespace-nowrap"
           >
             <Sparkles size={16} />
-            AI Chat
+            Ask AI
           </button>
         </div>
 
@@ -1109,7 +1129,7 @@ export function EmployeeDetailPanel({
         </div>
 
         {/* Tabs */}
-        <div className="mt-8 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-2">
           {[
             { key: "overview", label: "Overview", icon: BarChart3 },
             { key: "media", label: "Gallery", icon: ImageIcon },
@@ -1172,38 +1192,6 @@ export function EmployeeDetailPanel({
               </motion.div>
             </div>
 
-            {/* Quick Questions */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="edp-section rounded-3xl border border-white/10 bg-black/15 p-6"
-            >
-              <h3 className="font-bebas text-xl text-white mb-4 inline-flex items-center gap-2">
-                <MessageCircle size={18} className="text-fluke-yellow" />
-                Quick Questions
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {[
-                  "What are their key strengths?",
-                  "Notable achievements and awards?",
-                  "Project highlights and media?",
-                  "Department role and impact?",
-                ].map((chip) => (
-                  <motion.button
-                    key={chip}
-                    whileHover={{ scale: 1.02 }}
-                    type="button"
-                    onClick={() => openChatWithQuestion(chip)}
-                    className="text-left p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-fluke-yellow/30 transition-all group"
-                  >
-                    <p className="text-sm font-semibold text-fluke-text group-hover:text-fluke-yellow transition-colors">
-                      {chip}
-                    </p>
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
           </>
         ) : null}
 
