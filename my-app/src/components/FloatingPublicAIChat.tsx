@@ -16,9 +16,7 @@ const CHAT_URL = `${API_BASE}/ai/chat-sync/flukegames`;
 const PROVIDER = "openai";
 const MODEL = "gpt-5-mini";
 const CONTEXT = "flukegames";
-const DISCORD_JOIN_URL =
-  (import.meta.env.VITE_DISCORD_JOIN_URL as string | undefined)?.trim() ||
-  "https://discord.gg/flukegames";
+const DISCORD_JOIN_URL = "https://discord.gg/xDQPqXkj5X";
 
 type ChatRole = "user" | "assistant";
 type ChatMessage = { id: string; role: ChatRole; content: string; ts: number };
@@ -546,19 +544,21 @@ export default function FloatingPublicAIChat() {
         )}
       </AnimatePresence>
 
-      <motion.a
-        href={DISCORD_JOIN_URL}
-        target="_blank"
-        rel="noreferrer"
-        className="fg-discord-join"
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.96 }}
-        aria-label="Join Discord server"
-        title="Join Discord server"
-      >
-        <MessageCircle size={17} aria-hidden="true" />
-        <span>Join Discord</span>
-      </motion.a>
+      {DISCORD_JOIN_URL ? (
+        <motion.a
+          href={DISCORD_JOIN_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="fg-discord-join"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.96 }}
+          aria-label="Join Discord server"
+          title="Join Discord server"
+        >
+          <MessageCircle size={17} aria-hidden="true" />
+          <span>Join Discord</span>
+        </motion.a>
+      ) : null}
 
       {/* Floating trigger bubble */}
       <motion.button
