@@ -1,0 +1,443 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Sora:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-fluke-yellow: var(--fluke-yellow);
+  --color-fluke-glow: var(--fluke-glow);
+  --color-fluke-bg: var(--fluke-bg);
+  --color-fluke-surface: var(--fluke-surface);
+  --color-fluke-text: var(--fluke-text);
+  --color-fluke-muted: var(--fluke-muted);
+
+  --font-orbitron: 'Orbitron', sans-serif;
+  --font-sora: 'Sora', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-bebas: 'Bebas Neue', sans-serif;
+
+  --animate-pulse-glow: pulseGlow 2s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 20px #F5C54266, 0 0 40px #F5C54233; }
+    50% { box-shadow: 0 0 40px #F5C542cc, 0 0 80px #F5C54266; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+}
+
+:root {
+  --fluke-yellow: #F5C542;
+  --fluke-glow: #FFD86B;
+  --fluke-bg: #0A0A0A;
+  --fluke-surface: #161616;
+  --fluke-text: #F5F5F5;
+  --fluke-muted: #B5B5B5;
+  
+  /* Card System - Dark */
+  --card-bg: var(--fluke-surface);
+  --card-border: rgba(245, 197, 66, 0.1);
+  --card-shadow: none;
+  --card-hover-border: rgba(245, 197, 66, 0.4);
+  --card-hover-shadow: 0 20px 60px rgba(245, 197, 66, 0.15);
+  
+  /* Thumbnail lightness for HSL gradients */
+  --thumb-lightness: 8%;
+  --thumb-lightness-hi: 14%;
+  
+  /* Hero section specific */
+  --hero-bg-inner: rgba(245, 197, 66, 0.15);
+}
+
+html.light {
+  /* Yellow kept for fills/borders/glows — cyan used for small text, brand yellow for bold/large */
+  --fluke-yellow: #F5C542;
+  --fluke-glow: #FFB300;
+  --fluke-bg: #F0FDFA;       /* Soft Cyan-white — fresh and clean */
+  --fluke-surface: #FFFFFF;  /* Pure white card surfaces */
+  --fluke-text: #0E7490;     /* Cyan 700 for regular text — legible and themed */
+  --fluke-muted: #155E75;    /* Cyan 800 for muted text */
+
+  /* Card System — light */
+  --card-bg: #FFFFFF;
+  --card-border: rgba(8, 145, 178, 0.15);   /* Cyan border */
+  --card-shadow: 0 2px 16px rgba(8, 145, 178, 0.08);
+  --card-hover-border: rgba(245, 197, 66, 0.5); /* Brand yellow on hover */
+  --card-hover-shadow: 0 20px 50px rgba(8, 145, 178, 0.12);
+
+  --thumb-lightness: 94%;
+  --thumb-lightness-hi: 98%;
+  --hero-bg-inner: rgba(245, 197, 66, 0.08);
+}
+
+/* Base Grid System */
+.bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(217, 119, 6, 0.1) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+.bg-dot {
+  background-image: radial-gradient(circle at 1px 1px, var(--card-border) 2px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Section Header Divider */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--fluke-yellow), transparent);
+  opacity: 0.15;
+}
+
+* {
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+  cursor: default;
+}
+
+a, button, [role="button"], input, select, textarea, .cursor-pointer {
+  cursor: pointer;
+}
+
+html {
+  background-color: var(--fluke-bg);
+  transition: background-color 0.3s ease;
+}
+
+body {
+  background-color: var(--fluke-bg);
+  color: var(--fluke-text);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--fluke-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: #F5C542;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD86B;
+}
+
+/* Selection */
+::selection {
+  background: #F5C54244;
+  color: #F5C542;
+}
+
+/* Glow utilities */
+.glow-yellow {
+  text-shadow: 0 0 20px #F5C542, 0 0 40px #F5C54288;
+}
+
+.glow-box-yellow {
+  box-shadow: 0 0 20px #F5C54233, 0 0 40px #F5C54211;
+}
+
+.glow-box-yellow-strong {
+  box-shadow: 0 0 30px #F5C54266, 0 0 60px #F5C54233;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(22, 22, 22, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 197, 66, 0.1);
+}
+
+.glass-dark {
+  background: rgba(var(--fluke-surface-rgb, 10, 10, 10), 0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(245, 197, 66, 0.08);
+}
+
+/* Light mode glass — white frosted */
+html.light .glass,
+html.light .glass-dark {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(245, 197, 66, 0.2);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--fluke-yellow), var(--fluke-glow), var(--fluke-yellow));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Noise overlay removed for performance */
+
+.bg-hero-gradient {
+  background: radial-gradient(circle at center, var(--hero-bg-inner) 0%, transparent 70%);
+}
+
+/* Horizontal scroll container */
+.horizontal-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.horizontal-scroll::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Section fade-in on scroll */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.section-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card hover */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), border-color 0.2s ease;
+  will-change: transform;
+}
+.card-hover:hover,
+.group:hover .group-card-hover {
+  transform: scale(1.02) translateZ(0);
+  border-color: rgba(245, 197, 66, 0.4);
+}
+
+/* Particle canvas removed for performance */
+
+/* Clip path for diagonal sections */
+.clip-diagonal {
+  clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+}
+
+/* Yellow line accent */
+.yellow-line::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--fluke-yellow);
+  margin-top: 12px;
+  box-shadow: 0 0 10px var(--fluke-glow);
+}
+
+/* Button styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--fluke-yellow), var(--fluke-glow));
+  color: var(--fluke-bg);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+.btn-primary:hover::before {
+  transform: translateX(0);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--fluke-yellow);
+}
+
+.btn-outline {
+  border: 1.5px solid var(--fluke-yellow);
+  color: var(--fluke-yellow);
+  background: transparent;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+.btn-outline:hover {
+  background: var(--fluke-surface);
+  box-shadow: 0 0 20px var(--fluke-yellow);
+  transform: translateY(-2px);
+}
+/* ─── Light mode text + utility overrides ─── */
+/* ─── Light mode text + utility overrides ─── */
+/* (Base text colors are automatically handled by the --fluke-text variables updated above) */
+
+:root {
+  --p-section: 1rem;
+  --p-card: 1rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --p-section: 1.5rem;
+    --p-card: 1.25rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --p-section: 2rem;
+    --p-card: 1.5rem;
+  }
+}
+
+/* Team Member & Portfolio Light Theme Surfaces */
+html.light .tm-sidebar {
+  background: linear-gradient(180deg, #FFFFFF, #F9FAFB);
+  border-color: rgba(8, 142, 178, 0.12);
+  box-shadow: 0 10px 40px rgba(8, 142, 178, 0.06);
+  padding: var(--p-section);
+  color: var(--fluke-text);
+}
+html.light .tm-card {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+  padding: var(--p-card);
+}
+html.light .tm-icon-box {
+  background: #F0FDFA;
+  border-color: rgba(8, 142, 178, 0.15);
+}
+
+/* Team member page still uses several dark-mode utility classes; normalize them in light mode. */
+html.light .tm-sidebar [class*="text-white"] {
+  color: var(--fluke-text);
+}
+html.light .tm-sidebar [class*="bg-white/"] {
+  background: rgba(8, 145, 178, 0.05);
+}
+html.light .tm-sidebar [class*="border-white/"] {
+  border-color: rgba(8, 145, 178, 0.16);
+}
+
+/* Employee Detail Panel Light Theme Surfaces */
+html.light .edp-container {
+  background: linear-gradient(180deg, #FFFFFF, #F1FDFF);
+  border-color: rgba(8, 142, 178, 0.15);
+  color: var(--fluke-text);
+}
+html.light .edp-section {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+  box-shadow: 0 4px 20px rgba(8, 142, 178, 0.04);
+  padding: var(--p-section);
+}
+html.light .edp-chart {
+  background: #F8FAFC;
+  border-color: rgba(8, 142, 178, 0.12);
+  padding: var(--p-section);
+}
+html.light .edp-chart .chart-grid-line {
+  stroke: rgba(8, 142, 178, 0.1);
+}
+html.light .edp-chart .chart-dot {
+  stroke: #FFFFFF;
+}
+html.light .edp-chat-drawer {
+  background: linear-gradient(180deg, #F0FDFA, #FFFFFF);
+  border-color: rgba(8, 142, 178, 0.2);
+}
+html.light .edp-composer {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+}
+
+/* Normalize dark utility classes used inside the employee panel in light mode. */
+html.light .edp-container [class*="bg-black/"] {
+  background: rgba(8, 145, 178, 0.03);
+}
+html.light .edp-container [class*="bg-white/"] {
+  background: rgba(8, 145, 178, 0.04);
+}
+html.light .edp-container [class*="border-white/"] {
+  border-color: rgba(8, 145, 178, 0.14);
+}
+html.light .edp-container h1,
+html.light .edp-container h2,
+html.light .edp-container h3,
+html.light .edp-container h4,
+html.light .edp-container h5,
+html.light .edp-container h6 {
+  color: var(--fluke-text);
+}
+html.light .edp-container [class*="text-white/"] {
+  color: var(--fluke-muted);
+}
+html.light .edp-container [class*="text-white"] {
+  color: var(--fluke-text);
+}
+html.light .edp-chat-bubble.assistant {
+  background: #FFFFFF;
+  border-color: rgba(8, 142, 178, 0.1);
+}
+html.light .edp-chat-bubble.user {
+  background: #0891B2;
+  color: #FFFFFF;
+  border-color: transparent;
+}
+
+/*
+  KEY FIX: yellow as TEXT is illegible on light bg (~1.5:1 contrast).
+  Swap all yellow TEXT to deep violet (#5B21B6) — still happy, premium,
+  gaming-coded, and a ~7:1 contrast on white. Yellow is preserved for
+  filled elements (buttons, borders, glows) which aren't affected here.
+*/
+html.light .text-fluke-yellow {
+  color: #F5C542 !important;   /* Brand Yellow — requested for bold/large highlights */
+}
+
+/* Orbitron tracking labels inherit the violet correctly ↑ */
+
+/* Grid dots — subtle cyan on fresh bg */
+html.light .bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(8, 145, 178, 0.1) 1px, transparent 0);
+}
+
+/* Section divider — keep yellow, just slightly more visible */
+html.light .section-divider {
+  opacity: 0.4;
+}
+
+/* btn-outline — brand yellow in light mode */
+html.light .btn-outline {
+  border-color: #F5C542;
+  color: #F5C542;
+}
+html.light .btn-outline:hover {
+  background: rgba(245, 197, 66, 0.08);
+  box-shadow: 0 0 20px rgba(245, 197, 66, 0.2);
+  border-color: #F5C542;
+}
+
+/* yellow-line accent under headings — keep brand yellow ✓ */
+/* (yellow line works as a FAT accent, not as text — reads fine) */
