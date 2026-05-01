@@ -189,8 +189,8 @@ export function useApplicationController(roleTitle: string | null) {
 
         // Custom validation for volunteer acknowledgement if present
         const ack = answers['ackVolunteer'];
-        if (answers.hasOwnProperty('ackVolunteer') && String(ack).trim().toLowerCase() !== 'i confirm') {
-            setSubmitError('Please type "I confirm" to acknowledge the position terms.');
+        if (answers.hasOwnProperty('ackVolunteer') && String(ack).trim().toLowerCase() !== 'i confirm for the volunteer position') {
+            setSubmitError('Please type "I confirm for the volunteer position" to acknowledge the position terms.');
             return;
         }
 
@@ -201,11 +201,17 @@ export function useApplicationController(roleTitle: string | null) {
             const applicant = buildApplicantProfile();
 
             const res = await applicationService.submitApplication({
-                role: flow.roleTitle,
-                roleId: flow.roleId,
+                role: {
+                    id: flow.roleId,
+                    title: flow.roleTitle,
+                },
                 applicant,
                 answers,
-                timestamp: new Date().toISOString()
+                meta: {
+                    source: 'website-careers',
+                    formVersion: '1',
+                    submittedAt: new Date().toISOString(),
+                },
             });
             setSubmitReceipt(res);
             setIsSubmitted(true);
