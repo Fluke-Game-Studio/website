@@ -29,9 +29,7 @@ export default function ServicesGrid() {
           <h2 className="font-bebas text-5xl sm:text-7xl text-fluke-text yellow-line">
             Our Services
           </h2>
-          <p className="font-sora text-fluke-muted max-w-xl mx-auto mt-4">
-            From concept to launch — we offer end-to-end creative and technical services for game developers and studios worldwide.
-          </p>
+
         </motion.div>
 
         {/* Grid */}

@@ -1,7 +1,19 @@
 // src/controllers/applicationController.ts
 import { useState, useEffect } from 'react';
-import { careerService, Job } from '../services/careerService';
+import { careerService } from '../services/careerService';
 import { buildApplicationFlow, applicationService, ApplicationFlow } from '../services/applicationService';
+import { googlePrefillService, type GooglePrefillUser } from '../services/googlePrefillService';
+
+function safeStr(value: any): string {
+    return value === null || value === undefined ? '' : String(value);
+}
+
+function isEmpty(value: any): boolean {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string') return value.trim().length === 0;
+    if (Array.isArray(value)) return value.length === 0;
+    return false;
+}
 
 /**
  * Controller hook for managing job application flow
@@ -18,6 +30,7 @@ export function useApplicationController(roleTitle: string | null) {
     const [submitError, setSubmitError] = useState('');
     const [submitReceipt, setSubmitReceipt] = useState<any>(null);
     const [touched, setTouched] = useState<Record<string, boolean>>({});
+    const [googleUser, setGoogleUser] = useState<GooglePrefillUser | null>(() => googlePrefillService.readUser());
 
     useEffect(() => {
         if (!roleTitle) return;
@@ -44,7 +57,13 @@ export function useApplicationController(roleTitle: string | null) {
                 const built = buildApplicationFlow(job.raw || job);
                 setFlow(built);
                 setCurrentChapter(0);
-                setAnswers({});
+                const baseAnswers = built ? {
+                    roleId: built.role.id || '',
+                    roleTitle: built.role.title || '',
+                    jobId: built.role.jobId || '',
+                    whatsappOptIn: false,
+                } : {};
+                setAnswers(applyGooglePrefillToAnswers(baseAnswers, built, googlePrefillService.readUser()));
                 setTouched({});
             })
             .catch((err) => {
@@ -57,6 +76,16 @@ export function useApplicationController(roleTitle: string | null) {
 
         return () => { cancelled = true; };
     }, [roleTitle]);
+
+    useEffect(() => {
+        const onGoogleUser = (event: Event) => {
+            const user = (event as CustomEvent).detail || googlePrefillService.readUser();
+            setGoogleUser(user);
+            setAnswers((prev) => applyGooglePrefillToAnswers(prev, flow, user));
+        };
+        window.addEventListener('fg-google-user', onGoogleUser as EventListener);
+        return () => window.removeEventListener('fg-google-user', onGoogleUser as EventListener);
+    }, [flow]);
 
     function setAnswer(key: string, value: any) {
         setAnswers((prev) => ({ ...prev, [key]: value }));
@@ -84,8 +113,8 @@ export function useApplicationController(roleTitle: string | null) {
                 }
             }
 
-            if (field.id === 'ackVolunteer' && val && String(val).trim().toLowerCase() !== 'i confirm for the volunteer position') {
-                errs[field.id] = 'Please type "I confirm for the volunteer position" to proceed.';
+            if (field.id === 'ackVolunteer' && val && val !== 'Agree and Submit') {
+                errs[field.id] = 'Please select "Agree and Submit" to proceed.';
                 continue;
             }
 
@@ -105,6 +134,14 @@ export function useApplicationController(roleTitle: string | null) {
                 }
             }
         }
+
+        if (chapter.fields.some((field: any) => isPhoneField(field))) {
+            const phoneKey = getPhoneFieldKey();
+            if (phoneKey && !isEmpty(answers[phoneKey]) && !answers.whatsappOptIn) {
+                errs.whatsappOptIn = 'Please confirm WhatsApp consent to proceed.';
+            }
+        }
+
         return errs;
     }
 
@@ -112,61 +149,202 @@ export function useApplicationController(roleTitle: string | null) {
         return Object.keys(getFieldErrors(chapter)).length === 0;
     }
 
-    function buildApplicantProfile() {
-        const applicant: Record<string, any> = {};
+    function allFields() {
+        return (flow?.chapters || []).flatMap((chapter) => chapter.fields || []);
+    }
 
-        if (!flow) return applicant;
+    function fieldsFor(targetFlow: ApplicationFlow | null) {
+        return (targetFlow?.chapters || []).flatMap((chapter) => chapter.fields || []);
+    }
 
-        for (const chapter of flow.chapters) {
-            for (const field of chapter.fields || []) {
-                const value = answers[field.id];
-                if (value === undefined || value === null || value === '') continue;
-
-                const text = String(value).trim();
-                const label = `${field.label || ''} ${field.id || ''}`.toLowerCase();
-
-                if (!applicant.email && field.type === 'email') {
-                    applicant.email = text;
-                    continue;
-                }
-
-                if (!applicant.fullName && /full\s*name|\bname\b/.test(label) && !/username/.test(label)) {
-                    applicant.fullName = text;
-                    continue;
-                }
-
-                if (!applicant.phone && field.type === 'tel') {
-                    applicant.phone = text;
-                    continue;
-                }
-
-                if (!applicant.resume && /resume|cv/.test(label)) {
-                    applicant.resume = text;
-                    continue;
-                }
-
-                if (!applicant.portfolio && /portfolio|website/.test(label)) {
-                    applicant.portfolio = text;
-                    continue;
-                }
-
-                if (!applicant.address && /address/.test(label)) {
-                    applicant.address = text;
-                    continue;
-                }
-
-                if (!applicant.city && /city/.test(label)) {
-                    applicant.city = text;
-                    continue;
-                }
-
-                if (!applicant.country && /country/.test(label)) {
-                    applicant.country = text;
-                }
-            }
+    function detectFieldKey(predicateFn: (field: any) => boolean, fallbackKey = '') {
+        for (const field of allFields()) {
+            if (field && predicateFn(field)) return safeStr(field.key || field.id || fallbackKey);
         }
+        return fallbackKey;
+    }
 
-        return applicant;
+    function detectFieldKeyInFlow(targetFlow: ApplicationFlow | null, predicateFn: (field: any) => boolean, fallbackKey = '') {
+        for (const field of fieldsFor(targetFlow)) {
+            if (field && predicateFn(field)) return safeStr(field.key || field.id || fallbackKey);
+        }
+        return fallbackKey;
+    }
+
+    function isPhoneField(field: any) {
+        const key = safeStr(field?.key || field?.id).toLowerCase();
+        return field?.type === 'tel' || key.includes('phone') || key.includes('mobile');
+    }
+
+    function getPhoneFieldKey() {
+        return detectFieldKey(isPhoneField, 'phone');
+    }
+
+    function getEmailFieldKey() {
+        return detectFieldKey((field) => {
+            const key = safeStr(field.key || field.id).toLowerCase();
+            return field.type === 'email' || key === 'email' || key.includes('email');
+        }, 'email');
+    }
+
+    function getNameFieldKey() {
+        return detectFieldKey((field) => {
+            const key = safeStr(field.key || field.id).toLowerCase();
+            const label = safeStr(field.label).toLowerCase();
+            if (key === 'fullname' || key === 'full_name' || key === 'name') return true;
+            if (key.includes('full') && key.includes('name')) return true;
+            if (label.includes('full name')) return true;
+            if (label === 'name' || label.includes('your name')) return true;
+            if (key.includes('applicant') && key.includes('name')) return true;
+            if (key.includes('candidate') && key.includes('name')) return true;
+            return false;
+        }, 'fullName');
+    }
+
+    function getEmailFieldKeyInFlow(targetFlow: ApplicationFlow | null) {
+        return detectFieldKeyInFlow(targetFlow, (field) => {
+            const key = safeStr(field.key || field.id).toLowerCase();
+            return field.type === 'email' || key === 'email' || key.includes('email');
+        }, 'email');
+    }
+
+    function getNameFieldKeyInFlow(targetFlow: ApplicationFlow | null) {
+        return detectFieldKeyInFlow(targetFlow, (field) => {
+            const key = safeStr(field.key || field.id).toLowerCase();
+            const label = safeStr(field.label).toLowerCase();
+            if (key === 'fullname' || key === 'full_name' || key === 'name') return true;
+            if (key.includes('full') && key.includes('name')) return true;
+            if (label.includes('full name')) return true;
+            if (label === 'name' || label.includes('your name')) return true;
+            if (key.includes('applicant') && key.includes('name')) return true;
+            if (key.includes('candidate') && key.includes('name')) return true;
+            return false;
+        }, 'fullName');
+    }
+
+    function applyGooglePrefillToAnswers(
+        baseAnswers: Record<string, any>,
+        targetFlow: ApplicationFlow | null,
+        user: GooglePrefillUser | null
+    ) {
+        if (!targetFlow || !user?.email) return baseAnswers;
+        const nameKey = getNameFieldKeyInFlow(targetFlow);
+        const emailKey = getEmailFieldKeyInFlow(targetFlow);
+        return {
+            ...baseAnswers,
+            [nameKey]: user.name || baseAnswers[nameKey],
+            [emailKey]: user.email || baseAnswers[emailKey],
+        };
+    }
+
+    function applyGoogleUser(user: GooglePrefillUser) {
+        const saved = googlePrefillService.writeUser(user);
+        setGoogleUser(saved);
+        setAnswers((prev) => applyGooglePrefillToAnswers(prev, flow, saved));
+    }
+
+    function skipGooglePrefill() {
+        googlePrefillService.dismissPopup();
+    }
+
+    function buildFieldIndex() {
+        const idx: Record<string, { label: string; type: string; id: string; key: string }> = {};
+        for (const field of allFields()) {
+            const key = safeStr(field.key || field.id);
+            if (!key) continue;
+            idx[key] = {
+                label: safeStr(field.label || key),
+                type: safeStr(field.type),
+                id: safeStr(field.id),
+                key,
+            };
+        }
+        return idx;
+    }
+
+    function pickByLabelOrKeyContains(
+        fieldIndex: Record<string, { label: string; id: string; key: string }>,
+        form: Record<string, any>,
+        needles: string[]
+    ) {
+        const ns = needles.map((s) => safeStr(s).toLowerCase());
+        let best = '';
+        for (const key of Object.keys(fieldIndex || {})) {
+            const meta = fieldIndex[key] || {};
+            const label = safeStr(meta.label).toLowerCase();
+            const id = safeStr(meta.id).toLowerCase();
+            const kk = safeStr(key).toLowerCase();
+            if (!ns.some((needle) => label.includes(needle) || kk.includes(needle) || id.includes(needle))) continue;
+            const value = form[key];
+            if (!isEmpty(value)) best = value;
+        }
+        return best;
+    }
+
+    function buildPayload() {
+        if (!flow) return {};
+
+        const form = answers || {};
+        const googleUser = googlePrefillService.readUser() || { name: '', email: '', imageUrl: '' };
+        const fieldIndex = buildFieldIndex();
+        const emailKey = getEmailFieldKey();
+        const nameKey = getNameFieldKey();
+        const phoneKey = getPhoneFieldKey();
+
+        const resolvedName = !isEmpty(form[nameKey]) ? form[nameKey] : (googleUser.name || '');
+        const resolvedEmail = !isEmpty(form[emailKey]) ? form[emailKey] : (googleUser.email || '');
+        const resolvedResume =
+            pickByLabelOrKeyContains(fieldIndex, form, ['resume', 'cv']) ||
+            form.resumeLink ||
+            '';
+        const resolvedPortfolio =
+            pickByLabelOrKeyContains(fieldIndex, form, ['portfolio', 'website', 'link']) ||
+            form.portfolioLink ||
+            '';
+
+        const answersRaw = { ...form };
+        const answersReadable: Record<string, any> = {};
+
+        Object.keys(answersRaw).forEach((key) => {
+            if (key === 'roleId' || key === 'roleTitle' || key === 'jobId') return;
+            const meta = fieldIndex[key];
+            const label = meta ? meta.label : key;
+            const value = answersRaw[key];
+            answersReadable[label] = Array.isArray(value) ? value.slice(0) : value;
+        });
+
+        return {
+            meta: {
+                submittedAt: new Date().toISOString(),
+                source: 'fluke-games-careers',
+                formVersion: 'v6-api-driven-whatsapp-consent',
+            },
+            role: {
+                id: form.roleId || flow.role.id,
+                title: form.roleTitle || flow.role.title,
+                jobId: form.jobId || flow.role.jobId,
+                team: flow.role.team || '',
+                location: flow.role.location || '',
+                employmentType: flow.role.employmentType || '',
+            },
+            google: {
+                name: googleUser.name || '',
+                email: googleUser.email || '',
+                imageUrl: googleUser.imageUrl || '',
+            },
+            applicant: {
+                fullName: resolvedName,
+                email: resolvedEmail,
+                phone: form[phoneKey],
+                whatsappOptIn: !!form.whatsappOptIn,
+                university: form.university,
+                degreeAndYear: form.degreeYear,
+                resumeLink: resolvedResume,
+                portfolioLink: resolvedPortfolio,
+            },
+            answersRaw,
+            answersReadable,
+        };
     }
 
     function nextChapter() {
@@ -187,10 +365,15 @@ export function useApplicationController(roleTitle: string | null) {
     async function submit() {
         if (!flow) return;
 
-        // Custom validation for volunteer acknowledgement if present
         const ack = answers['ackVolunteer'];
-        if (answers.hasOwnProperty('ackVolunteer') && String(ack).trim().toLowerCase() !== 'i confirm for the volunteer position') {
-            setSubmitError('Please type "I confirm for the volunteer position" to acknowledge the position terms.');
+        if (answers.hasOwnProperty('ackVolunteer') && ack !== 'Agree and Submit') {
+            setSubmitError('Please select "Agree and Submit" before submitting.');
+            return;
+        }
+
+        const phoneKey = getPhoneFieldKey();
+        if (phoneKey && !isEmpty(answers[phoneKey]) && !answers.whatsappOptIn) {
+            setSubmitError('Please confirm WhatsApp consent to proceed.');
             return;
         }
 
@@ -198,21 +381,7 @@ export function useApplicationController(roleTitle: string | null) {
         setSubmitError('');
 
         try {
-            const applicant = buildApplicantProfile();
-
-            const res = await applicationService.submitApplication({
-                role: {
-                    id: flow.roleId,
-                    title: flow.roleTitle,
-                },
-                applicant,
-                answers,
-                meta: {
-                    source: 'website-careers',
-                    formVersion: '1',
-                    submittedAt: new Date().toISOString(),
-                },
-            });
+            const res = await applicationService.submitApplication(buildPayload());
             setSubmitReceipt(res);
             setIsSubmitted(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -236,6 +405,14 @@ export function useApplicationController(roleTitle: string | null) {
         getFieldErrors,
         touched,
         setTouched,
+        googleUser,
+        locked: googleUser?.email ? {
+            [getNameFieldKey()]: true,
+            [getEmailFieldKey()]: true,
+        } : {},
+        applyGoogleUser,
+        skipGooglePrefill,
+        isGooglePopupDismissed: googlePrefillService.isPopupDismissed,
         isSubmitting,
         isSubmitted,
         submitError,

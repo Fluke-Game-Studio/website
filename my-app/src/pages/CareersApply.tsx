@@ -5,7 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 // Controller (Business Logic)
 import { useApplicationController } from "../controllers/applicationController";
 import PremiumLoader from "../components/PremiumLoader";
+import { googlePrefillService, type GooglePrefillUser } from "../services/googlePrefillService";
 import "../styles/careers.css";
+
+declare global {
+  interface Window {
+    google?: any;
+    onSignIn?: (googleUser: any) => void;
+    fgGoogleSignIn?: () => void;
+  }
+}
 
 // --- Field Renderers --------------------------------------------------------
 
@@ -15,6 +24,7 @@ interface FieldInputProps {
   onChange: (key: string, value: any) => void;
   hasError?: boolean;
   answers: Record<string, any>;
+  disabled?: boolean;
 }
 
 const COUNTRIES = [
@@ -29,7 +39,7 @@ const REGIONAL_STATES: Record<string, string[]> = {
   "United Kingdom": ["England", "Scotland", "Wales", "Northern Ireland"]
 };
 
-const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasError, answers }) => {
+const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasError, answers, disabled }) => {
   const className = `careers-apply-form-input ${hasError ? "has-error" : ""}`;
 
   if (field.type === "textarea") {
@@ -41,6 +51,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
         onChange={(e) => onChange(field.id, e.target.value)}
         placeholder={field.placeholder}
         required={field.required}
+        disabled={disabled}
         rows={5}
         style={{ resize: "none", display: "block", width: "100%" }}
       />
@@ -56,6 +67,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
           value={value || ""}
           onChange={(e) => onChange(field.id, e.target.value)}
           required={field.required}
+          disabled={disabled}
           autoComplete="country-name"
           style={{
             width: "100%",
@@ -92,6 +104,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
             value={value || ""}
             onChange={(e) => onChange(field.id, e.target.value)}
             required={field.required}
+            disabled={disabled}
             autoComplete="address-level1"
             style={{
               width: "100%",
@@ -144,6 +157,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
               checked={value === opt}
               onChange={() => onChange(field.id, opt)}
               required={field.required}
+              disabled={disabled}
               style={{ accentColor: "var(--gold-primary)" }}
             />
             <span
@@ -192,6 +206,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
                   : checked.filter((v) => v !== opt);
                 onChange(field.id, next);
               }}
+              disabled={disabled}
               style={{ accentColor: "var(--gold-primary)" }}
             />
             <span
@@ -214,6 +229,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
       onChange={(e) => onChange(field.id, e.target.value)}
       placeholder={field.placeholder}
       required={field.required}
+      disabled={disabled}
       autoComplete={
         field.type === "address" ? "street-address" :
         field.type === "city" ? "address-level2" :
@@ -233,9 +249,16 @@ interface ApplyFieldProps {
   onChange: (key: string, value: any) => void;
   answers: Record<string, any>;
   error?: string;
+  whatsappError?: string;
+  locked?: boolean;
 }
 
-const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, answers, error }) => {
+function isPhoneField(field: any) {
+  const key = String(field?.key || field?.id || "").toLowerCase();
+  return field?.type === "tel" || key.includes("phone") || key.includes("mobile");
+}
+
+const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, answers, error, whatsappError, locked }) => {
   const isVolunteerAck = field.id === 'ackVolunteer';
 
   if (isVolunteerAck) {
@@ -244,7 +267,7 @@ const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, answers
         <span className="note-label">Acknowledgment & Stipend Policy</span>
         <p>{field.label}</p>
         <div style={{ marginTop: "1.5rem" }}>
-          <FieldInput field={field} value={value} onChange={onChange} answers={answers} hasError={!!error} />
+          <FieldInput field={field} value={value} onChange={onChange} answers={answers} hasError={!!error} disabled={locked} />
           {error && (
             <div className="careers-form-error-msg">{error}</div>
           )}
@@ -274,6 +297,57 @@ const ApplyField: React.FC<ApplyFieldProps> = ({ field, value, onChange, answers
         </p>
       )}
       <FieldInput field={field} value={value} onChange={onChange} answers={answers} hasError={!!error} />
+      {locked && (
+        <p style={{ marginTop: "0.55rem", color: "var(--cs-muted)", fontSize: "0.82rem", fontFamily: "var(--font-body)" }}>
+          Filled from Google sign-in.
+        </p>
+      )}
+      {isPhoneField(field) && (
+        <div
+          style={{
+            marginTop: "1rem",
+            padding: "1rem",
+            borderRadius: "8px",
+            border: "1px solid var(--cs-border)",
+            background: "rgba(255, 255, 255, 0.03)",
+          }}
+        >
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "0.8rem",
+              cursor: "pointer",
+              color: "var(--cs-text)",
+              fontFamily: "var(--font-body)",
+              lineHeight: 1.45,
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={!!answers.whatsappOptIn}
+              onChange={(e) => onChange("whatsappOptIn", e.target.checked)}
+              style={{ accentColor: "var(--gold-primary)", marginTop: "0.2rem" }}
+            />
+            <span>
+              I consent to receiving application updates and communication on WhatsApp.
+              <small
+                style={{
+                  display: "block",
+                  marginTop: "0.45rem",
+                  color: "var(--cs-muted)",
+                  fontSize: "0.82rem",
+                }}
+              >
+                We will only use your number for updates related to this application, such as interview scheduling or status.
+              </small>
+            </span>
+          </label>
+          {whatsappError && (
+            <div className="careers-form-error-msg">{whatsappError}</div>
+          )}
+        </div>
+      )}
       {error && (
         <div className="careers-form-error-msg">{error}</div>
       )}
@@ -290,6 +364,7 @@ interface ChapterProps {
   chapterIndex: number;
   errors: Record<string, string>;
   touched: Record<string, boolean>;
+  locked: Record<string, boolean>;
 }
 
 const Chapter: React.FC<ChapterProps> = ({
@@ -299,6 +374,7 @@ const Chapter: React.FC<ChapterProps> = ({
   chapterIndex,
   errors,
   touched,
+  locked,
 }) => (
   <motion.div
     key={chapterIndex}
@@ -338,11 +414,166 @@ const Chapter: React.FC<ChapterProps> = ({
           onChange={setAnswer}
           answers={answers}
           error={shouldShowError ? errors[field.id] : undefined}
+          whatsappError={isPhoneField(field) ? errors.whatsappOptIn : undefined}
+          locked={!!locked[field.id]}
         />
       );
     })}
   </motion.div>
 );
+
+function GooglePrefillGate({
+  open,
+  googleUser,
+  onSignedIn,
+  onSkip,
+}: {
+  open: boolean;
+  googleUser: GooglePrefillUser | null;
+  onSignedIn: (user: GooglePrefillUser) => void;
+  onSkip: () => void;
+}) {
+  const buttonRef = React.useRef<HTMLDivElement | null>(null);
+  const [ready, setReady] = React.useState(false);
+  const [error, setError] = React.useState("");
+
+  React.useEffect(() => {
+    window.onSignIn = (legacyGoogleUser: any) => {
+      try {
+        const profile = legacyGoogleUser?.getBasicProfile?.();
+        const user = profile
+          ? {
+              name: profile.getName?.() || "",
+              email: profile.getEmail?.() || "",
+              imageUrl: profile.getImageUrl?.() || "",
+            }
+          : null;
+        if (user?.email) onSignedIn(user);
+      } catch {}
+    };
+
+    window.fgGoogleSignIn = () => {
+      const container = buttonRef.current?.querySelector("div[role='button']") as HTMLElement | null;
+      container?.click();
+    };
+  }, [onSignedIn]);
+
+  React.useEffect(() => {
+    if (!open || googleUser?.email) return;
+
+    let cancelled = false;
+    let tries = 0;
+    const clientId = googlePrefillService.getClientId();
+
+    const render = () => {
+      if (cancelled) return;
+      if (!clientId) {
+        setError("Google sign-in is not configured.");
+        return;
+      }
+
+      if (!window.google?.accounts?.id || !buttonRef.current) {
+        tries += 1;
+        if (tries > 40) {
+          setError("Google sign-in could not load. You can still continue without it.");
+          return;
+        }
+        window.setTimeout(render, 150);
+        return;
+      }
+
+      try {
+        buttonRef.current.innerHTML = "";
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: (response: any) => {
+            const user = googlePrefillService.userFromCredential(response?.credential || "");
+            if (user?.email) onSignedIn(user);
+          },
+        });
+        window.google.accounts.id.renderButton(buttonRef.current, {
+          theme: "outline",
+          size: "large",
+          type: "standard",
+          text: "signin_with",
+          shape: "rectangular",
+          logo_alignment: "left",
+        });
+        setReady(true);
+        setError("");
+      } catch {
+        setError("Google sign-in could not initialize. You can still continue without it.");
+      }
+    };
+
+    render();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, googleUser?.email, onSignedIn]);
+
+  if (!open || googleUser?.email) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Prefill your application"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1200,
+        display: "grid",
+        placeItems: "center",
+        padding: "1.5rem",
+        background: "rgba(0,0,0,0.68)",
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        style={{
+          width: "min(520px, 100%)",
+          borderRadius: "16px",
+          border: "1px solid var(--cs-border)",
+          background: "var(--cs-surface)",
+          color: "var(--cs-text)",
+          padding: "1.5rem",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.42)",
+        }}
+      >
+        <h2 style={{ margin: 0, fontFamily: "var(--font-heading)", fontSize: "1.35rem" }}>
+          Prefill your application
+        </h2>
+        <p style={{ marginTop: "0.8rem", color: "var(--cs-muted)", lineHeight: 1.65, fontFamily: "var(--font-body)" }}>
+          Sign in with Google to auto-fill your name and email. You can still proceed without signing in.
+        </p>
+
+        <div style={{ marginTop: "1.25rem", minHeight: 44, display: "flex", alignItems: "center" }}>
+          <div ref={buttonRef} />
+          {!ready && !error && (
+            <span style={{ color: "var(--cs-muted)", fontFamily: "var(--font-body)", fontSize: "0.9rem" }}>
+              Loading Google sign-in...
+            </span>
+          )}
+        </div>
+
+        {error && (
+          <p style={{ color: "#ff8a80", marginTop: "0.9rem", fontFamily: "var(--font-body)", fontSize: "0.9rem" }}>
+            {error}
+          </p>
+        )}
+
+        <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "flex-end", gap: "0.8rem", flexWrap: "wrap" }}>
+          <button type="button" className="btn-outline" onClick={onSkip}>
+            Skip for now
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 // --- Main Component ---------------------------------------------------------
 
@@ -362,11 +593,26 @@ const CareersApply: React.FC = () => {
     validateChapter,
     getFieldErrors,
     touched,
+    locked,
+    googleUser,
+    applyGoogleUser,
+    skipGooglePrefill,
+    isGooglePopupDismissed,
     isSubmitting,
     isSubmitted,
     submitError,
     submit,
   } = useApplicationController(roleTitle);
+
+  const [googleGateOpen, setGoogleGateOpen] = React.useState(() => !googlePrefillService.isPopupDismissed());
+
+  React.useEffect(() => {
+    if (googleUser?.email) setGoogleGateOpen(false);
+  }, [googleUser?.email]);
+
+  React.useEffect(() => {
+    if (!googleUser?.email && !isGooglePopupDismissed()) setGoogleGateOpen(true);
+  }, [googleUser?.email, isGooglePopupDismissed]);
 
   if (loading) {
     return (
@@ -436,6 +682,18 @@ const CareersApply: React.FC = () => {
 
   return (
     <div className="careers-standalone-wrapper py-32">
+      <GooglePrefillGate
+        open={googleGateOpen && !googleUser?.email}
+        googleUser={googleUser}
+        onSignedIn={(user) => {
+          applyGoogleUser(user);
+          setGoogleGateOpen(false);
+        }}
+        onSkip={() => {
+          skipGooglePrefill();
+          setGoogleGateOpen(false);
+        }}
+      />
       <div className="max-w-3xl mx-auto px-6">
         <header style={{ marginBottom: "4rem" }}>
           <span className="phi-label">
@@ -458,6 +716,7 @@ const CareersApply: React.FC = () => {
               setAnswer={setAnswer}
               errors={getFieldErrors(chapter)}
               touched={touched}
+              locked={locked}
             />
           </AnimatePresence>
 
