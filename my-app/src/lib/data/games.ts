@@ -2,6 +2,7 @@ export interface Game {
   id: string;
   slug: string;
   title: string;
+  externalUrl?: string;
   genre: string;
   platforms: string[];
   status: "Released" | "In Development" | "Coming Soon";
@@ -100,6 +101,7 @@ export const games: Game[] = (() => {
       id: `${item.id}`,
       slug: safeStr(project.slug) || `${item.id}`,
       title: safeStr(project.title) || item.title,
+      externalUrl: safeStr(project.externalUrl) || undefined,
       genre,
       platforms: platforms.length ? platforms : ["PC"],
       status,

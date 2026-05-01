@@ -5,7 +5,7 @@ const API_BASE = (() => {
     return configured.replace(/\/$/, "");
   }
 
-  return import.meta.env.DEV ? "/api" : "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
+  return "/api";
 })();
 
 type ContactPayload = {

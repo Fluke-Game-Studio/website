@@ -10,7 +10,7 @@ const API_BASE =
   (() => {
     const configured = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
     if (configured && configured !== "/api") return configured.replace(/\/$/, "");
-    return import.meta.env.DEV ? "/api" : "https://xtipeal88c.execute-api.us-east-1.amazonaws.com";
+    return "/api";
   })();
 
 const CHAT_URL = `${API_BASE}/ai/chat-sync/flukegames`;
