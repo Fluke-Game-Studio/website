@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { MessageCircle, Send, Sparkles, X, Square, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import PublicBotAvatar2DBit, { BotStatus } from "./PublicBotAvatar2DBit";
 import { useAIAssistant } from "@/context/AIAssistantContext";
 import { publicStudioService } from "@/services/publicStudioService";
@@ -60,8 +61,14 @@ function buildEmployeePrompt(question: string, ctx: NonNullable<ReturnType<typeo
 }
 
 export default function FloatingPublicAIChat() {
+  const location = useLocation();
   const { isOpen, mode, employeeCtx, pendingQuestion, closeChat, consumePendingQuestion, toggleOpen } =
     useAIAssistant();
+
+  // Team member profile uses its own dedicated AI sheet; hide the floating global chat there.
+  if (location.pathname.startsWith("/about/team/")) {
+    return null;
+  }
 
   const clientIdRef = useRef<string>(getStableClientId());
   const clientId = clientIdRef.current;
@@ -218,7 +225,7 @@ export default function FloatingPublicAIChat() {
   const memberName = isEmployee ? safeStr(employeeCtx!.member.employee_name) : "";
 
   return (
-    <div className="fixed bottom-5 right-5 z-[1100] flex flex-col items-end">
+    <div className="fixed bottom-5 right-5 z-1100 flex flex-col items-end">
       <style>{`
         .fg-ai-bubble {
           width: 52px; height: 52px;
@@ -494,20 +501,6 @@ export default function FloatingPublicAIChat() {
                       {isEmployee ? <User size={9} /> : <Sparkles size={9} />}
                       {isEmployee ? memberName : "Studio"}
                     </span>
-                    {isEmployee && (
-                      <span
-                        className="fg-ai-mode-badge global"
-                        style={{ cursor: "pointer" }}
-                        title="Switch to general studio chat"
-                        onClick={() => {
-                          // reset to global — handled via context; for now just show global messages
-                          // We can't call openGlobal here without importing it, so we use closeChat + re-open workaround
-                          // Instead, just clear the employee context flag by toggling open state
-                        }}
-                      >
-                        General
-                      </span>
-                    )}
                   </div>
                   <div className="fg-ai-sub" style={{ marginTop: 6 }}>
                     {isEmployee

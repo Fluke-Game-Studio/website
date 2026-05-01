@@ -99,12 +99,7 @@ export default function AboutAccordion() {
                   transition={{ duration: 0.4 }}
                   className="max-w-2xl"
                 >
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="px-3 py-1 rounded bg-fluke-yellow/10 border border-fluke-yellow/20 text-fluke-yellow font-mono text-[10px] tracking-widest uppercase">
-                      Archive Access : 0{activeTab + 1}
-                    </div>
-                    <div className="h-[1px] w-12 bg-fluke-yellow/20" />
-                  </div>
+
 
                   <h3 className="font-bebas text-6xl md:text-8xl text-fluke-text mb-12 uppercase tracking-wide leading-tight">
                     {studioAbout[activeTab].title}

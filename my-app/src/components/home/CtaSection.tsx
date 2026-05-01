@@ -47,9 +47,7 @@ export default function CtaSection() {
             <span className="text-fluke-yellow">Game Idea?</span>
           </h2>
 
-          <p className="font-sora text-lg text-fluke-muted max-w-xl mx-auto mb-12">
-            Whether you need a full team, a specific skill, or expert advice — we&apos;re ready to bring your vision to life.
-          </p>
+
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

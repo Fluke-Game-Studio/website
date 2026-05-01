@@ -257,6 +257,9 @@ html.light .glass-dark {
   border: none;
   position: relative;
   overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .btn-primary::before {
@@ -264,7 +267,7 @@ html.light .glass-dark {
   position: absolute;
   inset: 0;
   background: rgba(255,255,255,0.15);
-  transform: translateX(-100%);
+  transform: translateX(-105%);
   transition: transform 0.3s ease;
 }
 .btn-primary:hover::before {
