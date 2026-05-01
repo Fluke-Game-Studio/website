@@ -4,33 +4,33 @@ import Embers from "./Embers";
 
 const milestones = [
   {
-    year: "2023",
-    title: "Studio Founded",
-    description: "Fluke Game Studio was born with a single passion: build games that matter. Started as a solo project and quickly grew.",
+    year: "2020",
+    title: "Fluke Games Founded",
+    description: "Fluke Games began as a personal pursuit with a clear intent to build real games and learn by shipping. The first milestone came early with the release of Beat Slayer V1, setting the tone for a hands-on, execution-driven journey.",
     icon: "🌱",
   },
   {
-    year: "2024",
-    title: "First Game Released",
-    description: "Neon Drift launched on Steam and mobile — our first full commercial release. Pixel Warriors had already shipped earlier as a web game.",
+    year: "2021",
+    title: "First Iterations in the Wild",
+    description: "The studio continued forward with Crazyy Cops V1. This phase was about putting ideas into the hands of players, understanding what works, and building confidence through real releases.",
     icon: "🚀",
   },
   {
-    year: "2024",
-    title: "Asset Store Launch",
-    description: "Launched our first asset pack on Unity Asset Store. The Sci-Fi Props vol.1 hit over 200 downloads in the first month.",
-    icon: "📦",
-  },
-  {
-    year: "2025",
-    title: "Studio Expansion",
-    description: "Grew to a team of 4 full-time creators. Took on our first contract development clients and launched web dev services.",
+    year: "2022",
+    title: "Raising the Bar",
+    description: "With Crazyy Cops V2, Fluke Games took a step forward in quality and direction. It reflected a more refined approach, stronger execution, and a growing understanding of what it takes to build engaging experiences.",
     icon: "⚡",
   },
   {
-    year: "2025",
-    title: "Shadow Realm in Development",
-    description: "Our most ambitious project yet — an open-world dark fantasy action RPG built in Unreal Engine 5.",
+    year: "2023",
+    title: "Growing Beyond One",
+    description: "Fluke Games evolved into a collaborative effort. Creators came together to contribute, learn, and build within a shared vision. The focus shifted from individual output to collective growth.",
+    icon: "🤝",
+  },
+  {
+    year: "2024 to Present",
+    title: "Focused on What Comes Next",
+    description: "Today, Fluke Games is building toward its most ambitious work yet. With a stronger foundation and a growing team, the studio is committed to creating experiences that are thoughtful, polished, and built to last.",
     icon: "⚔️",
   },
 ];
@@ -142,7 +142,7 @@ export default function StudioStory() {
               transition={{ type: "spring", stiffness: 100 }}
             />
           </div>
-          <span className="font-orbitron text-[10px] tracking-widest text-fluke-muted uppercase">Chapter 01-05</span>
+          <span className="font-orbitron text-[10px] tracking-widest text-fluke-muted uppercase">2020 — Present</span>
         </div>
       </div>
     </section>

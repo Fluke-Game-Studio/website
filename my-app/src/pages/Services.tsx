@@ -138,7 +138,7 @@ export default function ServicesPage() {
           <p className="font-sora text-fluke-muted mb-6 max-w-sm mx-auto">
             Tell us about your project and we&apos;ll suggest the best approach.
           </p>
-          <Link to="/contact" className="btn-primary px-8 py-3 rounded-xl font-sora">
+          <Link to="/contact" className="btn-primary px-10 py-4 rounded-xl font-sora inline-flex items-center justify-center">
             Get a Free Consultation
           </Link>
         </motion.div>

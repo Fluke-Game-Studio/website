@@ -31,7 +31,7 @@ const socials = [
   { icon: Twitter, href: "https://x.com/flukgames", label: "Twitter" },
   { icon: Instagram, href: "https://www.instagram.com/fluke.games/", label: "Instagram" },
   { icon: Youtube, href: "https://www.youtube.com/@FlukGames", label: "YouTube" },
-  { icon: Twitch, href: "https://discord.gg/flukegames", label: "Discord" }, // Using Twitch icon for Discord as a fallback if Lucide doesn't have it, or I can use a generic icon
+  { icon: Twitch, href: "https://discord.gg/xDQPgXkj5X", label: "Discord" }, // Using Twitch icon for Discord as a fallback if Lucide doesn't have it, or I can use a generic icon
 ];
 
 export default function Footer() {
