@@ -4,6 +4,8 @@ import { careerService } from '../services/careerService';
 import { buildApplicationFlow, applicationService, ApplicationFlow } from '../services/applicationService';
 import { googlePrefillService, type GooglePrefillUser } from '../services/googlePrefillService';
 
+const VOLUNTEER_CONFIRMATION_TEXT = 'I confirm this is a volunteer role';
+
 function safeStr(value: any): string {
     return value === null || value === undefined ? '' : String(value);
 }
@@ -113,8 +115,8 @@ export function useApplicationController(roleTitle: string | null) {
                 }
             }
 
-            if (field.id === 'ackVolunteer' && val && val !== 'Agree and Submit') {
-                errs[field.id] = 'Please select "Agree and Submit" to proceed.';
+            if (field.id === 'ackVolunteer' && val && safeStr(val).trim() !== VOLUNTEER_CONFIRMATION_TEXT) {
+                errs[field.id] = `Please type "${VOLUNTEER_CONFIRMATION_TEXT}" to proceed.`;
                 continue;
             }
 
@@ -366,8 +368,8 @@ export function useApplicationController(roleTitle: string | null) {
         if (!flow) return;
 
         const ack = answers['ackVolunteer'];
-        if (answers.hasOwnProperty('ackVolunteer') && ack !== 'Agree and Submit') {
-            setSubmitError('Please select "Agree and Submit" before submitting.');
+        if (answers.hasOwnProperty('ackVolunteer') && safeStr(ack).trim() !== VOLUNTEER_CONFIRMATION_TEXT) {
+            setSubmitError(`Please type "${VOLUNTEER_CONFIRMATION_TEXT}" before submitting.`);
             return;
         }
 
