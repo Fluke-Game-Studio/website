@@ -13,9 +13,25 @@ function safeStr(v: unknown) {
   return String(v).trim();
 }
 
+function getExternalProjectUrl(project: StudioProject | null) {
+  const externalUrl = safeStr(project?.externalUrl);
+  if (externalUrl) return externalUrl;
+  if (safeStr(project?.key).toLowerCase() === "pavan" || safeStr(project?.slug).toLowerCase() === "project-pavan") {
+    return "https://pavan.flukegamestudio.com";
+  }
+  return "";
+}
+
+function isPavanProject(project: StudioProject | null) {
+  const key = safeStr(project?.key).toLowerCase();
+  const slug = safeStr(project?.slug).toLowerCase();
+  return key === "pavan" || slug === "project-pavan";
+}
+
 export default function StudioProjectModal({ project, onClose }: Props) {
   const carousel = useMemo(() => (project ? getProjectCarousel(project) : []), [project]);
   const [index, setIndex] = useState(0);
+  const externalProjectUrl = useMemo(() => getExternalProjectUrl(project), [project]);
   const videoUrl = useMemo(() => {
     const direct = safeStr(project?.video);
     if (direct) return direct;
@@ -102,7 +118,7 @@ export default function StudioProjectModal({ project, onClose }: Props) {
                   </a>
                 ) : null}
 
-                {videoUrl ? (
+                {videoUrl && !isPavanProject(project) ? (
                   <a
                     href={videoUrl}
                     target="_blank"
@@ -114,17 +130,22 @@ export default function StudioProjectModal({ project, onClose }: Props) {
                   </a>
                 ) : null}
 
-                {/* External site for Project Pavan */}
-                {(safeStr(project.key).toLowerCase() === "pavan" || safeStr(project.slug).toLowerCase() === "project-pavan") ? (
-                  <a
-                    href="https://pavan.flukegamestudio.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-fluke-text transition hover:bg-white/10"
-                    title="Open Project Pavan website"
-                  >
-                    <ExternalLink size={18} />
-                  </a>
+                {externalProjectUrl ? (
+                  <div className="relative">
+                    <a
+                      href={externalProjectUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Open Project Pavan website"
+                      className="group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-fluke-text transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-fluke-yellow/60"
+                    >
+                      <ExternalLink size={18} />
+                    </a>
+                    <span className="pointer-events-none absolute right-0 top-12 w-52 translate-y-1 rounded-xl border border-fluke-yellow/20 bg-fluke-bg/95 px-3 py-2 text-left text-[11px] text-fluke-muted opacity-0 shadow-[0_12px_30px_rgba(0,0,0,0.35)] transition duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+                      <span className="block font-semibold text-fluke-text">Open Project Pavan</span>
+                      <span className="block mt-0.5">Visit the dedicated Pavan website.</span>
+                    </span>
+                  </div>
                 ) : null}
 
                 <button

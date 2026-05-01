@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { games } from "@/lib/data/games";
-import { ArrowLeft, Monitor, Smartphone, Gamepad2, Globe, CheckCircle } from "lucide-react";
+import { ArrowLeft, Monitor, Smartphone, Gamepad2, Globe, CheckCircle, ExternalLink } from "lucide-react";
 
 const platformIcons: Record<string, React.ReactNode> = {
   PC: <Monitor size={14} />,
@@ -98,6 +98,25 @@ export default function GameDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {game.externalUrl ? (
+              <a
+                href={game.externalUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between gap-3 rounded-2xl border border-fluke-yellow/20 bg-fluke-yellow/10 px-5 py-4 text-fluke-text transition hover:bg-fluke-yellow/15"
+              >
+                <div>
+                  <div className="font-orbitron text-[11px] tracking-[0.35em] uppercase text-fluke-yellow/90">
+                    Featured Site
+                  </div>
+                  <div className="mt-1 font-sora text-sm text-fluke-muted">
+                    Open the dedicated Pavan website.
+                  </div>
+                </div>
+                <ExternalLink size={18} className="text-fluke-yellow" />
+              </a>
+            ) : null}
+
             <div 
               className="rounded-2xl p-6 transition-all duration-300"
               style={{
