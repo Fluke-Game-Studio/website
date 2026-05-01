@@ -635,9 +635,6 @@ export default function FloatingPublicAIChat() {
                   <div id="fg-discord-title" className="font-orbitron text-sm font-bold tracking-[0.16em] uppercase text-white">
                     Join FlukeGameStudio
                   </div>
-                  <div className="mt-1 text-xs font-sora text-slate-300">
-                    Recipients will land in the studio Discord server.
-                  </div>
                 </div>
                 <button
                   type="button"
@@ -649,9 +646,6 @@ export default function FloatingPublicAIChat() {
                 </button>
               </div>
               <div className="fg-discord-modal-body">
-                <p className="font-sora text-sm leading-6 text-slate-200">
-                  Discord opens its invite and login flow outside embedded frames, so continue from here to finish joining.
-                </p>
                 <div className="fg-discord-modal-actions">
                   <a
                     href={DISCORD_JOIN_URL}
