@@ -1,0 +1,208 @@
+{
+  "websites": [
+    {
+      "title": "Fluke Games",
+      "slug": "fluke-games",
+      "url": "https://www.flukegamestudio.com",
+      "initialOffset": 280,
+      "description": "Showcase site with animated hero, project timelines, and interactive graphs. Focused on performance, accessibility and smooth motion.",
+      "previewImage": "/data/other-sites/fluke-preview.jpg",
+
+      "analytics": {
+        "visitors": {
+          "7d": [
+            { "d": "Mon", "v": 820 }, { "d": "Tue", "v": 910 }, { "d": "Wed", "v": 990 },
+            { "d": "Thu", "v": 860 }, { "d": "Fri", "v": 1140 }, { "d": "Sat", "v": 760 },
+            { "d": "Sun", "v": 980 }
+          ],
+          "14d": [
+            { "d": "Mon", "v": 820 }, { "d": "Tue", "v": 910 }, { "d": "Wed", "v": 990 },
+            { "d": "Thu", "v": 860 }, { "d": "Fri", "v": 1140 }, { "d": "Sat", "v": 760 },
+            { "d": "Sun", "v": 980 }, { "d": "Mon+", "v": 1020 }, { "d": "Tue+", "v": 930 },
+            { "d": "Wed+", "v": 1200 }, { "d": "Thu+", "v": 980 }, { "d": "Fri+", "v": 1100 },
+            { "d": "Sat+", "v": 820 }, { "d": "Sun+", "v": 1000 }
+          ],
+          "30d": [
+            { "d": "W1", "v": 6100 }, { "d": "W2", "v": 6450 }, { "d": "W3", "v": 7020 }, { "d": "W4", "v": 6800 }
+          ]
+        },
+        "health": { "frontend": 92, "backend": 88, "api": 94 },
+        "api": [
+          { "t": "12:00", "success": 99.3, "requests": 4200 },
+          { "t": "14:00", "success": 98.7, "requests": 3800 },
+          { "t": "16:00", "success": 99.6, "requests": 4600 },
+          { "t": "18:00", "success": 97.9, "requests": 5100 },
+          { "t": "20:00", "success": 99.1, "requests": 4400 },
+          { "t": "22:00", "success": 99.8, "requests": 4000 }
+        ]
+      },
+
+      "stack": {
+        "Frontend": ["React", "TailwindCSS", "Framer Motion", "Recharts"],
+        "Backend": ["Node.js", "Express", "Prisma"],
+        "Deployment": ["Vite", "Nginx", "Docker (optional)"],
+        "Cloud": ["Vercel / Netlify", "Cloudflare", "Sentry"],
+        "Data": ["PostgreSQL / Supabase", "Redis (cache)"],
+        "blurbs": {
+          "Frontend": "SSR-friendly React, Tailwind tokens, motion controlled animations, and a11y checks.",
+          "Backend": "Express API with schema validation, Prisma migrations, and health endpoints.",
+          "Deployment": "Vite optimized build through Nginx; Docker for reproducible local prod.",
+          "Cloud": "Vercel/Netlify deploys behind Cloudflare caching & WAF. Sentry wired with release tags.",
+          "Data": "Postgres primary with daily snapshots; Redis for cache + rate limiting."
+        }
+      },
+
+      "ops": [
+        {
+          "label": "AWS connectivity",
+          "ok": true,
+          "note": "VPC + IAM scoped",
+          "checks": [
+            { "label": "IAM least privilege", "ok": true },
+            { "label": "Security groups locked", "ok": true },
+            { "label": "Public buckets avoided", "ok": true }
+          ]
+        },
+        {
+          "label": "Domain DNS",
+          "ok": true,
+          "note": "A/AAAA + CNAME valid",
+          "checks": [
+            { "label": "A/AAAA records live", "ok": true },
+            { "label": "CNAME for www", "ok": true },
+            { "label": "Propagation verified", "ok": true }
+          ]
+        },
+        {
+          "label": "SSL/TLS",
+          "ok": true,
+          "note": "Auto-renew, HSTS",
+          "checks": [
+            { "label": "Certificate valid", "ok": true },
+            { "label": "Auto-renew enabled", "ok": true },
+            { "label": "HSTS enforced", "ok": true }
+          ]
+        },
+        {
+          "label": "cPanel health",
+          "ok": false,
+          "note": "Not applicable",
+          "checks": [
+            { "label": "Access required", "ok": false },
+            { "label": "Service running", "ok": false }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Codename Pavan",
+      "slug": "pavan",
+      "url": "https://www.flukegamestudio.com/#/pavan",
+      "initialOffset": 220,
+      "description": "Codename Pavan - Lord Hanuman inspired RPG Game",
+      "previewImage": "/data/other-sites/docs-preview.jpg",
+
+      "analytics": {
+        "visitors": {
+          "7d": [
+            { "d": "Mon", "v": 560 }, { "d": "Tue", "v": 640 }, { "d": "Wed", "v": 710 },
+            { "d": "Thu", "v": 780 }, { "d": "Fri", "v": 820 }, { "d": "Sat", "v": 540 },
+            { "d": "Sun", "v": 600 }
+          ],
+          "14d": [
+            { "d": "Mon", "v": 560 }, { "d": "Tue", "v": 640 }, { "d": "Wed", "v": 710 },
+            { "d": "Thu", "v": 780 }, { "d": "Fri", "v": 820 }, { "d": "Sat", "v": 540 },
+            { "d": "Sun", "v": 600 }, { "d": "Mon+", "v": 660 }, { "d": "Tue+", "v": 730 },
+            { "d": "Wed+", "v": 790 }, { "d": "Thu+", "v": 810 }, { "d": "Fri+", "v": 840 },
+            { "d": "Sat+", "v": 560 }, { "d": "Sun+", "v": 620 }
+          ],
+          "30d": [
+            { "d": "W1", "v": 4300 }, { "d": "W2", "v": 4700 }, { "d": "W3", "v": 4920 }, { "d": "W4", "v": 5100 }
+          ]
+        },
+        "health": { "frontend": 95, "backend": 91, "api": 97 },
+        "api": [
+          { "t": "00:00", "success": 99.7, "requests": 3000 },
+          { "t": "06:00", "success": 99.4, "requests": 3800 },
+          { "t": "12:00", "success": 99.2, "requests": 4500 },
+          { "t": "18:00", "success": 98.9, "requests": 4800 }
+        ]
+      },
+
+      "stack": {
+        "Frontend": ["Next.js", "TailwindCSS", "MDX"],
+        "Backend": ["Node.js", "tRPC"],
+        "Deployment": ["Vercel"],
+        "Cloud": ["Cloudflare", "Sentry"],
+        "Data": ["PostgreSQL"],
+        "blurbs": {
+          "Frontend": "Next.js w/ MDX for docs and instant search.",
+          "Backend": "tRPC for end-to-end types.",
+          "Deployment": "Vercel previews per PR.",
+          "Cloud": "Cloudflare WAF & caching.",
+          "Data": "Postgres for search index and content versions."
+        }
+      },
+
+      "ops": [
+        { "label": "Domain DNS", "ok": true, "note": "Managed", "checks": [{ "label": "Records live", "ok": true }] },
+        { "label": "SSL/TLS", "ok": true, "note": "Auto", "checks": [{ "label": "Valid", "ok": true }] }
+      ]
+    },
+    {
+      "title": "Vaibhav Rakheja - Devfolio",
+      "slug": "devfolio",
+      "url": "https://www.devfolio.vaibhavrakheja.com",
+      "initialOffset": 220,
+      "description": "Documentation portal with full-text search and versioned content.",
+      "previewImage": "/data/other-sites/docs-preview.jpg",
+
+      "analytics": {
+        "visitors": {
+          "7d": [
+            { "d": "Mon", "v": 560 }, { "d": "Tue", "v": 640 }, { "d": "Wed", "v": 710 },
+            { "d": "Thu", "v": 780 }, { "d": "Fri", "v": 820 }, { "d": "Sat", "v": 540 },
+            { "d": "Sun", "v": 600 }
+          ],
+          "14d": [
+            { "d": "Mon", "v": 560 }, { "d": "Tue", "v": 640 }, { "d": "Wed", "v": 710 },
+            { "d": "Thu", "v": 780 }, { "d": "Fri", "v": 820 }, { "d": "Sat", "v": 540 },
+            { "d": "Sun", "v": 600 }, { "d": "Mon+", "v": 660 }, { "d": "Tue+", "v": 730 },
+            { "d": "Wed+", "v": 790 }, { "d": "Thu+", "v": 810 }, { "d": "Fri+", "v": 840 },
+            { "d": "Sat+", "v": 560 }, { "d": "Sun+", "v": 620 }
+          ],
+          "30d": [
+            { "d": "W1", "v": 4300 }, { "d": "W2", "v": 4700 }, { "d": "W3", "v": 4920 }, { "d": "W4", "v": 5100 }
+          ]
+        },
+        "health": { "frontend": 95, "backend": 91, "api": 97 },
+        "api": [
+          { "t": "00:00", "success": 99.7, "requests": 3000 },
+          { "t": "06:00", "success": 99.4, "requests": 3800 },
+          { "t": "12:00", "success": 99.2, "requests": 4500 },
+          { "t": "18:00", "success": 98.9, "requests": 4800 }
+        ]
+      },
+
+      "stack": {
+        "Frontend": ["Next.js", "TailwindCSS", "MDX"],
+        "Backend": ["Node.js", "tRPC"],
+        "Deployment": ["Vercel"],
+        "Cloud": ["Cloudflare", "Sentry"],
+        "Data": ["PostgreSQL"],
+        "blurbs": {
+          "Frontend": "Next.js w/ MDX for docs and instant search.",
+          "Backend": "tRPC for end-to-end types.",
+          "Deployment": "Vercel previews per PR.",
+          "Cloud": "Cloudflare WAF & caching.",
+          "Data": "Postgres for search index and content versions."
+        }
+      },
+
+      "ops": [
+        { "label": "Domain DNS", "ok": true, "note": "Managed", "checks": [{ "label": "Records live", "ok": true }] },
+        { "label": "SSL/TLS", "ok": true, "note": "Auto", "checks": [{ "label": "Valid", "ok": true }] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1559 @@
+{
+  "pavan": {
+    "key": "pavan",
+    "slug": "project-pavan",
+    "title": "Project Pavan",
+    "projectType": "Mythology-Inspired Action Adventure",
+    "tagline": "Adventure-puzzle vertical slice with crisp 3Cs, scalable gameplay systems, and readable AI encounters.",
+    "summary": "Project Pavan is a mythology-inspired action adventure initiative under Fluke Games, focused on strong traversal, gameplay clarity, and scalable systems that contributors can build on.",
+    "role": "Founder / Gameplay & AI Systems Lead",
+    "screenshotpath": "/data/content/screenshots/CodenamePavan/",
+    "previewImage": "/data/content/screenshots/CodenamePavan/Codename-Pavan.png",
+    "mainImage": "/data/content/screenshots/CodenamePavan/Codename-Pavan.png",
+    "cover": "/data/content/screenshots/CodenamePavan/Codename-Pavan.png",
+    "videoId": "dQw4w9WgXcQ",
+    "images": [
+      {
+        "img": "Screenshot1.png",
+        "headline": "Arcade Multiplayer Gameplay",
+        "description": "The game emphasized high-energy player interaction and accessible competitive chaos."
+      },
+      {
+        "img": "Screenshot2.png",
+        "headline": "Unity Gameplay Programming",
+        "description": "The systems were built with a focus on responsiveness, readability, and rapid iteration."
+      },
+      {
+        "img": "Screenshot3.png",
+        "headline": "Distinct Game Modes",
+        "description": "Different modes introduced varied pacing while keeping the core interaction loop consistent."
+      },
+      {
+        "img": "Screenshot4.png",
+        "headline": "Vehicle Combat and Action",
+        "description": "The gameplay blended destruction, movement, and timing-heavy player interaction."
+      },
+      {
+        "img": "Screenshot5.png",
+        "headline": "Competitive Play",
+        "description": "The project explored how arcade feel could coexist with structured competitive modes."
+      }
+    ],
+    "stack": [
+      "Unreal Engine",
+      "C++",
+      "Blueprints",
+      "Perforce",
+      "AWS",
+      "Helix Swarm"
+    ],
+    "platforms": [
+      "PC",
+      "PS5 (target)",
+      "Xbox (target)"
+    ],
+    "teamSize": 12,
+    "cadence": "2-week sprints",
+    "scope": [
+      "3Cs tuning and traversal kit",
+      "HFSM enemies with EQS probes",
+      "Tutorialized encounters",
+      "Combat and movement readability",
+      "Scalable contributor workflow"
+    ],
+    "tech": [
+      "Unreal Engine",
+      "Gameplay Systems",
+      "AI Systems",
+      "EQS",
+      "HFSM",
+      "Production Pipelines"
+    ],
+    "systems": [
+      "3Cs movement and traversal systems",
+      "Enemy AI state architecture",
+      "Encounter scripting",
+      "Performance-aware gameplay logic",
+      "Studio contributor pipelines"
+    ],
+    "aiTopics": [
+      "HFSM",
+      "EQS",
+      "gameplay systems",
+      "production scaling",
+      "technical leadership"
+    ],
+    "highlights": [
+      "Built as both a game project and a studio-scale learning platform",
+      "Combines player-facing systems with contributor-friendly architecture",
+      "Emphasizes strong gameplay readability and reusable systems"
+    ],
+    "aiContext": {
+      "summary": "Project Pavan is a systems-first action adventure prototype under Fluke Games that blends gameplay experimentation with production-style team structure.",
+      "myContribution": "I lead the technical direction, define the gameplay and AI architecture, and structure the project so contributors can build against stable systems.",
+      "technicalFocus": [
+        "3Cs gameplay systems",
+        "HFSM-based AI",
+        "encounter design",
+        "team-facing production workflows"
+      ],
+      "interestingProblems": [
+        "scaling an indie project with AAA-style structure",
+        "keeping systems reusable for contributors",
+        "balancing ambition with vertical-slice execution"
+      ]
+    },
+    "milestones": [
+      {
+        "name": "Prototype",
+        "objectives": 10,
+        "done": 8,
+        "qa": 6,
+        "backlog": 12,
+        "bugs": 4,
+        "highlights": [
+          "Core movement kit",
+          "Greybox arena",
+          "First HFSM enemy"
+        ],
+        "aiContext": {
+          "summary": "Prototype phase focused on movement foundations and first-pass enemy behaviour.",
+          "focus": [
+            "movement and traversal",
+            "greybox gameplay validation",
+            "initial AI control flow"
+          ]
+        }
+      },
+      {
+        "name": "Alpha",
+        "objectives": 14,
+        "done": 11,
+        "qa": 9,
+        "backlog": 8,
+        "bugs": 6,
+        "highlights": [
+          "EQS probes online",
+          "Encounter tutorial pass",
+          "Perf budget alerts"
+        ],
+        "aiContext": {
+          "summary": "Alpha emphasized encounter structure, AI query systems, and early performance discipline.",
+          "focus": [
+            "EQS integration",
+            "encounter readability",
+            "runtime visibility"
+          ]
+        }
+      },
+      {
+        "name": "Beta",
+        "objectives": 16,
+        "done": 9,
+        "qa": 7,
+        "backlog": 14,
+        "bugs": 9,
+        "highlights": [
+          "Difficulty tuning",
+          "Playtest survey loop",
+          "Crash-free target set"
+        ],
+        "aiContext": {
+          "summary": "Beta focused on tuning and validating the play experience rather than just building systems.",
+          "focus": [
+            "difficulty balance",
+            "playtest iteration",
+            "stability targets"
+          ]
+        }
+      },
+      {
+        "name": "Slice",
+        "objectives": 12,
+        "done": 12,
+        "qa": 11,
+        "backlog": 3,
+        "bugs": 2,
+        "highlights": [
+          "Demo polish",
+          "Stability pass",
+          "Release checklist"
+        ],
+        "aiContext": {
+          "summary": "The slice phase is about turning the prototype into something presentation-ready and stable.",
+          "focus": [
+            "demo quality",
+            "stability",
+            "showcase readiness"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      {
+        "name": "Core",
+        "value": 40
+      },
+      {
+        "name": "Systems",
+        "value": 35
+      },
+      {
+        "name": "Content",
+        "value": 25
+      }
+    ],
+    "confidence": [
+      {
+        "sprint": 1,
+        "conf": 0.6
+      },
+      {
+        "sprint": 2,
+        "conf": 0.72
+      },
+      {
+        "sprint": 3,
+        "conf": 0.81
+      },
+      {
+        "sprint": 4,
+        "conf": 0.87
+      }
+    ]
+  },
+  "codename_interviewprepapp": {
+    "key": "codename_interviewprepapp",
+    "slug": "codename-interviewprepapp",
+    "title": "Codename InterviewPrepApp",
+    "projectType": "AI-Assisted Learning Platform",
+    "tagline": "In-development interview preparation platform exploring adaptive practice flows, structured learning paths, and AI-guided feedback.",
+    "summary": "Codename InterviewPrepApp is an early-stage product initiative focused on helping users prepare for interviews through structured practice, guided question flows, personalized feedback, and scalable learning workflows. The project is currently in the conception and proof-of-concept phase, with emphasis on validating product direction, system architecture, and AI-assisted coaching loops.",
+    "role": "Founder / Product & Systems Architect",
+    "cover": "/images/interviewprepapp.jpg",
+    "videoId": "",
+    "stack": [
+      "React",
+      "TypeScript",
+      "Node.js",
+      "AI Integrations",
+      "Cloud Services",
+      "Product Prototyping"
+    ],"tags" : ["Asset"],
+    "platforms": [
+      "Mac",
+      "Windows",
+      "Web",
+      "Mobile (planned)"
+    ],
+    "teamSize": 2,
+    "cadence": "discovery sprints",
+    "scope": [
+      "Interview question practice workflows",
+      "Adaptive preparation paths",
+      "AI-guided answer feedback",
+      "Progress tracking and session analytics",
+      "POC architecture and validation"
+    ],
+    "tech": [
+      "Product Discovery",
+      "Full-Stack Architecture",
+      "AI Systems",
+      "Learning Workflows",
+      "Feedback Systems",
+      "Rapid Prototyping"
+    ],
+    "systems": [
+      "Question and answer session flow",
+      "Topic-based preparation engine",
+      "Feedback and scoring architecture",
+      "User progress tracking",
+      "Early product experimentation pipeline"
+    ],
+    "aiTopics": [
+      "AI feedback",
+      "learning systems",
+      "adaptive practice",
+      "answer evaluation",
+      "product validation"
+    ],
+    "highlights": [
+      "Early-stage product exploration for structured interview preparation",
+      "Combines learning design, product thinking, and AI-assisted feedback",
+      "Focused on validating user value before full-scale buildout"
+    ],
+    "aiContext": {
+      "summary": "Codename InterviewPrepApp is an early product exploration around interview preparation, adaptive learning, and AI-guided practice experiences.",
+      "myContribution": "I am defining the product direction, validating core user journeys, shaping the architecture, and building proofs of concept for feedback and preparation workflows.",
+      "technicalFocus": [
+        "AI-assisted coaching loops",
+        "practice session architecture",
+        "progress tracking",
+        "rapid product validation"
+      ],
+      "interestingProblems": [
+        "making feedback useful without being overly generic",
+        "balancing structured preparation with flexibility",
+        "validating product value before deeper engineering investment"
+      ]
+    },
+    "milestones": [
+      {
+        "name": "Conceptualization",
+        "objectives": 8,
+        "done": 6,
+        "qa": 3,
+        "backlog": 5,
+        "bugs": 0,
+        "highlights": [
+          "Problem framing",
+          "Initial user personas",
+          "Core preparation journey mapping"
+        ],
+        "aiContext": {
+          "summary": "Conceptualization focused on clarifying the user problem, identifying the most valuable preparation flows, and defining the product thesis.",
+          "focus": [
+            "user pain points",
+            "journey definition",
+            "value proposition"
+          ]
+        }
+      },
+      {
+        "name": "POCs",
+        "objectives": 10,
+        "done": 5,
+        "qa": 2,
+        "backlog": 7,
+        "bugs": 1,
+        "highlights": [
+          "Question session prototype",
+          "AI feedback experiment",
+          "Basic progress tracking draft"
+        ],
+        "aiContext": {
+          "summary": "POC phase is validating whether guided practice, automated feedback, and lightweight analytics can work together in a meaningful way.",
+          "focus": [
+            "feedback prototype",
+            "session flow validation",
+            "technical feasibility"
+          ]
+        }
+      },
+      {
+        "name": "Architecture Draft",
+        "objectives": 7,
+        "done": 2,
+        "qa": 0,
+        "backlog": 6,
+        "bugs": 0,
+        "highlights": [
+          "System boundary definition",
+          "Data model sketching",
+          "Service breakdown exploration"
+        ],
+        "aiContext": {
+          "summary": "Architecture draft phase is beginning to formalize how the product could scale from experiments into a maintainable application.",
+          "focus": [
+            "system design",
+            "data flow",
+            "extensibility planning"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      {
+        "name": "Core",
+        "value": 45
+      },
+      {
+        "name": "Systems",
+        "value": 35
+      },
+      {
+        "name": "Content",
+        "value": 20
+      }
+    ],
+    "confidence": [
+      {
+        "sprint": 1,
+        "conf": 0.42
+      },
+      {
+        "sprint": 2,
+        "conf": 0.51
+      },
+      {
+        "sprint": 3,
+        "conf": 0.58
+      }
+    ]
+  },
+  "crazy_cops_v2": {
+    "key": "crazy_cops_v2",
+    "slug": "crazy-cops-version-2",
+    "title": "Crazy Cops Version 2",
+    "projectType": "Multiplayer Indie Game",
+    "tagline": "Cross-platform multiplayer demolition game focused on arcade chaos, game feel, and networked systems.",
+    "summary": "Crazy Cops V2 was a cross-platform multiplayer demolition and racing game built in Unity. The project combined fast arcade gameplay with networked multiplayer, weapon systems, and high-energy player interactions. I worked on gameplay programming, mode logic, and the systems that supported the overall feel and responsiveness of the experience.",
+    "role": "Gameplay Programmer",
+    "cover": "/data/content/screenshots/CrazyCopsV2/CrazzyCops-Preview.png",
+    "videoId": "atvRQFsoeXs",
+    "video": "https://www.youtube.com/embed/atvRQFsoeXs",
+    "github": "https://github.com/vaibhavrakheja11/Unity-CcracyCcopsV2.0-Multiplayer",
+    "screenshotpath": "/data/content/screenshots/CrazyCopsV2/",
+    "previewImage": "/data/content/screenshots/CrazyCopsV2/CrazzyCops-Preview.png",
+    "mainImage": "/data/content/screenshots/CrazyCopsV2/CrazzyCops-Preview.png",
+    "company": "Fluke Games",
+    "companyLogo": "/data/images/Logos/flukegames.png",
+    "visible": true,
+    "stack": [
+      "Unity",
+      "C#",
+      "Photon Multiplayer",
+      "Gameplay Programming"
+    ],
+    "platforms": [
+      "Android"
+    ],
+    "teamSize": 4,
+    "cadence": "2-week sprints",
+    "scope": [
+      "Multiplayer gameplay systems",
+      "Race and combat game modes",
+      "Weapon interaction systems",
+      "Arcade gameplay tuning"
+    ],
+    "tech": [
+      "Unity",
+      "C#",
+      "Photon Multiplayer",
+      "Gameplay Programming"
+    ],
+    "systems": [
+      "Multiplayer gameplay systems",
+      "Race and combat game modes",
+      "Weapon interaction systems",
+      "Arcade gameplay tuning"
+    ],
+    "aiTopics": [
+      "multiplayer systems",
+      "gameplay tuning"
+    ],
+    "highlights": [
+      "Built cross-platform multiplayer gameplay",
+      "Implemented racing and demolition mechanics",
+      "Focused on fast, readable arcade feel"
+    ],
+    "aiContext": {
+      "summary": "Crazy Cops V2 was an arcade multiplayer game combining racing, combat, and networked gameplay systems.",
+      "myContribution": "I built gameplay systems, mode logic, and player-facing mechanics for a high-energy multiplayer experience.",
+      "technicalFocus": [
+        "multiplayer gameplay",
+        "arcade systems",
+        "weapon mechanics",
+        "game feel tuning"
+      ],
+      "interestingProblems": [
+        "keeping the experience readable in multiplayer chaos",
+        "balancing multiple game modes with shared systems"
+      ]
+    },
+    "images": [
+      {
+        "img": "Screenshot1.png",
+        "headline": "Arcade Multiplayer Gameplay",
+        "description": "The game emphasized high-energy player interaction and accessible competitive chaos."
+      },
+      {
+        "img": "Screenshot2.png",
+        "headline": "Unity Gameplay Programming",
+        "description": "The systems were built with a focus on responsiveness, readability, and rapid iteration."
+      },
+      {
+        "img": "Screenshot3.png",
+        "headline": "Distinct Game Modes",
+        "description": "Different modes introduced varied pacing while keeping the core interaction loop consistent."
+      },
+      {
+        "img": "Screenshot4.png",
+        "headline": "Vehicle Combat and Action",
+        "description": "The gameplay blended destruction, movement, and timing-heavy player interaction."
+      },
+      {
+        "img": "Screenshot5.png",
+        "headline": "Competitive Play",
+        "description": "The project explored how arcade feel could coexist with structured competitive modes."
+      }
+    ],
+    "tags": [
+      "Unity",
+      "Multiplayer",
+      "Arcade"
+    ],
+    "milestones": [
+      {
+        "name": "Prototype",
+        "objectives": 9,
+        "done": 9,
+        "qa": 8,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Core driving loop",
+          "Basic Photon sync",
+          "First playable race arena"
+        ],
+        "aiContext": {
+          "summary": "Prototype validated the core arcade driving loop and multiplayer feasibility.",
+          "focus": [
+            "vehicle control feel",
+            "basic multiplayer replication",
+            "readable player feedback"
+          ]
+        }
+      },
+      {
+        "name": "Production",
+        "objectives": 12,
+        "done": 12,
+        "qa": 11,
+        "backlog": 0,
+        "bugs": 4,
+        "highlights": [
+          "Combat and race modes",
+          "Weapon interaction pass",
+          "Session flow stabilization"
+        ],
+        "aiContext": {
+          "summary": "Production phase expanded the project from a testbed into a complete arcade multiplayer experience.",
+          "focus": [
+            "mode logic",
+            "combat systems",
+            "multiplayer session reliability"
+          ]
+        }
+      },
+      {
+        "name": "Polish",
+        "objectives": 10,
+        "done": 10,
+        "qa": 10,
+        "backlog": 0,
+        "bugs": 1,
+        "highlights": [
+          "Juice and feedback pass",
+          "Balancing for chaos readability",
+          "Release candidate build"
+        ],
+        "aiContext": {
+          "summary": "Polish focused on responsiveness, readability, and final gameplay tuning for release.",
+          "focus": [
+            "arcade feedback",
+            "mode balance",
+            "final stability"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      { "name": "Core", "value": 35 },
+      { "name": "Systems", "value": 40 },
+      { "name": "Content", "value": 25 }
+    ],
+    "confidence": [
+      { "sprint": 1, "conf": 0.68 },
+      { "sprint": 2, "conf": 0.79 },
+      { "sprint": 3, "conf": 0.9 }
+    ]
+  },
+
+  "beat_slayer_vr": {
+    "key": "beat_slayer_vr",
+    "slug": "beat-slayer-vr",
+    "title": "Beat Slayer VR",
+    "projectType": "VR Multiplayer Prototype",
+    "tagline": "Virtual reality FPS arcade prototype focused on comfort-aware locomotion and multiplayer design.",
+    "summary": "Beat Slayer VR was a multiplayer VR arcade shooter prototype built around the challenge of balancing freedom of movement with player comfort. The project explored alternative locomotion approaches that reduced nausea while preserving agency and gameplay intensity. I worked on gameplay systems, movement design, interaction logic, and prototype systems that supported an accessible but expressive VR experience.",
+    "role": "Gameplay Programmer",
+    "cover": "/data/content/screenshots/Beat_Slayer/BeatSlayer-Preview.png",
+    "videoId": "ZWKKcyKwUGI",
+    "video": "https://www.youtube.com/embed/ZWKKcyKwUGI",
+    "github": "https://github.com/vaibhavrakheja11/Unity_3D_Virtual_Reality_Beat_Slayer_Multiplayer_Arcade",
+    "screenshotpath": "/data/content/screenshots/Beat_Slayer/",
+    "previewImage": "/data/content/screenshots/Beat_Slayer/BeatSlayer-Preview.png",
+    "mainImage": "/data/content/screenshots/Beat_Slayer/BeatSlayer-Preview.png",
+    "company": "Fluke Games",
+    "companyLogo": "/data/images/Logos/flukegames.png",
+    "visible": true,
+    "stack": [
+      "Unity",
+      "C#",
+      "VR Systems",
+      "Photon Networking"
+    ],
+    "platforms": [
+      "VR/AR"
+    ],
+    "teamSize": 3,
+    "cadence": "2-week sprints",
+    "scope": [
+      "Comfort-aware locomotion",
+      "VR movement control split",
+      "Multiplayer prototype architecture",
+      "Weapon and gesture systems"
+    ],
+    "tech": [
+      "Unity",
+      "C#",
+      "VR Systems",
+      "Photon Networking"
+    ],
+    "systems": [
+      "Comfort-aware locomotion",
+      "VR movement control split",
+      "Multiplayer prototype architecture",
+      "Weapon and gesture systems"
+    ],
+    "aiTopics": [
+      "VR locomotion",
+      "multiplayer systems",
+      "interaction design"
+    ],
+    "highlights": [
+      "Explored nausea-aware VR locomotion",
+      "Split movement responsibility across controllers",
+      "Planned multiplayer integration with Photon"
+    ],
+    "aiContext": {
+      "summary": "Beat Slayer VR explored comfort-first locomotion and multiplayer-ready VR gameplay design.",
+      "myContribution": "I worked on VR gameplay systems, interaction design, movement architecture, and multiplayer prototype direction.",
+      "technicalFocus": [
+        "VR locomotion",
+        "comfort systems",
+        "multiplayer architecture",
+        "gesture-driven interaction"
+      ],
+      "interestingProblems": [
+        "balancing control freedom with motion comfort",
+        "designing VR interactions that remain intuitive under pressure",
+        "planning multiplayer synchronisation for immersive interactions"
+      ]
+    },
+    "images": [
+      {
+        "img": "Picture14.png",
+        "headline": "Comfort-Oriented VR Design",
+        "description": "The project investigated how to preserve control without forcing uncomfortable locomotion."
+      },
+      {
+        "img": "Picture15.png",
+        "headline": "Controller-Split Movement Logic",
+        "description": "Movement responsibilities were distributed in a way that supported fluid direction changes."
+      },
+      {
+        "img": "Picture16.png",
+        "headline": "Reduced Nausea Through Interaction Design",
+        "description": "The core design challenge was building a playable VR system that stayed comfortable over time."
+      },
+      {
+        "img": "Picture17.png",
+        "headline": "Gameplay-Driven VR Systems",
+        "description": "Every movement choice was evaluated from both a comfort and gameplay readability perspective."
+      }
+    ],
+    "tags": [
+      "VR",
+      "Multiplayer",
+      "Unity"
+    ],
+    "milestones": [
+      {
+        "name": "Prototype",
+        "objectives": 8,
+        "done": 8,
+        "qa": 7,
+        "backlog": 0,
+        "bugs": 3,
+        "highlights": [
+          "Comfort locomotion baseline",
+          "Weapon handling prototype",
+          "First combat encounter"
+        ],
+        "aiContext": {
+          "summary": "Prototype established the comfort-first movement foundation and core interaction loop.",
+          "focus": [
+            "VR comfort",
+            "movement experimentation",
+            "interaction responsiveness"
+          ]
+        }
+      },
+      {
+        "name": "Feature Complete",
+        "objectives": 11,
+        "done": 11,
+        "qa": 10,
+        "backlog": 0,
+        "bugs": 3,
+        "highlights": [
+          "Gesture interaction pass",
+          "Multiplayer architecture integration",
+          "Arena gameplay flow"
+        ],
+        "aiContext": {
+          "summary": "Feature completion connected locomotion, combat, and networking into a cohesive prototype.",
+          "focus": [
+            "multiplayer structure",
+            "gesture systems",
+            "VR encounter loop"
+          ]
+        }
+      },
+      {
+        "name": "Release Candidate",
+        "objectives": 7,
+        "done": 7,
+        "qa": 7,
+        "backlog": 0,
+        "bugs": 1,
+        "highlights": [
+          "Comfort validation",
+          "Stability sweep",
+          "Showcase build"
+        ],
+        "aiContext": {
+          "summary": "Final phase emphasized comfort validation, consistency, and demo readiness.",
+          "focus": [
+            "comfort polish",
+            "bug fixing",
+            "demo presentation"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      { "name": "Core", "value": 38 },
+      { "name": "Systems", "value": 42 },
+      { "name": "Content", "value": 20 }
+    ],
+    "confidence": [
+      { "sprint": 1, "conf": 0.64 },
+      { "sprint": 2, "conf": 0.8 },
+      { "sprint": 3, "conf": 0.91 }
+    ]
+  },
+
+  "survival_rpg_game_setup": {
+    "key": "survival_rpg_game_setup",
+    "slug": "survival-rpg-game-setup",
+    "title": "Survival RPG Game Setup",
+    "projectType": "Gameplay Systems Prototype",
+    "tagline": "RPG systems prototype built around character progression, inventory, combat, and gameplay structure.",
+    "summary": "This RPG setup project explored foundational RPG mechanics in Unreal Engine using both Blueprints and C++. The goal was to build an example project containing common RPG systems such as inventory, equipment, skills, progression, and combat. It helped demonstrate systems thinking and gameplay architecture through a cohesive mechanics-driven prototype.",
+    "role": "Gameplay Systems Programmer",
+    "cover": "/data/content/screenshots/SurvivalRPG/Screenshot3.png",
+    "videoId": "Yl3m2b1kGkg",
+    "video": "https://www.youtube.com/embed/Yl3m2b1kGkg",
+    "github": "https://github.com/vaibhavrakheja11/Unreal_Engine_Survial_RPG_Game",
+    "screenshotpath": "/data/content/screenshots/SurvivalRPG/",
+    "previewImage": "/data/content/screenshots/SurvivalRPG/Screenshot3.png",
+    "mainImage": "/data/content/screenshots/SurvivalRPG/Screenshot3.png",
+    "company": "Fluke Games",
+    "companyLogo": "/data/images/Logos/flukegames.png",
+    "visible": true,
+    "stack": [
+      "Unreal Engine",
+      "C++",
+      "Blueprints"
+    ],
+    "platforms": [
+      "Asset",
+      "PC"
+    ],
+    "teamSize": 1,
+    "cadence": "2-week sprints",
+    "scope": [
+      "Inventory system",
+      "Equipment system",
+      "Skills and progression",
+      "Combat framework"
+    ],
+    "tech": [
+      "Unreal Engine",
+      "C++",
+      "Blueprints"
+    ],
+    "systems": [
+      "Inventory system",
+      "Equipment system",
+      "Skills and progression",
+      "Combat framework"
+    ],
+    "aiTopics": [
+      "gameplay systems",
+      "RPG mechanics"
+    ],
+    "highlights": [
+      "Built reusable RPG systems",
+      "Combined Blueprints and C++",
+      "Focused on gameplay architecture fundamentals"
+    ],
+    "aiContext": {
+      "summary": "This project was a systems-focused RPG prototype showcasing progression, inventory, and combat mechanics.",
+      "myContribution": "I built and integrated foundational RPG systems in Unreal using a mix of Blueprints and C++.",
+      "technicalFocus": [
+        "gameplay architecture",
+        "RPG systems",
+        "state and progression design"
+      ],
+      "interestingProblems": [
+        "structuring gameplay systems so they remain extensible",
+        "connecting progression systems to combat and equipment cleanly"
+      ]
+    },
+    "images": [
+      {
+        "img": "Screenshot1.png",
+        "headline": "Core RPG Systems",
+        "description": "The project served as a practical exploration of reusable RPG mechanics."
+      },
+      {
+        "img": "Screenshot2.png",
+        "headline": "Gameplay Progression Design",
+        "description": "Systems such as leveling, equipment, and skills were connected into one coherent framework."
+      }
+    ],
+    "tags": [
+      "Asset",
+      "Unreal",
+      "RPG",
+      "Systems"
+    ],
+    "milestones": [
+      {
+        "name": "Foundation",
+        "objectives": 8,
+        "done": 8,
+        "qa": 7,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Inventory baseline",
+          "Equipment slot architecture",
+          "Combat state foundation"
+        ],
+        "aiContext": {
+          "summary": "Foundation phase established the reusable architecture for core RPG systems.",
+          "focus": [
+            "state handling",
+            "inventory structure",
+            "combat setup"
+          ]
+        }
+      },
+      {
+        "name": "Systems Integration",
+        "objectives": 10,
+        "done": 10,
+        "qa": 9,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Skills and progression",
+          "Equipment-combat linkage",
+          "Blueprint and C++ integration"
+        ],
+        "aiContext": {
+          "summary": "Integration phase connected the major systems into a coherent RPG framework.",
+          "focus": [
+            "progression flow",
+            "cross-system integration",
+            "extensibility"
+          ]
+        }
+      },
+      {
+        "name": "Showcase",
+        "objectives": 6,
+        "done": 6,
+        "qa": 6,
+        "backlog": 0,
+        "bugs": 1,
+        "highlights": [
+          "Usability cleanup",
+          "Demo scenario",
+          "Documentation-ready example project"
+        ],
+        "aiContext": {
+          "summary": "Showcase phase refined the project into a clean portfolio-ready systems sample.",
+          "focus": [
+            "clarity",
+            "reusability",
+            "presentation quality"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      { "name": "Core", "value": 30 },
+      { "name": "Systems", "value": 50 },
+      { "name": "Content", "value": 20 }
+    ],
+    "confidence": [
+      { "sprint": 1, "conf": 0.71 },
+      { "sprint": 2, "conf": 0.84 },
+      { "sprint": 3, "conf": 0.93 }
+    ]
+  },
+
+  "reinforcement_learning_ai_ml_agents": {
+    "key": "reinforcement_learning_ai_ml_agents",
+    "slug": "reinforcement-learning-ai-ml-agents",
+    "title": "Reinforcement Learning AI ML Agents",
+    "projectType": "Machine Learning / Game AI",
+    "tagline": "Applied reinforcement learning project exploring self-learning agents for game-like environments.",
+    "summary": "This project explored reinforcement learning for enemy AI and agent behaviour in interactive environments. Using PPO and ML-Agents style approaches, the work focused on training agents to navigate, collect rewards, and make behaviour decisions in a game setting. It combined machine learning research with game AI thinking, showing how learned behaviours could augment traditional systems.",
+    "role": "AI / Gameplay Systems Researcher",
+    "cover": "/data/content/screenshots/Airplanes_Project/Airplanes-Preview.png",
+    "videoId": "",
+    "video": "",
+    "github": "https://github.com/vaibhavrakheja11/Unity_3D_Reinforcement_Learning_Based_Self_Learning_Airplane_Agents_with_Shooting_Mech",
+    "screenshotpath": "/data/content/screenshots/Airplanes_Project/",
+    "previewImage": "/data/content/screenshots/Airplanes_Project/Airplanes-Preview.png",
+    "mainImage": "/data/content/screenshots/Airplanes_Project/Airplanes-Preview.png",
+    "company": "Fluke Games",
+    "companyLogo": "/data/images/Logos/universityofalberta.png",
+    "visible": true,
+    "stack": [
+      "Unity",
+      "Python",
+      "PPO",
+      "ML-Agents",
+      "Reinforcement Learning"
+    ],
+    "platforms": [
+      "PC"
+    ],
+    "teamSize": 1,
+    "cadence": "research iterations",
+    "scope": [
+      "Self-learning agents",
+      "Reward shaping",
+      "Simulation-based training",
+      "Game AI experimentation"
+    ],
+    "tech": [
+      "Unity",
+      "Python",
+      "PPO",
+      "ML-Agents",
+      "Reinforcement Learning"
+    ],
+    "systems": [
+      "Self-learning agents",
+      "Reward shaping",
+      "Simulation-based training",
+      "Game AI experimentation"
+    ],
+    "aiTopics": [
+      "reinforcement learning",
+      "PPO",
+      "self-learning agents",
+      "game AI"
+    ],
+    "highlights": [
+      "Explored RL for game-like enemy behaviour",
+      "Built agent training scenarios with rewards and penalties",
+      "Connected ML thinking with practical AI systems design"
+    ],
+    "aiContext": {
+      "summary": "This project explored reinforcement learning as a way to build adaptive, self-improving behaviour in game environments.",
+      "myContribution": "I designed the learning setup, agent objectives, and simulation scenarios for behaviour training using PPO-style reinforcement learning.",
+      "technicalFocus": [
+        "reward shaping",
+        "agent training",
+        "game environment simulation",
+        "behaviour learning"
+      ],
+      "interestingProblems": [
+        "defining useful reward structures",
+        "making learned behaviour stable enough to evaluate",
+        "connecting research ideas to practical game AI applications"
+      ]
+    },
+    "images": [
+      {
+        "img": "Picture1.png",
+        "headline": "RL for Game AI",
+        "description": "The work examined how machine learning could support more adaptive enemy behaviour."
+      },
+      {
+        "img": "Picture2.png",
+        "headline": "Beyond Traditional AI",
+        "description": "The project explored where hand-authored systems struggle and where learned behaviour can add value."
+      },
+      {
+        "img": "Picture3.png",
+        "headline": "Intelligent Agent Behaviour",
+        "description": "The focus was on creating agents that improve through interaction rather than explicit scripting alone."
+      }
+    ],
+    "tags": [
+      "Asset",
+      "RL",
+      "ML",
+      "Game AI"
+    ],
+    "milestones": [
+      {
+        "name": "Experiment Setup",
+        "objectives": 7,
+        "done": 7,
+        "qa": 6,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Training sandbox",
+          "Reward scaffolding",
+          "Baseline agent loop"
+        ],
+        "aiContext": {
+          "summary": "Initial phase established the training environment and baseline learning loop.",
+          "focus": [
+            "simulation setup",
+            "agent objectives",
+            "early reward design"
+          ]
+        }
+      },
+      {
+        "name": "Training and Evaluation",
+        "objectives": 10,
+        "done": 10,
+        "qa": 9,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Reward shaping iterations",
+          "Policy improvement cycles",
+          "Behaviour comparison runs"
+        ],
+        "aiContext": {
+          "summary": "Main research phase focused on stabilizing training and evaluating learned behaviour quality.",
+          "focus": [
+            "training stability",
+            "behaviour quality",
+            "comparative evaluation"
+          ]
+        }
+      },
+      {
+        "name": "Portfolio Release",
+        "objectives": 5,
+        "done": 5,
+        "qa": 5,
+        "backlog": 0,
+        "bugs": 1,
+        "highlights": [
+          "Final captures",
+          "Research summary",
+          "Demo-ready results"
+        ],
+        "aiContext": {
+          "summary": "Final phase packaged the work into a clear, demonstrable research outcome.",
+          "focus": [
+            "presentation",
+            "result clarity",
+            "portfolio readiness"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      { "name": "Core", "value": 25 },
+      { "name": "Systems", "value": 45 },
+      { "name": "Content", "value": 30 }
+    ],
+    "confidence": [
+      { "sprint": 1, "conf": 0.6 },
+      { "sprint": 2, "conf": 0.78 },
+      { "sprint": 3, "conf": 0.89 }
+    ]
+  },
+
+  "blender_fps_shooting_game": {
+    "key": "blender_fps_shooting_game",
+    "slug": "blender-fps-shooting-game",
+    "title": "Blender FPS Shooting Game",
+    "projectType": "Gameplay Prototype",
+    "tagline": "Early FPS mechanics experiment covering scripting, animation, modelling, and interaction systems.",
+    "summary": "This project was an early exploration of FPS game mechanics using Blender's game development workflow. It covered multiple disciplines, including modelling, rigging, texturing, and scripting, while focusing on the implementation of core first-person mechanics such as movement, control, and inventory logic.",
+    "role": "Gameplay Prototype Developer",
+    "cover": "/data/content/screenshots/Blender_Game_Engine/Picture1.png",
+    "videoId": "",
+    "video": "",
+    "github": "https://github.com/vaibhavrakheja11/Unreal_Engine_Survial_RPG_Game",
+    "screenshotpath": "/data/content/screenshots/Blender_Game_Engine/",
+    "previewImage": "/data/content/screenshots/Blender_Game_Engine/Picture1.png",
+    "mainImage": "/data/content/screenshots/Blender_Game_Engine/Picture1.png",
+    "company": "Fluke Games",
+    "companyLogo": "/data/images/Logos/flukegames.png",
+    "visible": true,
+    "stack": [
+      "Blender",
+      "Gameplay Scripting",
+      "Animation",
+      "Rigging"
+    ],
+    "platforms": [
+      "PC"
+    ],
+    "teamSize": 1,
+    "cadence": "solo iterations",
+    "scope": [
+      "FPS movement prototype",
+      "Inventory and weapon switching",
+      "Input-based gameplay systems"
+    ],
+    "tech": [
+      "Blender",
+      "Gameplay Scripting",
+      "Animation",
+      "Rigging"
+    ],
+    "systems": [
+      "FPS movement prototype",
+      "Inventory and weapon switching",
+      "Input-based gameplay systems"
+    ],
+    "aiTopics": [
+      "gameplay systems",
+      "prototype mechanics"
+    ],
+    "highlights": [
+      "Explored FPS mechanics from scratch",
+      "Combined art pipeline work with gameplay scripting",
+      "Built inventory and control systems"
+    ],
+    "aiContext": {
+      "summary": "This project was an early first-person gameplay prototype combining art pipeline work and gameplay system implementation.",
+      "myContribution": "I handled multiple areas including gameplay logic, modelling support, rigging understanding, and prototype system construction.",
+      "technicalFocus": [
+        "FPS mechanics",
+        "input handling",
+        "inventory logic"
+      ],
+      "interestingProblems": [
+        "building gameplay systems while also learning content pipeline fundamentals",
+        "keeping mechanics coherent in a small experimental setup"
+      ]
+    },
+    "images": [
+      {
+        "img": "Picture1.png",
+        "headline": "FPS Mechanics Experiment",
+        "description": "The project explored the fundamentals of movement, interaction, and weapon handling."
+      },
+      {
+        "img": "Picture2.png",
+        "headline": "Gameplay + Content Pipeline Learning",
+        "description": "It combined systems work with modelling, rigging, and animation understanding."
+      }
+    ],
+    "tags": [
+      "Asset",
+      "Prototype",
+      "FPS",
+      "Systems"
+    ],
+    "milestones": [
+      {
+        "name": "Core Prototype",
+        "objectives": 6,
+        "done": 6,
+        "qa": 5,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Movement and aiming baseline",
+          "Weapon switching",
+          "Interaction scripting"
+        ],
+        "aiContext": {
+          "summary": "Core prototype established the first-person interaction loop and control feel.",
+          "focus": [
+            "movement basics",
+            "weapon interaction",
+            "playability"
+          ]
+        }
+      },
+      {
+        "name": "Content Integration",
+        "objectives": 7,
+        "done": 7,
+        "qa": 6,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Rigging and animation hookup",
+          "Inventory extension",
+          "Environment usability pass"
+        ],
+        "aiContext": {
+          "summary": "Integration phase connected gameplay logic with content pipeline learnings.",
+          "focus": [
+            "animation hookup",
+            "inventory logic",
+            "system cohesion"
+          ]
+        }
+      },
+      {
+        "name": "Portfolio Build",
+        "objectives": 4,
+        "done": 4,
+        "qa": 4,
+        "backlog": 0,
+        "bugs": 1,
+        "highlights": [
+          "Final captures",
+          "Stability pass",
+          "Sharpened gameplay demo"
+        ],
+        "aiContext": {
+          "summary": "Final phase packaged the prototype as a compact but complete portfolio sample.",
+          "focus": [
+            "presentation",
+            "basic polish",
+            "feature clarity"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      { "name": "Core", "value": 42 },
+      { "name": "Systems", "value": 33 },
+      { "name": "Content", "value": 25 }
+    ],
+    "confidence": [
+      { "sprint": 1, "conf": 0.62 },
+      { "sprint": 2, "conf": 0.77 },
+      { "sprint": 3, "conf": 0.88 }
+    ]
+  },
+
+  "augmented_reality_foundation_core": {
+    "key": "augmented_reality_foundation_core",
+    "slug": "augmented-reality-foundation-core",
+    "title": "Augmented Reality Foundation/Core",
+    "projectType": "AR Systems Exploration",
+    "tagline": "Foundation-level AR experimentation across multi-platform Unity workflows.",
+    "summary": "This project explored Unity AR Foundation as a platform for multi-device augmented reality development. It focused on understanding the system architecture, platform abstraction, and how AR interaction patterns can be structured across supported devices.",
+    "role": "AR Systems Developer",
+    "cover": "/data/content/screenshots/CrazyCopsV2/Screenshot1.png",
+    "videoId": "ak3SPMgLatk",
+    "video": "https://www.youtube.com/embed/ak3SPMgLatk",
+    "github": "https://github.com/vaibhavrakheja11/",
+    "screenshotpath": "/data/content/screenshots/CrazyCopsV2/",
+    "previewImage": "/data/content/screenshots/CrazyCopsV2/Screenshot1.png",
+    "mainImage": "/data/content/screenshots/CrazyCopsV2/Screenshot1.png",
+    "company": "Fluke Games",
+    "companyLogo": "/data/images/Logos/flukegames.png",
+    "visible": true,
+    "stack": [
+      "Unity",
+      "AR Foundation",
+      "AR Core Systems"
+    ],
+    "platforms": [
+      "VR/AR"
+    ],
+    "teamSize": 1,
+    "cadence": "exploration sprints",
+    "scope": [
+      "Multi-platform AR workflows",
+      "AR device abstraction",
+      "Core augmented reality interaction"
+    ],
+    "tech": [
+      "Unity",
+      "AR Foundation",
+      "AR Core Systems"
+    ],
+    "systems": [
+      "Multi-platform AR workflows",
+      "AR device abstraction",
+      "Core augmented reality interaction"
+    ],
+    "aiTopics": [
+      "AR systems",
+      "Unity AR"
+    ],
+    "highlights": [
+      "Explored Unity's AR Foundation pipeline",
+      "Focused on core cross-platform AR concepts"
+    ],
+    "aiContext": {
+      "summary": "This project explored AR Foundation as a cross-platform system for building augmented reality experiences.",
+      "myContribution": "I worked on understanding and prototyping the AR systems flow needed for multi-platform augmented reality development.",
+      "technicalFocus": [
+        "AR architecture",
+        "Unity platform abstraction",
+        "interaction systems"
+      ],
+      "interestingProblems": [
+        "building AR features in a platform-agnostic way",
+        "understanding how abstraction layers affect gameplay systems"
+      ]
+    },
+    "images": [],
+    "tags": [
+      "Asset",
+      "AR",
+      "Unity",
+      "Foundation"
+    ],
+    "milestones": [
+      {
+        "name": "Foundation",
+        "objectives": 6,
+        "done": 6,
+        "qa": 5,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "AR session baseline",
+          "Plane and anchor understanding",
+          "Cross-device setup"
+        ],
+        "aiContext": {
+          "summary": "Initial phase focused on grasping the architectural foundation of AR Foundation workflows.",
+          "focus": [
+            "device abstraction",
+            "session setup",
+            "platform flow"
+          ]
+        }
+      },
+      {
+        "name": "Interaction Pass",
+        "objectives": 7,
+        "done": 7,
+        "qa": 6,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Object placement interactions",
+          "Input experimentation",
+          "Environment response"
+        ],
+        "aiContext": {
+          "summary": "Interaction pass turned the technical setup into usable AR gameplay experiments.",
+          "focus": [
+            "interaction design",
+            "AR usability",
+            "cross-platform behaviour"
+          ]
+        }
+      },
+      {
+        "name": "Reference Release",
+        "objectives": 4,
+        "done": 4,
+        "qa": 4,
+        "backlog": 0,
+        "bugs": 1,
+        "highlights": [
+          "Cleaned sample flows",
+          "Demo packaging",
+          "Portfolio-ready reference"
+        ],
+        "aiContext": {
+          "summary": "Final phase positioned the project as a concise AR reference and exploration piece.",
+          "focus": [
+            "clarity",
+            "reference value",
+            "portfolio presentation"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      { "name": "Core", "value": 30 },
+      { "name": "Systems", "value": 50 },
+      { "name": "Content", "value": 20 }
+    ],
+    "confidence": [
+      { "sprint": 1, "conf": 0.63 },
+      { "sprint": 2, "conf": 0.79 },
+      { "sprint": 3, "conf": 0.9 }
+    ]
+  },
+
+  "vista_mart": {
+    "key": "vista_mart",
+    "slug": "vista-mart",
+    "title": "Vista-Mart",
+    "projectType": "Web Application",
+    "tagline": "AngularJS and Spring Boot e-commerce platform built for student-focused delivery workflows.",
+    "summary": "Vista-Mart was an e-commerce web application designed for students living in hostels around Chandigarh. The platform supported ordering groceries and dairy products and included common commerce flows such as account management, cart, checkout, and merchant-side inventory support. It was an early full-stack project that combined frontend UI, backend services, and business workflows.",
+    "role": "Full Stack Developer",
+    "cover": "/data/content/screenshots/EcommerceWebApp/Picture1.png",
+    "videoId": "wL23lsT_2Ts",
+    "video": "https://www.youtube.com/embed/wL23lsT_2Ts",
+    "github": "https://github.com/vaibhavrakheja11/",
+    "screenshotpath": "/data/content/screenshots/EcommerceWebApp/",
+    "previewImage": "/data/content/screenshots/EcommerceWebApp/Picture1.png",
+    "mainImage": "/data/content/screenshots/EcommerceWebApp/Picture1.png",
+    "company": "Fluke Games",
+    "companyLogo": "/data/images/Logos/flukegames.png",
+    "visible": true,
+    "stack": [
+      "AngularJS",
+      "Spring Boot",
+      "JPA",
+      "MaterializeCSS"
+    ],
+    "platforms": [
+      "Web"
+    ],
+    "teamSize": 2,
+    "cadence": "2-week sprints",
+    "scope": [
+      "Cart and checkout",
+      "Authentication",
+      "Category filtering",
+      "Inventory management"
+    ],
+    "tech": [
+      "AngularJS",
+      "Spring Boot",
+      "JPA",
+      "MaterializeCSS"
+    ],
+    "systems": [
+      "Cart and checkout",
+      "Authentication",
+      "Category filtering",
+      "Inventory management"
+    ],
+    "aiTopics": [
+      "full stack systems",
+      "e-commerce architecture"
+    ],
+    "highlights": [
+      "Built an end-to-end web commerce workflow",
+      "Handled both customer-facing and merchant-facing systems",
+      "Worked across frontend and backend"
+    ],
+    "aiContext": {
+      "summary": "Vista-Mart was a student-focused e-commerce platform built as a full-stack web application.",
+      "myContribution": "I worked on the full web flow including frontend UI, backend services, and core commerce functionality.",
+      "technicalFocus": [
+        "full-stack architecture",
+        "e-commerce workflows",
+        "merchant tooling"
+      ],
+      "interestingProblems": [
+        "connecting user flows cleanly to backend logic",
+        "supporting multiple commerce use cases in one application"
+      ]
+    },
+    "images": [
+      {
+        "img": "Picture1.png",
+        "headline": "Target Audience",
+        "description": "The application was designed around a very practical delivery use case for students."
+      },
+      {
+        "img": "Picture2.png",
+        "headline": "Technology Stack",
+        "description": "It combined AngularJS on the frontend with Spring-based backend services."
+      }
+    ],
+    "tags": [
+      "Web",
+      "AngularJS",
+      "Spring Boot"
+    ],
+    "milestones": [
+      {
+        "name": "MVP",
+        "objectives": 8,
+        "done": 8,
+        "qa": 7,
+        "backlog": 0,
+        "bugs": 3,
+        "highlights": [
+          "Product browsing",
+          "Account flow",
+          "Cart baseline"
+        ],
+        "aiContext": {
+          "summary": "MVP established the essential commerce flow for browsing and ordering.",
+          "focus": [
+            "frontend flow",
+            "basic backend services",
+            "purchase usability"
+          ]
+        }
+      },
+      {
+        "name": "Commerce Expansion",
+        "objectives": 9,
+        "done": 9,
+        "qa": 8,
+        "backlog": 0,
+        "bugs": 2,
+        "highlights": [
+          "Checkout workflow",
+          "Merchant-side support",
+          "Category management"
+        ],
+        "aiContext": {
+          "summary": "Expansion phase added the operational pieces needed for a more complete commerce system.",
+          "focus": [
+            "checkout logic",
+            "merchant tooling",
+            "workflow completeness"
+          ]
+        }
+      },
+      {
+        "name": "Release",
+        "objectives": 5,
+        "done": 5,
+        "qa": 5,
+        "backlog": 0,
+        "bugs": 1,
+        "highlights": [
+          "UI cleanup",
+          "Final verification",
+          "Deployment-ready demo"
+        ],
+        "aiContext": {
+          "summary": "Release phase focused on making the application coherent, usable, and portfolio-ready.",
+          "focus": [
+            "usability",
+            "integration stability",
+            "presentation"
+          ]
+        }
+      }
+    ],
+    "scopeBreakdown": [
+      { "name": "Core", "value": 34 },
+      { "name": "Systems", "value": 36 },
+      { "name": "Content", "value": 30 }
+    ],
+    "confidence": [
+      { "sprint": 1, "conf": 0.67 },
+      { "sprint": 2, "conf": 0.82 },
+      { "sprint": 3, "conf": 0.92 }
+    ]
+  }
+}

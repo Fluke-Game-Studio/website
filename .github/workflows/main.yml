@@ -1,73 +1,92 @@
-name: Deploy to Namecheap (rsync)
+name: Deploy to Namecheap (build + rsync)
 
 on:
   push:
-    branches: ["main", "dev", "qa"]
+    branches: ["main", "dev", "qa", "sandbox"]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
+      # ----------------------------
+      # Build (my-app)
+      # ----------------------------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: my-app/package-lock.json
+
+      - name: Install deps
+        working-directory: my-app
+        run: npm ci
+
+      - name: Build
+        working-directory: my-app
+        run: npm run build
+
+      - name: Ensure build output exists
+        run: |
+          test -d "my-app/dist" || (echo "Build output not found at my-app/dist (if it's build/, tell me)" && ls -la my-app && exit 1)
+          ls -la my-app/dist
+
+      # ----------------------------
+      # SSH setup
+      # ----------------------------
       - name: Install SSH key from base64
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SFTP_KEY_B64 }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-      - name: Verify deploy key fingerprint (must be cyglfMd...)
-        run: |
-          ssh-keygen -y -f ~/.ssh/deploy_key | ssh-keygen -lf -
-
+      # ----------------------------
+      # Target folder mapping
+      # prod   : flukegamestudio.com
+      # dev    : flukegamestudio.com/dev
+      # qa     : flukegamestudio.com/qa
+      # sandbox: flukegamestudio.com/sandbox
+      # ----------------------------
       - name: Choose remote folder
         id: target
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT
-          else
-            echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT
-          fi
+          case "${{ github.ref_name }}" in
+            main)    echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT ;;
+            dev)     echo "REMOTE_DIR=public_html/dev" >> $GITHUB_OUTPUT ;;
+            qa)      echo "REMOTE_DIR=public_html/qa" >> $GITHUB_OUTPUT ;;
+            sandbox) echo "REMOTE_DIR=public_html/sandbox" >> $GITHUB_OUTPUT ;;
+            *)       echo "REMOTE_DIR=public_html" >> $GITHUB_OUTPUT ;;
+          esac
 
-      - name: SSH preflight
-        env:
-          SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_USER: ${{ secrets.SFTP_USER }}
-          SFTP_PORT: ${{ secrets.SFTP_PORT }}
-        run: |
-          ssh -vvv -p "$SFTP_PORT" \
-            -i ~/.ssh/deploy_key \
-            -o IdentitiesOnly=yes \
-            -o PreferredAuthentications=publickey \
-            -o PasswordAuthentication=no \
-            -o KbdInteractiveAuthentication=no \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            "$SFTP_USER@$SFTP_HOST" "echo SSH_OK && whoami"
-
-      - name: Rsync deploy (sync + deletions)
+      - name: Ensure remote dir exists
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PORT: ${{ secrets.SFTP_PORT }}
           REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
         run: |
-          set -e
-          EXCLUDES=(
-            "--exclude=.git/"
-            "--exclude=.github/"
-            "--exclude=node_modules/"
-            "--exclude=README*"
-          )
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            EXCLUDES+=("--exclude=dev/")
-            EXCLUDES+=("--exclude=qa/")
-          fi
+          ssh -p "$SFTP_PORT" \
+            -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            "$SFTP_USER@$SFTP_HOST" \
+            "mkdir -p ~/${REMOTE_DIR} && ls -la ~/${REMOTE_DIR}"
 
-          rsync -az --delete \
-            "${EXCLUDES[@]}" \
+      # ----------------------------
+      # Deploy dist (replace/update only, NO deletions)
+      # ----------------------------
+      - name: Rsync deploy dist (no deletions)
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+          REMOTE_DIR: ${{ steps.target.outputs.REMOTE_DIR }}
+        run: |
+          rsync -az \
             -e "ssh -p ${SFTP_PORT} -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            ./ "${SFTP_USER}@${SFTP_HOST}:~/${REMOTE_DIR}/"
+            my-app/dist/ \
+            "${SFTP_USER}@${SFTP_HOST}:~/${REMOTE_DIR}/"
