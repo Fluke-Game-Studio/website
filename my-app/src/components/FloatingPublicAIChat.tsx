@@ -73,6 +73,7 @@ export default function FloatingPublicAIChat() {
   const [botStatus, setBotStatus] = useState<BotStatus>("neutral");
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
+  const [discordModalOpen, setDiscordModalOpen] = useState(false);
 
   // Separate message histories for each mode
   const [globalMessages, setGlobalMessages] = useState<ChatMessage[]>([
@@ -260,6 +261,71 @@ export default function FloatingPublicAIChat() {
         .fg-discord-join:focus-visible {
           outline: 2px solid rgba(255,255,255,.86);
           outline-offset: 3px;
+        }
+        .fg-discord-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 1099;
+          background: rgba(2, 6, 23, 0.68);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 18px;
+        }
+        .fg-discord-modal {
+          width: min(420px, calc(100vw - 32px));
+          border-radius: 20px;
+          border: 1px solid rgba(148, 163, 184, 0.22);
+          background:
+            radial-gradient(600px 260px at 20% 0%, rgba(88, 101, 242, 0.24), transparent 60%),
+            linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(7, 12, 22, 0.98));
+          color: #f8fafc;
+          box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+          overflow: hidden;
+        }
+        .fg-discord-modal-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 14px;
+          padding: 18px 18px 12px;
+          border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        .fg-discord-modal-body {
+          padding: 18px;
+        }
+        .fg-discord-modal-actions {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          margin-top: 18px;
+        }
+        .fg-discord-primary,
+        .fg-discord-secondary {
+          min-height: 42px;
+          border-radius: 12px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 0 14px;
+          font-family: 'Sora', sans-serif;
+          font-size: 12px;
+          font-weight: 900;
+          text-decoration: none;
+          border: 1px solid transparent;
+          cursor: pointer;
+        }
+        .fg-discord-primary {
+          background: #5865f2;
+          color: #fff;
+          box-shadow: 0 14px 34px rgba(88, 101, 242, 0.28);
+        }
+        .fg-discord-secondary {
+          background: rgba(255,255,255,.06);
+          color: #dbeafe;
+          border-color: rgba(148, 163, 184, 0.22);
         }
         @media (max-width: 420px) {
           .fg-discord-join {
@@ -544,20 +610,88 @@ export default function FloatingPublicAIChat() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {discordModalOpen ? (
+          <motion.div
+            className="fg-discord-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setDiscordModalOpen(false)}
+          >
+            <motion.div
+              className="fg-discord-modal"
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={{ duration: 0.18 }}
+              onClick={(event) => event.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="fg-discord-title"
+            >
+              <div className="fg-discord-modal-header">
+                <div>
+                  <div id="fg-discord-title" className="font-orbitron text-sm font-bold tracking-[0.16em] uppercase text-white">
+                    Join FlukeGameStudio
+                  </div>
+                  <div className="mt-1 text-xs font-sora text-slate-300">
+                    Recipients will land in the studio Discord server.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-white flex items-center justify-center hover:bg-white/10 transition-colors"
+                  onClick={() => setDiscordModalOpen(false)}
+                  aria-label="Close Discord join dialog"
+                >
+                  <X size={17} />
+                </button>
+              </div>
+              <div className="fg-discord-modal-body">
+                <p className="font-sora text-sm leading-6 text-slate-200">
+                  Discord opens its invite and login flow outside embedded frames, so continue from here to finish joining.
+                </p>
+                <div className="fg-discord-modal-actions">
+                  <a
+                    href={DISCORD_JOIN_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="fg-discord-primary"
+                    onClick={() => setDiscordModalOpen(false)}
+                  >
+                    <MessageCircle size={17} aria-hidden="true" />
+                    Continue to Discord
+                  </a>
+                  <button
+                    type="button"
+                    className="fg-discord-secondary"
+                    onClick={() => {
+                      void navigator.clipboard?.writeText(DISCORD_JOIN_URL);
+                    }}
+                  >
+                    Copy Invite
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       {DISCORD_JOIN_URL ? (
-        <motion.a
-          href={DISCORD_JOIN_URL}
-          target="_blank"
-          rel="noreferrer"
+        <motion.button
+          type="button"
           className="fg-discord-join"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.96 }}
+          onClick={() => setDiscordModalOpen(true)}
           aria-label="Join Discord server"
           title="Join Discord server"
         >
           <MessageCircle size={17} aria-hidden="true" />
           <span>Join Discord</span>
-        </motion.a>
+        </motion.button>
       ) : null}
 
       {/* Floating trigger bubble */}
