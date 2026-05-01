@@ -32,6 +32,16 @@ export interface ApplicationChapter {
 export interface ApplicationFlow {
     roleId: string;
     roleTitle: string;
+    role: {
+        id: string;
+        title: string;
+        jobId: string;
+        team: string;
+        location: string;
+        employmentType: string;
+        tags: string[];
+        description: string;
+    };
     chapters: ApplicationChapter[];
 }
 
@@ -162,19 +172,19 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
         fields: roleFields,
     });
 
-    // Final Acknowledgement Chapter
+    // Final acknowledgement requires the applicant to type the full confirmation.
     chapters.push({
-        title: 'Volunteer Acknowledgement',
-        description: 'This is a **volunteer-based position**. Please confirm that you understand no financial compensation, stipend, or salary is provided for this role.',
+        title: 'Acknowledgement',
+        description: 'Please type "I confirm this is a volunteer role" to confirm you understand this is a volunteer-based role.',
         fields: [
             {
                 id: 'ackVolunteer',
                 key: 'ackVolunteer',
-                label: 'To proceed, please type exactly: I confirm for the volunteer position',
+                label: 'Please type exactly: I confirm this is a volunteer role',
                 type: 'text',
                 required: true,
-                placeholder: 'I confirm for the volunteer position',
-                helpText: 'By typing this, you acknowledge the volunteer nature of this position.'
+                placeholder: 'I confirm this is a volunteer role',
+                helpText: 'Your application can only be submitted after this exact confirmation is typed.'
             }
         ]
     });
@@ -182,6 +192,16 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
     return {
         roleId,
         roleTitle,
+        role: {
+            id: roleId,
+            title: roleTitle,
+            jobId: utils.safeStr(job.jobId),
+            team: utils.safeStr(job.team),
+            location: utils.safeStr(job.location),
+            employmentType: utils.safeStr(job.employmentType),
+            tags: job.tags || [],
+            description: utils.safeStr(job.description)
+        },
         chapters,
     };
 }
