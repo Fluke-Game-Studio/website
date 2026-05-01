@@ -114,6 +114,19 @@ export default function StudioProjectModal({ project, onClose }: Props) {
                   </a>
                 ) : null}
 
+                {/* External site for Project Pavan */}
+                {(safeStr(project.key).toLowerCase() === "pavan" || safeStr(project.slug).toLowerCase() === "project-pavan") ? (
+                  <a
+                    href="https://pavan.flukegamestudio.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-fluke-text transition hover:bg-white/10"
+                    title="Open Project Pavan website"
+                  >
+                    <ExternalLink size={18} />
+                  </a>
+                ) : null}
+
                 <button
                   type="button"
                   onClick={onClose}

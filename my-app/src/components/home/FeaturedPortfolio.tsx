@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
+import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick, ExternalLink } from "lucide-react";
 import StudioProjectModal from "@/components/StudioProjectModal";
 import { getStudioProjects, toStudioPortfolioItems, StudioProject } from "@/lib/studioProjects";
 
@@ -94,6 +94,19 @@ export default function FeaturedPortfolio() {
                   boxShadow: 'var(--card-shadow)',
                 }}
               >
+                {/* External link for Project Pavan */}
+                {item.id === "pavan" ? (
+                  <a
+                    href="https://pavan.flukegamestudio.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    title="Visit Project Pavan website"
+                    className="absolute top-3 right-3 z-40 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-fluke-text transition hover:bg-white/10"
+                  >
+                    <ExternalLink size={16} />
+                  </a>
+                ) : null}
                 {/* Placeholder art */}
                 <div
                   className="relative h-52 overflow-hidden flex items-center justify-center text-6xl"
