@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { Send, Sparkles, X, Square, User } from "lucide-react";
+import { MessageCircle, Send, Sparkles, X, Square, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PublicBotAvatar2DBit, { BotStatus } from "./PublicBotAvatar2DBit";
 import { useAIAssistant } from "@/context/AIAssistantContext";
@@ -16,6 +16,9 @@ const CHAT_URL = `${API_BASE}/ai/chat-sync/flukegames`;
 const PROVIDER = "openai";
 const MODEL = "gpt-5-mini";
 const CONTEXT = "flukegames";
+const DISCORD_JOIN_URL =
+  (import.meta.env.VITE_DISCORD_JOIN_URL as string | undefined)?.trim() ||
+  "https://discord.gg/flukegames";
 
 type ChatRole = "user" | "assistant";
 type ChatMessage = { id: string; role: ChatRole; content: string; ts: number };
@@ -232,6 +235,44 @@ export default function FloatingPublicAIChat() {
           position: relative; z-index: 2;
         }
         .fg-ai-bubble:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 22px 48px rgba(0,0,0,.34); }
+        .fg-discord-join {
+          margin-bottom: 10px;
+          min-height: 42px;
+          border-radius: 999px;
+          border: 1px solid rgba(88, 101, 242, 0.34);
+          background: linear-gradient(135deg, rgba(88, 101, 242, 0.96), rgba(67, 56, 202, 0.96));
+          color: #fff;
+          box-shadow: 0 16px 38px rgba(67, 56, 202, 0.28);
+          padding: 0 14px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Sora', sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          text-decoration: none;
+          white-space: nowrap;
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+        .fg-discord-join:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 20px 44px rgba(67, 56, 202, 0.38);
+          filter: brightness(1.04);
+        }
+        .fg-discord-join:focus-visible {
+          outline: 2px solid rgba(255,255,255,.86);
+          outline-offset: 3px;
+        }
+        @media (max-width: 420px) {
+          .fg-discord-join {
+            width: 42px;
+            padding: 0;
+            justify-content: center;
+          }
+          .fg-discord-join span {
+            display: none;
+          }
+        }
         .fg-ai-panel {
           width: min(400px, calc(100vw - 24px));
           height: 580px;
@@ -504,6 +545,20 @@ export default function FloatingPublicAIChat() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <motion.a
+        href={DISCORD_JOIN_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="fg-discord-join"
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.96 }}
+        aria-label="Join Discord server"
+        title="Join Discord server"
+      >
+        <MessageCircle size={17} aria-hidden="true" />
+        <span>Join Discord</span>
+      </motion.a>
 
       {/* Floating trigger bubble */}
       <motion.button
