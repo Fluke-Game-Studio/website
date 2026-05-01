@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { Send, Sparkles, X, Square, User } from "lucide-react";
+import { MessageCircle, Send, Sparkles, X, Square, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import PublicBotAvatar2DBit, { BotStatus } from "./PublicBotAvatar2DBit";
@@ -17,6 +17,7 @@ const CHAT_URL = `${API_BASE}/ai/chat-sync/flukegames`;
 const PROVIDER = "openai";
 const MODEL = "gpt-5-mini";
 const CONTEXT = "flukegames";
+const DISCORD_JOIN_URL = "https://discord.gg/xDQPgXkj5X";
 
 type ChatRole = "user" | "assistant";
 type ChatMessage = { id: string; role: ChatRole; content: string; ts: number };
@@ -79,6 +80,7 @@ export default function FloatingPublicAIChat() {
   const [botStatus, setBotStatus] = useState<BotStatus>("neutral");
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
+  const [discordModalOpen, setDiscordModalOpen] = useState(false);
 
   // Separate message histories for each mode
   const [globalMessages, setGlobalMessages] = useState<ChatMessage[]>([
@@ -239,6 +241,109 @@ export default function FloatingPublicAIChat() {
           position: relative; z-index: 2;
         }
         .fg-ai-bubble:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 22px 48px rgba(0,0,0,.34); }
+        .fg-discord-join {
+          margin-bottom: 10px;
+          min-height: 42px;
+          border-radius: 999px;
+          border: 1px solid rgba(88, 101, 242, 0.34);
+          background: linear-gradient(135deg, rgba(88, 101, 242, 0.96), rgba(67, 56, 202, 0.96));
+          color: #fff;
+          box-shadow: 0 16px 38px rgba(67, 56, 202, 0.28);
+          padding: 0 14px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Sora', sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          text-decoration: none;
+          white-space: nowrap;
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+        .fg-discord-join:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 20px 44px rgba(67, 56, 202, 0.38);
+          filter: brightness(1.04);
+        }
+        .fg-discord-join:focus-visible {
+          outline: 2px solid rgba(255,255,255,.86);
+          outline-offset: 3px;
+        }
+        .fg-discord-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 1099;
+          background: rgba(2, 6, 23, 0.68);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 18px;
+        }
+        .fg-discord-modal {
+          width: min(420px, calc(100vw - 32px));
+          border-radius: 20px;
+          border: 1px solid rgba(148, 163, 184, 0.22);
+          background:
+            radial-gradient(600px 260px at 20% 0%, rgba(88, 101, 242, 0.24), transparent 60%),
+            linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(7, 12, 22, 0.98));
+          color: #f8fafc;
+          box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+          overflow: hidden;
+        }
+        .fg-discord-modal-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 14px;
+          padding: 18px 18px 12px;
+          border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        .fg-discord-modal-body {
+          padding: 18px;
+        }
+        .fg-discord-modal-actions {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          margin-top: 18px;
+        }
+        .fg-discord-primary,
+        .fg-discord-secondary {
+          min-height: 42px;
+          border-radius: 12px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 0 14px;
+          font-family: 'Sora', sans-serif;
+          font-size: 12px;
+          font-weight: 900;
+          text-decoration: none;
+          border: 1px solid transparent;
+          cursor: pointer;
+        }
+        .fg-discord-primary {
+          background: #5865f2;
+          color: #fff;
+          box-shadow: 0 14px 34px rgba(88, 101, 242, 0.28);
+        }
+        .fg-discord-secondary {
+          background: rgba(255,255,255,.06);
+          color: #dbeafe;
+          border-color: rgba(148, 163, 184, 0.22);
+        }
+        @media (max-width: 420px) {
+          .fg-discord-join {
+            width: 42px;
+            padding: 0;
+            justify-content: center;
+          }
+          .fg-discord-join span {
+            display: none;
+          }
+        }
         .fg-ai-panel {
           width: min(400px, calc(100vw - 24px));
           height: 580px;
@@ -497,6 +602,84 @@ export default function FloatingPublicAIChat() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {discordModalOpen ? (
+          <motion.div
+            className="fg-discord-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setDiscordModalOpen(false)}
+          >
+            <motion.div
+              className="fg-discord-modal"
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={{ duration: 0.18 }}
+              onClick={(event) => event.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="fg-discord-title"
+            >
+              <div className="fg-discord-modal-header">
+                <div>
+                  <div id="fg-discord-title" className="font-orbitron text-sm font-bold tracking-[0.16em] uppercase text-white">
+                    Join FlukeGameStudio
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-white flex items-center justify-center hover:bg-white/10 transition-colors"
+                  onClick={() => setDiscordModalOpen(false)}
+                  aria-label="Close Discord join dialog"
+                >
+                  <X size={17} />
+                </button>
+              </div>
+              <div className="fg-discord-modal-body">
+                <div className="fg-discord-modal-actions">
+                  <a
+                    href={DISCORD_JOIN_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="fg-discord-primary"
+                    onClick={() => setDiscordModalOpen(false)}
+                  >
+                    <MessageCircle size={17} aria-hidden="true" />
+                    Continue to Discord
+                  </a>
+                  <button
+                    type="button"
+                    className="fg-discord-secondary"
+                    onClick={() => {
+                      void navigator.clipboard?.writeText(DISCORD_JOIN_URL);
+                    }}
+                  >
+                    Copy Invite
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {DISCORD_JOIN_URL ? (
+        <motion.button
+          type="button"
+          className="fg-discord-join"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={() => setDiscordModalOpen(true)}
+          aria-label="Join Discord server"
+          title="Join Discord server"
+        >
+          <MessageCircle size={17} aria-hidden="true" />
+          <span>Join Discord</span>
+        </motion.button>
+      ) : null}
 
       {/* Floating trigger bubble */}
       <motion.button
