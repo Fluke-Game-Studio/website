@@ -172,18 +172,19 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
         fields: roleFields,
     });
 
-    // Final Acknowledgement Chapter - matches the AngularJS backup contract.
+    // Final acknowledgement requires the applicant to type the full confirmation.
     chapters.push({
         title: 'Acknowledgement',
-        description: 'Before submitting, please confirm you understand this is a volunteer-based role.',
+        description: 'Please type "I confirm this is a volunteer role" to confirm you understand this is a volunteer-based role.',
         fields: [
             {
                 id: 'ackVolunteer',
                 key: 'ackVolunteer',
-                label: 'I acknowledge that this is a volunteer based role.',
-                type: 'radio',
+                label: 'Please type exactly: I confirm this is a volunteer role',
+                type: 'text',
                 required: true,
-                options: ['Agree and Submit', 'Disagree']
+                placeholder: 'I confirm this is a volunteer role',
+                helpText: 'Your application can only be submitted after this exact confirmation is typed.'
             }
         ]
     });
