@@ -339,6 +339,8 @@ export function useApplicationController(roleTitle: string | null) {
                 email: resolvedEmail,
                 phone: form[phoneKey],
                 whatsappOptIn: !!form.whatsappOptIn,
+                marketingOptIn: !!form.marketingOptIn,
+                dob: form.dob,
                 university: form.university,
                 degreeAndYear: form.degreeYear,
                 resumeLink: resolvedResume,
