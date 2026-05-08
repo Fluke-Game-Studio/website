@@ -1,12 +1,21 @@
 import { useMemo, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick } from "lucide-react";
+import { Gamepad2, Package, Clapperboard, Globe, Palette, Joystick, ExternalLink } from "lucide-react";
 import StudioProjectModal from "@/components/StudioProjectModal";
 import { getStudioProjects, toStudioPortfolioItems, StudioProject } from "@/lib/studioProjects";
 
 const icons = [Gamepad2, Package, Clapperboard, Globe, Palette, Joystick];
 
 const categories = ["All", "Games", "Assets", "Trailers", "Websites", "Art"] as const;
+
+function getExternalProjectUrl(project: StudioProject) {
+  const url = String(project.externalUrl || "").trim();
+  if (url) return url;
+  if (project.key?.toLowerCase() === "pavan" || project.slug?.toLowerCase() === "project-pavan") {
+    return "https://pavan.flukegamestudio.com";
+  }
+  return "";
+}
 
 export default function FeaturedPortfolio() {
   const ref = useRef<HTMLDivElement>(null);
@@ -94,6 +103,24 @@ export default function FeaturedPortfolio() {
                   boxShadow: 'var(--card-shadow)',
                 }}
               >
+                {getExternalProjectUrl(item.raw) ? (
+                  <div className="absolute right-3 top-3 z-40">
+                    <a
+                      href={getExternalProjectUrl(item.raw)}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label="Visit Project Pavan website"
+                      className="group relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-fluke-text transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-fluke-yellow/60"
+                    >
+                      <ExternalLink size={16} />
+                      <span className="pointer-events-none absolute right-0 top-11 w-44 translate-y-1 rounded-xl border border-fluke-yellow/20 bg-fluke-bg/95 px-3 py-2 text-left text-[11px] text-fluke-muted opacity-0 shadow-[0_12px_30px_rgba(0,0,0,0.35)] transition duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+                        <span className="block font-semibold text-fluke-text">Visit Project Pavan</span>
+                        <span className="block mt-0.5">Open the dedicated project site.</span>
+                      </span>
+                    </a>
+                  </div>
+                ) : null}
                 {/* Placeholder art */}
                 <div
                   className="relative h-52 overflow-hidden flex items-center justify-center text-6xl"

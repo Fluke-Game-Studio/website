@@ -20,6 +20,7 @@ export type StudioProject = {
   key: string;
   slug: string;
   title: string;
+  externalUrl?: string;
   projectType?: string;
   tagline?: string;
   summary?: string;
