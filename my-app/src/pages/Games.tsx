@@ -46,98 +46,199 @@ export default function GamesPage() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: (i % 3) * 0.12, ease: "easeOut" }}
             >
-              <Link to={`/games/${game.slug}`} className="group block h-full">
-                <motion.div
-                  whileHover={{ y: -10, scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="relative rounded-3xl overflow-hidden h-[460px] isolate"
-                  style={{
-                    backgroundColor: 'var(--card-bg)',
-                    border: '1px solid var(--card-border)',
-                    boxShadow: 'var(--card-shadow)',
-                  }}
+              {game.externalUrl ? (
+                <a 
+                  href={game.externalUrl} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="group block h-full"
                 >
-                {/* Cover art area */}
-                <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
-                  {game.coverImage ? (
-                    <img
-                      src={game.coverImage}
-                      alt={game.title}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110 flex items-center justify-center opacity-30 group-hover:opacity-40"
-                      style={{
-                        background: `linear-gradient(135deg, hsl(${i * 60 + 20}, 40%, 15%) 0%, hsl(${i * 60}, 50%, 8%) 100%)`,
-                      }}
-                    >
-                      {(() => {
-                        const Icon = artworkIcons[i % 4];
-                        return <Icon size={120} strokeWidth={0.5} className="text-fluke-yellow/40 mix-blend-overlay" />;
-                      })()}
-                    </div>
-                  )}
-                  {/* Atmospheric overlay — always dark (cinematic intent, not theme-dependent) */}
-                  <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.75) 45%, transparent 100%)' }} />
-                </div>
-
-                {/* Content */}
-                <div className="absolute inset-0 z-20 p-6 sm:p-8 flex flex-col justify-end">
-                   {/* Status Badge */}
-                   <div className="absolute top-6 left-6">
-                    <span className={`text-[10px] font-orbitron tracking-widest uppercase px-3 py-1 rounded-full border backdrop-blur-md ${statusColors[game.status]}`}>
-                      {game.status}
-                    </span>
+                  <motion.div
+                    whileHover={{ y: -10, scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="relative rounded-3xl overflow-hidden h-[460px] isolate"
+                    style={{
+                      backgroundColor: 'var(--card-bg)',
+                      border: '1px solid var(--card-border)',
+                      boxShadow: 'var(--card-shadow)',
+                    }}
+                  >
+                  {/* Cover art area */}
+                  <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
+                    {game.coverImage ? (
+                      <img
+                        src={game.coverImage}
+                        alt={game.title}
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110 flex items-center justify-center opacity-30 group-hover:opacity-40"
+                        style={{
+                          background: `linear-gradient(135deg, hsl(${i * 60 + 20}, 40%, 15%) 0%, hsl(${i * 60}, 50%, 8%) 100%)`,
+                        }}
+                      >
+                        {(() => {
+                          const Icon = artworkIcons[i % 4];
+                          return <Icon size={120} strokeWidth={0.5} className="text-fluke-yellow/40 mix-blend-overlay" />;
+                        })()}
+                      </div>
+                    )}
+                    {/* Atmospheric overlay — always dark (cinematic intent, not theme-dependent) */}
+                    <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.75) 45%, transparent 100%)' }} />
                   </div>
 
-                  <div className="transform transition-transform duration-500 translate-y-6 group-hover:translate-y-0">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="font-orbitron text-xs tracking-widest text-fluke-yellow/80 uppercase">
-                        {game.genre}
+                  {/* Content */}
+                  <div className="absolute inset-0 z-20 p-6 sm:p-8 flex flex-col justify-end">
+                     {/* Status Badge */}
+                     <div className="absolute top-6 left-6">
+                      <span className={`text-[10px] font-orbitron tracking-widest uppercase px-3 py-1 rounded-full border backdrop-blur-md ${statusColors[game.status]}`}>
+                        {game.status}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-white/30" />
-                      <span className="font-sora text-xs text-white/70">{game.releaseYear}</span>
                     </div>
 
-                    <h2 className="font-bebas text-4xl text-white group-hover:text-fluke-yellow transition-colors mb-3 tracking-wide">
-                      {game.title}
-                    </h2>
-                    
-                    <p className="font-sora text-sm text-white/70 mb-6 line-clamp-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      {game.description}
-                    </p>
-
-                    <div className="flex items-center justify-between border-t border-fluke-yellow/10 pt-4">
-                      <div className="flex gap-2 items-center">
-                        <div className="text-[10px] font-sora text-white/70 mr-1">PLATFORMS</div>
-                        {game.platforms.map((p) => (
-                          <span key={p} title={p} className="flex items-center justify-center w-7 h-7 text-white/80 bg-white/10 hover:bg-white/20 hover:text-fluke-yellow border border-white/10 rounded-full backdrop-blur-sm transition-all">
-                            {platformIcons[p]}
-                          </span>
-                        ))}
+                    <div className="transform transition-transform duration-500 translate-y-6 group-hover:translate-y-0">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="font-orbitron text-xs tracking-widest text-fluke-yellow/80 uppercase">
+                          {game.genre}
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-white/30" />
+                        <span className="font-sora text-xs text-white/70">{game.releaseYear}</span>
                       </div>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-fluke-surface/50 group-hover:bg-fluke-yellow group-hover:text-fluke-bg text-fluke-muted transition-all duration-300 transform group-hover:translate-x-1">
-                        <ArrowRight size={14} />
+
+                      <h2 className="font-bebas text-4xl text-white group-hover:text-fluke-yellow transition-colors mb-3 tracking-wide flex items-center gap-2">
+                        {game.title}
+                        <ArrowRight size={28} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </h2>
+                      
+                      <p className="font-sora text-sm text-white/70 mb-6 line-clamp-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        {game.description}
+                      </p>
+
+                      <div className="flex items-center justify-between border-t border-fluke-yellow/10 pt-4">
+                        <div className="flex gap-2 items-center">
+                          <div className="text-[10px] font-sora text-white/70 mr-1">PLATFORMS</div>
+                          {game.platforms.map((p) => (
+                            <span key={p} title={p} className="flex items-center justify-center w-7 h-7 text-white/80 bg-white/10 hover:bg-white/20 hover:text-fluke-yellow border border-white/10 rounded-full backdrop-blur-sm transition-all">
+                              {platformIcons[p]}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-fluke-surface/50 group-hover:bg-fluke-yellow group-hover:text-fluke-bg text-fluke-muted transition-all duration-300 transform group-hover:translate-x-1">
+                          <ArrowRight size={14} />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Glow border */}
-                {/* Hover state overlay */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-30" 
-                  style={{ 
-                    border: '2px solid var(--card-hover-border)',
-                    boxShadow: 'var(--card-hover-shadow)',
-                    borderRadius: 'inherit'
-                  }} 
-                />
-                </motion.div>
-              </Link>
+                  {/* Glow border */}
+                  {/* Hover state overlay */}
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-30" 
+                    style={{ 
+                      border: '2px solid var(--card-hover-border)',
+                      boxShadow: 'var(--card-hover-shadow)',
+                      borderRadius: 'inherit'
+                    }} 
+                  />
+                  </motion.div>
+                </a>
+              ) : (
+                <Link to={`/games/${game.slug}`} className="group block h-full">
+                  <motion.div
+                    whileHover={{ y: -10, scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="relative rounded-3xl overflow-hidden h-[460px] isolate"
+                    style={{
+                      backgroundColor: 'var(--card-bg)',
+                      border: '1px solid var(--card-border)',
+                      boxShadow: 'var(--card-shadow)',
+                    }}
+                  >
+                  {/* Cover art area */}
+                  <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
+                    {game.coverImage ? (
+                      <img
+                        src={game.coverImage}
+                        alt={game.title}
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110 flex items-center justify-center opacity-30 group-hover:opacity-40"
+                        style={{
+                          background: `linear-gradient(135deg, hsl(${i * 60 + 20}, 40%, 15%) 0%, hsl(${i * 60}, 50%, 8%) 100%)`,
+                        }}
+                      >
+                        {(() => {
+                          const Icon = artworkIcons[i % 4];
+                          return <Icon size={120} strokeWidth={0.5} className="text-fluke-yellow/40 mix-blend-overlay" />;
+                        })()}
+                      </div>
+                    )}
+                    {/* Atmospheric overlay — always dark (cinematic intent, not theme-dependent) */}
+                    <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.75) 45%, transparent 100%)' }} />
+                  </div>
+
+                  {/* Content */}
+                  <div className="absolute inset-0 z-20 p-6 sm:p-8 flex flex-col justify-end">
+                     {/* Status Badge */}
+                     <div className="absolute top-6 left-6">
+                      <span className={`text-[10px] font-orbitron tracking-widest uppercase px-3 py-1 rounded-full border backdrop-blur-md ${statusColors[game.status]}`}>
+                        {game.status}
+                      </span>
+                    </div>
+
+                    <div className="transform transition-transform duration-500 translate-y-6 group-hover:translate-y-0">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="font-orbitron text-xs tracking-widest text-fluke-yellow/80 uppercase">
+                          {game.genre}
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-white/30" />
+                        <span className="font-sora text-xs text-white/70">{game.releaseYear}</span>
+                      </div>
+
+                      <h2 className="font-bebas text-4xl text-white group-hover:text-fluke-yellow transition-colors mb-3 tracking-wide">
+                        {game.title}
+                      </h2>
+                      
+                      <p className="font-sora text-sm text-white/70 mb-6 line-clamp-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        {game.description}
+                      </p>
+
+                      <div className="flex items-center justify-between border-t border-fluke-yellow/10 pt-4">
+                        <div className="flex gap-2 items-center">
+                          <div className="text-[10px] font-sora text-white/70 mr-1">PLATFORMS</div>
+                          {game.platforms.map((p) => (
+                            <span key={p} title={p} className="flex items-center justify-center w-7 h-7 text-white/80 bg-white/10 hover:bg-white/20 hover:text-fluke-yellow border border-white/10 rounded-full backdrop-blur-sm transition-all">
+                              {platformIcons[p]}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-fluke-surface/50 group-hover:bg-fluke-yellow group-hover:text-fluke-bg text-fluke-muted transition-all duration-300 transform group-hover:translate-x-1">
+                          <ArrowRight size={14} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Glow border */}
+                  {/* Hover state overlay */}
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-30" 
+                    style={{ 
+                      border: '2px solid var(--card-hover-border)',
+                      boxShadow: 'var(--card-hover-shadow)',
+                      borderRadius: 'inherit'
+                    }} 
+                  />
+                  </motion.div>
+                </Link>
+              )}
             </motion.div>
           ))}
 

@@ -365,6 +365,8 @@ export function useApplicationController(roleTitle: string | null) {
                 address: !isEmpty(form[addressKey]) ? form[addressKey] : '',
                 city: !isEmpty(form[cityKey]) ? form[cityKey] : '',
                 whatsappOptIn: !!form.whatsappOptIn,
+                marketingOptIn: !!form.marketingOptIn,
+                dob: form.dob,
                 university: form.university,
                 degreeAndYear: form.degreeYear,
                 resumeLink: resolvedResume,

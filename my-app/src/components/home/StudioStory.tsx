@@ -139,10 +139,17 @@ export default function StudioStory() {
             <motion.div 
               style={{ scaleX: scrollYProgress }} 
               className="absolute inset-y-0 left-0 w-full bg-fluke-yellow origin-left" 
-              transition={{ type: "spring", stiffness: 100 }}
             />
           </div>
-          <span className="font-orbitron text-[10px] tracking-widest text-fluke-muted uppercase">2020 — Present</span>
+          <motion.span 
+            className="font-orbitron text-[10px] tracking-[0.2em] text-fluke-yellow font-bold uppercase min-w-[80px]"
+          >
+            {useTransform(scrollYProgress, (p) => {
+              const years = ["2020", "2021", "2022", "2023", "Present"];
+              const index = Math.min(Math.floor(p * years.length), years.length - 1);
+              return years[index];
+            })}
+          </motion.span>
         </div>
       </div>
     </section>
