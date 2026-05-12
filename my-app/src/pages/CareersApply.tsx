@@ -2,6 +2,7 @@
 import React from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 // Controller (Business Logic)
 import { useApplicationController } from "../controllers/applicationController";
 import PremiumLoader from "../components/PremiumLoader";
@@ -171,6 +172,70 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
     );
   }
 
+  if (field.type === "checkbox" && !field.options?.length) {
+    return (
+      <label 
+        style={{ 
+          display: "flex", 
+          alignItems: "flex-start", 
+          gap: "0.75rem", 
+          padding: "0.5rem 0",
+          cursor: "pointer",
+        }}
+      >
+        <div style={{ position: "relative", display: "flex", alignItems: "center", marginTop: "0.2rem" }}>
+          <input
+            type="checkbox"
+            id={field.id}
+            checked={!!value}
+            onChange={(e) => onChange(field.id, e.target.checked)}
+            required={field.required}
+            disabled={disabled}
+            style={{ 
+              opacity: 0,
+              position: "absolute",
+              width: "1.1rem",
+              height: "1.1rem",
+              cursor: "pointer",
+              zIndex: 10
+            }}
+          />
+          <div 
+            style={{ 
+              width: "1.1rem",
+              height: "1.1rem",
+              borderRadius: "3px",
+              border: "1.5px solid",
+              borderColor: value ? "var(--gold-primary)" : "rgba(255, 255, 255, 0.2)",
+              background: value ? "var(--gold-primary)" : "rgba(255, 255, 255, 0.05)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease"
+            }}
+          >
+            {value && (
+              <svg width="8" height="6" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 4L3.5 6.5L9 1" stroke="var(--cs-bg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+        </div>
+        <span 
+          style={{ 
+            fontFamily: "var(--font-body)", 
+            fontSize: "0.9rem", 
+            lineHeight: 1.5,
+            color: value ? "var(--cs-text)" : "var(--cs-muted)",
+            transition: "color 0.2s ease"
+          }}
+        >
+          {field.placeholder || "I agree"}
+        </span>
+      </label>
+    );
+  }
+
   if (field.type === "checkbox" && field.options?.length) {
     const checked = Array.isArray(value) ? value : [];
     return (
@@ -220,11 +285,31 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
     );
   }
 
+  if (field.type === "date") {
+    return (
+      <input
+        className={className}
+        id={field.id}
+        type="date"
+        value={value || ""}
+        onChange={(e) => onChange(field.id, e.target.value)}
+        required={field.required}
+        disabled={disabled}
+        style={{ width: "100%" }}
+      />
+    );
+  }
+
   return (
     <input
       className={className}
       id={field.id}
-      type={field.type === "tel" ? "tel" : field.type === "email" ? "email" : "text"}
+      type={
+        field.type === "tel" ? "tel" : 
+        field.type === "email" ? "email" : 
+        field.type === "date" ? "date" : 
+        "text"
+      }
       value={value || ""}
       onChange={(e) => onChange(field.id, e.target.value)}
       placeholder={field.placeholder}
@@ -748,9 +833,16 @@ const CareersApply: React.FC = () => {
               <button
                 onClick={prevChapter}
                 className="btn-outline"
-                style={{ flex: 1 }}
+                style={{ 
+                  flex: 1, 
+                  display: "inline-flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  padding: "0.8rem 1.5rem",
+                  minHeight: "3.2rem"
+                }}
               >
-                ? Previous
+                <ArrowLeft size={16} style={{ marginRight: "0.5rem" }} /> Previous
               </button>
             ) : (
               <div style={{ flex: 1 }} />
@@ -761,9 +853,17 @@ const CareersApply: React.FC = () => {
                 onClick={nextChapter}
                 disabled={!isValid}
                 className="btn-gold"
-                style={{ flex: 1, opacity: isValid ? 1 : 0.4 }}
+                style={{ 
+                  flex: 1, 
+                  opacity: isValid ? 1 : 0.4,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.8rem 1.5rem",
+                  minHeight: "3.2rem"
+                }}
               >
-                Continue ?
+                Continue <ArrowRight size={16} style={{ marginLeft: "0.5rem" }} />
               </button>
             ) : (
               <button
@@ -773,9 +873,15 @@ const CareersApply: React.FC = () => {
                 style={{
                   flex: 1,
                   opacity: isValid && !isSubmitting ? 1 : 0.4,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.8rem 1.5rem",
+                  minHeight: "3.2rem"
                 }}
               >
-                {isSubmitting ? "Transmitting…" : "Submit Application ?"}
+                {isSubmitting ? "Transmitting…" : "Submit Application"}
+                {!isSubmitting && <ArrowRight size={16} style={{ marginLeft: "0.5rem" }} />}
               </button>
             )}
           </footer>

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingPublicAIChat from './components/FloatingPublicAIChat';
+import PromotionModal from './components/PromotionModal';
 import { ThemeProvider } from './lib/ThemeContext';
 import { AIAssistantProvider } from './context/AIAssistantContext';
 
@@ -101,6 +102,7 @@ function App() {
             </main>
             <Footer />
             <FloatingPublicAIChat />
+            <PromotionModal />
           </div>
         </Router>
       </AIAssistantProvider>

@@ -63,6 +63,7 @@ const utils = {
         if (lower.includes('state') || lower.includes('province') || lower.includes('region')) return 'state';
         if (lower.includes('city') || lower.includes('town')) return 'city';
         if (lower.includes('address')) return 'address';
+        if (lower.includes('dob') || lower.includes('birth') || lower.includes('date')) return 'date';
         return 'text';
     },
     safeStr: (x: any) => (x === null || x === undefined ? '' : String(x))
@@ -149,6 +150,18 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
     }
 
     if (personalFields.length) {
+        // Ensure Date of Birth is included in personal fields
+        if (!personalFields.some(f => f.id === 'dob')) {
+            personalFields.splice(2, 0, {
+                id: 'dob',
+                key: 'dob',
+                label: 'Date of Birth',
+                type: 'date',
+                required: true,
+                placeholder: 'YYYY-MM-DD'
+            });
+        }
+
         chapters.push({
             title: 'Applicant Information',
             description: 'Tell us a bit about yourself.',
@@ -176,6 +189,14 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
                 required: true,
                 placeholder: 'I confirm this is a volunteer role',
                 helpText: 'Your application can only be submitted after this exact confirmation is typed.'
+            },
+            {
+                id: 'marketingOptIn',
+                key: 'marketingOptIn',
+                label: 'Promotional Updates',
+                type: 'checkbox',
+                required: false,
+                placeholder: 'I consent to receiving marketing and promotional emails about new games, updates, and studio news.'
             }
         ]
     });

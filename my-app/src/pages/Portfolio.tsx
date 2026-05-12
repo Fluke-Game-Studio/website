@@ -75,7 +75,14 @@ export default function PortfolioPage() {
                   y: { type: "spring", stiffness: 400, damping: 20 }
                 }}
                 className="group relative rounded-2xl overflow-hidden cursor-pointer isolate"
-                onClick={() => setSelectedProject(item.raw)}
+                onClick={() => {
+                  const url = item.raw.externalUrl;
+                  if (url) {
+                    window.open(url, "_blank");
+                  } else {
+                    setSelectedProject(item.raw);
+                  }
+                }}
                 style={{
                   backgroundColor: 'var(--card-bg)',
                   border: '1px solid var(--card-border)',
