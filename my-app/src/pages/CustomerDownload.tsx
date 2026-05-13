@@ -90,6 +90,9 @@ export default function CustomerDownload() {
                   )
                 )
               );
+              const hasInternalOrTestScope = scopeOptions.some(
+                (scope) => scope === "internal" || scope === "test"
+              );
               const selectedScope = envByProduct[g.productId] || scopeOptions[0] || "internal";
               const releases = selectedEntry?.releasesByScope?.[selectedScope] || [];
               return (
@@ -98,7 +101,7 @@ export default function CustomerDownload() {
                   <div className="text-sm text-fluke-muted mt-1">
                     Project: {g.base.project_id} | Product: {g.base.product_id}
                   </div>
-                  {!isFinalOnly ? (
+                  {hasInternalOrTestScope && !isFinalOnly ? (
                     <>
                       <div className="mt-3">
                         <label className="text-xs text-fluke-muted mr-2">Access Scope</label>
