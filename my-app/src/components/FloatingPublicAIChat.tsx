@@ -5,13 +5,9 @@ import { useLocation } from "react-router-dom";
 import PublicBotAvatar2DBit, { BotStatus } from "./PublicBotAvatar2DBit";
 import { useAIAssistant } from "@/context/AIAssistantContext";
 import { publicStudioService } from "@/services/publicStudioService";
+import { resolveApiBase } from "@/services/apiBase";
 
-const API_BASE =
-  (() => {
-    const configured = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
-    if (configured && configured !== "/api") return configured.replace(/\/$/, "");
-    return "/api";
-  })();
+const API_BASE = resolveApiBase();
 
 const CHAT_URL = `${API_BASE}/ai/chat-sync/flukegames`;
 const PROVIDER = "openai";

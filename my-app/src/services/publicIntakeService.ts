@@ -1,12 +1,6 @@
-const API_BASE = (() => {
-  const configured = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+import { resolveApiBase } from "./apiBase";
 
-  if (configured && configured !== "/api") {
-    return configured.replace(/\/$/, "");
-  }
-
-  return "/api";
-})();
+const API_BASE = resolveApiBase();
 
 type ContactPayload = {
   context?: string;
