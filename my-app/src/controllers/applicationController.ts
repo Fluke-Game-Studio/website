@@ -182,6 +182,28 @@ export function useApplicationController(roleTitle: string | null) {
         return detectFieldKey(isPhoneField, 'phone');
     }
 
+    function getAddressFieldKey() {
+        return detectFieldKey((field) => {
+            const key = safeStr(field?.key || field?.id).toLowerCase();
+            const label = safeStr(field?.label).toLowerCase();
+            return (
+                field?.type === 'address' ||
+                key.includes('address') ||
+                key.includes('street') ||
+                label.includes('address') ||
+                label.includes('street')
+            );
+        }, 'address');
+    }
+
+    function getCityFieldKey() {
+        return detectFieldKey((field) => {
+            const key = safeStr(field?.key || field?.id).toLowerCase();
+            const label = safeStr(field?.label).toLowerCase();
+            return field?.type === 'city' || key.includes('city') || label.includes('city');
+        }, 'city');
+    }
+
     function getEmailFieldKey() {
         return detectFieldKey((field) => {
             const key = safeStr(field.key || field.id).toLowerCase();
@@ -292,6 +314,8 @@ export function useApplicationController(roleTitle: string | null) {
         const emailKey = getEmailFieldKey();
         const nameKey = getNameFieldKey();
         const phoneKey = getPhoneFieldKey();
+        const addressKey = getAddressFieldKey();
+        const cityKey = getCityFieldKey();
 
         const resolvedName = !isEmpty(form[nameKey]) ? form[nameKey] : (googleUser.name || '');
         const resolvedEmail = !isEmpty(form[emailKey]) ? form[emailKey] : (googleUser.email || '');
@@ -338,6 +362,8 @@ export function useApplicationController(roleTitle: string | null) {
                 fullName: resolvedName,
                 email: resolvedEmail,
                 phone: form[phoneKey],
+                address: !isEmpty(form[addressKey]) ? form[addressKey] : '',
+                city: !isEmpty(form[cityKey]) ? form[cityKey] : '',
                 whatsappOptIn: !!form.whatsappOptIn,
                 marketingOptIn: !!form.marketingOptIn,
                 dob: form.dob,
