@@ -194,16 +194,16 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
             style={{ 
               opacity: 0,
               position: "absolute",
-              width: "1.1rem",
-              height: "1.1rem",
+              width: "1.4rem",
+              height: "1.4rem",
               cursor: "pointer",
               zIndex: 10
             }}
           />
           <div 
             style={{ 
-              width: "1.1rem",
-              height: "1.1rem",
+              width: "1.4rem",
+              height: "1.4rem",
               borderRadius: "3px",
               border: "1.5px solid",
               borderColor: value ? "var(--gold-primary)" : "rgba(255, 255, 255, 0.2)",
@@ -215,7 +215,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
             }}
           >
             {value && (
-              <svg width="8" height="6" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 4L3.5 6.5L9 1" stroke="var(--cs-bg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             )}

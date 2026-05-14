@@ -84,7 +84,11 @@ export default function Navbar() {
                   to="/contact"
                   className="btn-primary px-8 py-3 rounded-xl text-sm font-bold font-sora shadow-[0_0_20px_rgba(245,197,76,0.25)] hover:shadow-[0_0_35px_rgba(245,197,76,0.45)] transition-all duration-300"
                 >
+<<<<<<< Updated upstream
                   Work With Us
+=======
+                  {session ? "My Library" : "Customer Login"}
+>>>>>>> Stashed changes
                 </Link>
               </div>
             </div>
@@ -141,12 +145,17 @@ export default function Navbar() {
                 </Link>
               </motion.div>
             ))}
+<<<<<<< Updated upstream
             <Link
               to="/contact"
               onClick={() => setMenuOpen(false)}
               className="btn-primary px-5 py-3 rounded-lg text-center font-sora mt-4"
             >
               Work With Us
+=======
+            <Link to={session ? "/download" : "/login"} onClick={() => setMenuOpen(false)} className="btn-primary px-5 py-3 rounded-lg text-center font-sora mt-4">
+              {session ? "My Library" : "Customer Login"}
+>>>>>>> Stashed changes
             </Link>
           </motion.div>
         )}
