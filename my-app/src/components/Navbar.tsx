@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
-import { useCustomerAuth } from "@/auth/CustomerAuthContext";
+import { useCustomerAuth } from "../auth/CustomerAuthContext";
 import CustomerSignupModal from "./CustomerSignupModal";
 
 const navLinks = [
@@ -84,12 +84,14 @@ export default function Navbar() {
                 >
                   {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
+                
                 <Link
                   to={session ? "/download" : "/login"}
                   className="btn-primary px-8 py-3 rounded-xl text-sm font-bold font-sora shadow-[0_0_20px_rgba(245,197,76,0.25)] hover:shadow-[0_0_35px_rgba(245,197,76,0.45)] transition-all duration-300"
                 >
-                  {session ? "Downloads" : "Customer Login"}
+                  {session ? "My Library" : "Customer Login"}
                 </Link>
+
                 {!session ? (
                   <button
                     onClick={() => setSignupOpen(true)}
@@ -97,15 +99,14 @@ export default function Navbar() {
                   >
                     Sign Up
                   </button>
-                ) : null}
-                {session ? (
+                ) : (
                   <button
                     onClick={logout}
                     className="btn-outline px-4 py-3 rounded-xl text-sm font-bold font-sora"
                   >
                     Logout
                   </button>
-                ) : null}
+                )}
               </div>
             </div>
           </div>
@@ -161,9 +162,15 @@ export default function Navbar() {
                 </Link>
               </motion.div>
             ))}
-            <Link to={session ? "/download" : "/login"} onClick={() => setMenuOpen(false)} className="btn-primary px-5 py-3 rounded-lg text-center font-sora mt-4">
-              {session ? "Downloads" : "Customer Login"}
+            
+            <Link 
+              to={session ? "/download" : "/login"} 
+              onClick={() => setMenuOpen(false)} 
+              className="btn-primary px-5 py-3 rounded-lg text-center font-sora mt-4"
+            >
+              {session ? "My Library" : "Customer Login"}
             </Link>
+
             {!session ? (
               <button
                 onClick={() => {
@@ -174,8 +181,7 @@ export default function Navbar() {
               >
                 Sign Up
               </button>
-            ) : null}
-            {session ? (
+            ) : (
               <button
                 onClick={() => {
                   logout();
@@ -185,7 +191,7 @@ export default function Navbar() {
               >
                 Logout
               </button>
-            ) : null}
+            )}
           </motion.div>
         )}
       </AnimatePresence>

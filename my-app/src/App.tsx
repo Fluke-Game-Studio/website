@@ -95,8 +95,6 @@ function AnimatedRoutes() {
   );
 }
 
-
-
 function App() {
   useLayoutEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -109,15 +107,15 @@ function App() {
       <CustomerAuthProvider>
         <AIAssistantProvider>
           <Router>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
-              <AnimatedRoutes />
-            </main>
-            <Footer />
-            <FloatingPublicAIChat />
-            <PromotionModal />
-          </div>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
+                <AnimatedRoutes />
+              </main>
+              <Footer />
+              <FloatingPublicAIChat />
+              <PromotionModal />
+            </div>
           </Router>
         </AIAssistantProvider>
       </CustomerAuthProvider>

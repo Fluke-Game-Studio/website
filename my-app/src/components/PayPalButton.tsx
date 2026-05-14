@@ -9,6 +9,11 @@ interface PayPalButtonProps {
 }
 
 
+declare global {
+  interface Window {
+    paypal: any;
+  }
+}
 
 export default function PayPalButton({
   productId,
