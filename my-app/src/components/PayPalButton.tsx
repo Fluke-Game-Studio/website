@@ -159,10 +159,6 @@ export default function PayPalButton({
             animate={{ opacity: 1, y: 0 }}
             className="w-full flex flex-col items-center"
           >
-            <div className={`w-full ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}>
-               <paypal-button hidden className="w-full cursor-pointer transition-transform active:scale-95"></paypal-button>
-            </div>
-            
             {isProcessing && (
               <div className="absolute inset-0 flex items-center justify-center bg-fluke-bg/40 backdrop-blur-[2px] rounded-2xl z-10">
                 <Loader2 className="animate-spin text-fluke-yellow" size={24} />
