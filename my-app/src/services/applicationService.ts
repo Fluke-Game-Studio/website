@@ -1,14 +1,7 @@
 // src/services/applicationService.ts
+import { resolveApiBase } from "./apiBase";
 
-const API_BASE = (() => {
-    const configured = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
-
-    if (configured && configured !== "/api") {
-        return configured.replace(/\/$/, "");
-    }
-
-    return "/api";
-})();
+const API_BASE = resolveApiBase();
 
 export interface Question {
     id: string;
