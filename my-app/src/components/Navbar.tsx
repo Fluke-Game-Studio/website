@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
+import { useCustomerAuth } from "../auth/CustomerAuthContext";
+import CustomerSignupModal from "./CustomerSignupModal";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -18,7 +20,9 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signupOpen, setSignupOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { session, logout } = useCustomerAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -80,16 +84,29 @@ export default function Navbar() {
                 >
                   {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
+                
                 <Link
-                  to="/contact"
+                  to={session ? "/download" : "/login"}
                   className="btn-primary px-8 py-3 rounded-xl text-sm font-bold font-sora shadow-[0_0_20px_rgba(245,197,76,0.25)] hover:shadow-[0_0_35px_rgba(245,197,76,0.45)] transition-all duration-300"
                 >
-<<<<<<< Updated upstream
-                  Work With Us
-=======
                   {session ? "My Library" : "Customer Login"}
->>>>>>> Stashed changes
                 </Link>
+
+                {!session ? (
+                  <button
+                    onClick={() => setSignupOpen(true)}
+                    className="btn-outline px-4 py-3 rounded-xl text-sm font-bold font-sora"
+                  >
+                    Sign Up
+                  </button>
+                ) : (
+                  <button
+                    onClick={logout}
+                    className="btn-outline px-4 py-3 rounded-xl text-sm font-bold font-sora"
+                  >
+                    Logout
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -145,18 +162,36 @@ export default function Navbar() {
                 </Link>
               </motion.div>
             ))}
-<<<<<<< Updated upstream
-            <Link
-              to="/contact"
-              onClick={() => setMenuOpen(false)}
+            
+            <Link 
+              to={session ? "/download" : "/login"} 
+              onClick={() => setMenuOpen(false)} 
               className="btn-primary px-5 py-3 rounded-lg text-center font-sora mt-4"
             >
-              Work With Us
-=======
-            <Link to={session ? "/download" : "/login"} onClick={() => setMenuOpen(false)} className="btn-primary px-5 py-3 rounded-lg text-center font-sora mt-4">
               {session ? "My Library" : "Customer Login"}
->>>>>>> Stashed changes
             </Link>
+
+            {!session ? (
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setSignupOpen(true);
+                }}
+                className="btn-outline px-5 py-3 rounded-lg text-center font-sora"
+              >
+                Sign Up
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  logout();
+                  setMenuOpen(false);
+                }}
+                className="btn-outline px-5 py-3 rounded-lg text-center font-sora"
+              >
+                Logout
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -173,6 +208,7 @@ export default function Navbar() {
           />
         )}
       </AnimatePresence>
+      <CustomerSignupModal open={signupOpen} onClose={() => setSignupOpen(false)} />
     </>
   );
 }

@@ -236,7 +236,7 @@ export default function CustomerDownload() {
                              <div className="flex-1 flex flex-wrap items-center gap-8 md:gap-12">
                                 <div>
                                    <div className="text-[9px] font-orbitron text-fluke-muted tracking-widest uppercase mb-1 font-bold">Build Version</div>
-                                   <div className="font-orbitron font-black text-3xl text-fluke-text tracking-tight group-hover:text-fluke-yellow transition-colors">{r.version}</div>
+                                   <div className="font-orbitron font-black text-4xl text-fluke-text tracking-tight group-hover:text-fluke-yellow transition-colors">{r.version}</div>
                                 </div>
                                 <div>
                                    <div className="text-[9px] font-orbitron text-fluke-muted tracking-widest uppercase mb-1 font-bold">Release Tier</div>
