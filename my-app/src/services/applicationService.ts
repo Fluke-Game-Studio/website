@@ -141,16 +141,8 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
 
     const chapters: ApplicationChapter[] = [];
 
-    if (generalFields.length) {
-        chapters.push({
-            title: 'General Questions',
-            description: "Share how you connect with the game's direction and any feedback you may have.",
-            fields: generalFields,
-        });
-    }
-
+    // 1. Personal information first
     if (personalFields.length) {
-        // Ensure Date of Birth is included in personal fields
         if (!personalFields.some(f => f.id === 'dob')) {
             personalFields.splice(2, 0, {
                 id: 'dob',
@@ -161,7 +153,6 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
                 placeholder: 'YYYY-MM-DD'
             });
         }
-
         chapters.push({
             title: 'Applicant Information',
             description: 'Tell us a bit about yourself.',
@@ -169,12 +160,16 @@ export function buildApplicationFlow(job: any): ApplicationFlow | null {
         });
     }
 
-    // Always include role-specific questions if they exist, or even if it's just the default role info
-    chapters.push({
-        title: roleTitle,
-        description: utils.safeStr(job.description).trim() ? 'Role-specific questions for this position.' : '',
-        fields: roleFields,
-    });
+    // 2. General questions second
+    if (generalFields.length) {
+        chapters.push({
+            title: 'General Questions',
+            description: "Share how you connect with the game's direction and any feedback you may have.",
+            fields: generalFields,
+        });
+    }
+
+    // Role-specific chapter intentionally excluded — confirm/acknowledgement follows directly
 
     // Final acknowledgement requires the applicant to type the full confirmation.
     chapters.push({
