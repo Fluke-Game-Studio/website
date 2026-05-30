@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -26,6 +26,7 @@ import CustomerLogin from './pages/CustomerLogin';
 import CustomerDownload from './pages/CustomerDownload';
 import { CustomerAuthProvider } from './auth/CustomerAuthContext';
 import CustomerProtected from './auth/CustomerProtected';
+import VoiceIntake from './pages/VoiceIntake';
 
 const scrollPositions = new Map<string, number>();
 
@@ -107,15 +108,23 @@ function App() {
       <CustomerAuthProvider>
         <AIAssistantProvider>
           <Router>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
-                <AnimatedRoutes />
-              </main>
-              <Footer />
-              <FloatingPublicAIChat />
-              <PromotionModal />
-            </div>
+            <Routes>
+              {/* Public standalone page — no Navbar/Footer */}
+              <Route path="/intake" element={<VoiceIntake />} />
+
+              {/* All other pages with site layout */}
+              <Route path="*" element={
+                <div className="flex flex-col min-h-screen">
+                  <Navbar />
+                  <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
+                    <AnimatedRoutes />
+                  </main>
+                  <Footer />
+                  <FloatingPublicAIChat />
+                  <PromotionModal />
+                </div>
+              } />
+            </Routes>
           </Router>
         </AIAssistantProvider>
       </CustomerAuthProvider>
