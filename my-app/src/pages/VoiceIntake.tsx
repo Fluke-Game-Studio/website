@@ -654,14 +654,8 @@ export default function VoiceIntake() {
             </div>
           )}
 
-          {status === "idle" && (
-            <button onClick={connect} style={{ marginTop: 20, padding: "12px 32px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer", position: "relative", zIndex: 1 }}>
-              Join Call
-            </button>
-          )}
-
           {status === "connecting" && (
-            <div style={{ marginTop: 16, fontSize: 13, color: "rgba(255,255,255,0.4)", position: "relative", zIndex: 1 }}>Connecting…</div>
+            <div style={{ marginTop: 16, fontSize: 13, color: "rgba(147,197,253,0.8)", position: "relative", zIndex: 1 }}>Connecting…</div>
           )}
         </div>
 
