@@ -86,10 +86,13 @@ export default function GamesPage() {
 
                 {/* Content */}
                 <div className="absolute inset-0 z-20 p-6 sm:p-8 flex flex-col justify-end">
-                   {/* Status Badge */}
-                   <div className="absolute top-6 left-6">
+                    {/* Status & Price Badges */}
+                    <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
                     <span className={`text-[10px] font-orbitron tracking-widest uppercase px-3 py-1 rounded-full border backdrop-blur-md ${statusColors[game.status]}`}>
                       {game.status}
+                    </span>
+                    <span className="text-[10px] font-orbitron tracking-widest uppercase px-3 py-1 rounded-full border border-fluke-yellow/30 bg-fluke-yellow/10 text-fluke-yellow backdrop-blur-md">
+                      $19.99
                     </span>
                   </div>
 

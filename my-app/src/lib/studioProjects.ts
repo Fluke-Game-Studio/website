@@ -83,7 +83,11 @@ export function getStudioProjects(): StudioProject[] {
   return Object.values(map || {})
     .filter((p) => p && typeof p === "object")
     .filter((p) => p.visible !== false)
-    .sort((a, b) => safeStr(a.title).localeCompare(safeStr(b.title)));
+    .sort((a, b) => {
+      if (a.key === "pavan") return -1;
+      if (b.key === "pavan") return 1;
+      return safeStr(a.title).localeCompare(safeStr(b.title));
+    });
 }
 
 export function toStudioPortfolioItems(projects: StudioProject[]): StudioPortfolioItem[] {

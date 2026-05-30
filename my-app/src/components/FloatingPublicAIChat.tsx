@@ -238,101 +238,135 @@ export default function FloatingPublicAIChat() {
         }
         .fg-ai-bubble:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 22px 48px rgba(0,0,0,.34); }
         .fg-discord-join {
-          margin-bottom: 10px;
-          min-height: 42px;
-          border-radius: 999px;
-          border: 1px solid rgba(88, 101, 242, 0.34);
-          background: linear-gradient(135deg, rgba(88, 101, 242, 0.96), rgba(67, 56, 202, 0.96));
+          margin-bottom: 12px;
+          height: 48px;
+          border-radius: 16px;
+          border: 1px solid rgba(88, 101, 242, 0.4);
+          background: linear-gradient(135deg, #5865F2, #4752C4);
           color: #fff;
-          box-shadow: 0 16px 38px rgba(67, 56, 202, 0.28);
-          padding: 0 14px;
+          box-shadow: 0 10px 25px rgba(88, 101, 242, 0.3);
+          padding: 0 18px;
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          font-family: 'Sora', sans-serif;
-          font-size: 12px;
+          gap: 10px;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 11px;
           font-weight: 800;
+          letter-spacing: 0.1em;
           text-decoration: none;
           white-space: nowrap;
-          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+          transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+          position: relative;
+          overflow: hidden;
+        }
+        .fg-discord-join::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transform: translateX(-100%);
+          transition: transform 0.6s ease;
         }
         .fg-discord-join:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 20px 44px rgba(67, 56, 202, 0.38);
-          filter: brightness(1.04);
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 15px 35px rgba(88, 101, 242, 0.5);
+          border-color: rgba(255,255,255,0.3);
         }
-        .fg-discord-join:focus-visible {
-          outline: 2px solid rgba(255,255,255,.86);
-          outline-offset: 3px;
+        .fg-discord-join:hover::before {
+          transform: translateX(100%);
         }
         .fg-discord-modal-backdrop {
           position: fixed;
           inset: 0;
           z-index: 1099;
-          background: rgba(2, 6, 23, 0.68);
-          backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(12px);
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 18px;
+          padding: 20px;
         }
         .fg-discord-modal {
-          width: min(420px, calc(100vw - 32px));
-          border-radius: 20px;
-          border: 1px solid rgba(148, 163, 184, 0.22);
-          background:
-            radial-gradient(600px 260px at 20% 0%, rgba(88, 101, 242, 0.24), transparent 60%),
-            linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(7, 12, 22, 0.98));
+          width: min(440px, 100%);
+          border-radius: 32px;
+          border: 1px solid rgba(88, 101, 242, 0.2);
+          background: #0A0A0A;
           color: #f8fafc;
-          box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+          box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8);
           overflow: hidden;
+          position: relative;
+        }
+        .fg-discord-modal::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle at center, rgba(88, 101, 242, 0.15) 0%, transparent 50%);
+          pointer-events: none;
         }
         .fg-discord-modal-header {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           justify-content: space-between;
-          gap: 14px;
-          padding: 18px 18px 12px;
-          border-bottom: 1px solid rgba(255,255,255,.08);
+          padding: 24px 32px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .fg-discord-modal-body {
-          padding: 18px;
+          padding: 40px 32px;
+          text-align: center;
         }
-        .fg-discord-modal-actions {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-          margin-top: 18px;
-        }
-        .fg-discord-primary,
-        .fg-discord-secondary {
-          min-height: 42px;
-          border-radius: 12px;
+        .fg-discord-primary {
+          height: 56px;
+          border-radius: 16px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 0 14px;
-          font-family: 'Sora', sans-serif;
-          font-size: 12px;
-          font-weight: 900;
+          gap: 12px;
+          padding: 0 32px;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 14px;
+          font-weight: 800;
+          letter-spacing: 0.1em;
           text-decoration: none;
-          border: 1px solid transparent;
-          cursor: pointer;
-        }
-        .fg-discord-primary {
-          background: #5865f2;
+          background: #5865F2;
           color: #fff;
-          box-shadow: 0 14px 34px rgba(88, 101, 242, 0.28);
+          box-shadow: 0 15px 35px rgba(88, 101, 242, 0.4);
+          transition: all 0.3s ease;
+          border: none;
+          width: 100%;
+        }
+        .fg-discord-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 20px 45px rgba(88, 101, 242, 0.6);
+          filter: brightness(1.1);
         }
         .fg-discord-secondary {
-          background: rgba(255,255,255,.06);
-          color: #dbeafe;
-          border-color: rgba(148, 163, 184, 0.22);
+          margin-top: 16px;
+          height: 48px;
+          border-radius: 14px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 24px;
+          font-family: 'Sora', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.6);
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          width: 100%;
+        }
+        .fg-discord-secondary:hover {
+          background: rgba(255,255,255,0.1);
+          color: #fff;
         }
         @media (max-width: 420px) {
           .fg-discord-join {
-            width: 42px;
+            width: 48px;
             padding: 0;
             justify-content: center;
           }
@@ -610,32 +644,35 @@ export default function FloatingPublicAIChat() {
           >
             <motion.div
               className="fg-discord-modal"
-              initial={{ opacity: 0, y: 18, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.98 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
               onClick={(event) => event.stopPropagation()}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="fg-discord-title"
             >
               <div className="fg-discord-modal-header">
-                <div>
-                  <div id="fg-discord-title" className="font-orbitron text-sm font-bold tracking-[0.16em] uppercase text-white">
-                    Join FlukeGameStudio
-                  </div>
+                <div className="font-orbitron text-xs font-bold tracking-[0.2em] uppercase text-fluke-yellow">
+                  Community Hub
                 </div>
                 <button
                   type="button"
-                  className="w-9 h-9 rounded-full border border-white/10 bg-white/5 text-white flex items-center justify-center hover:bg-white/10 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white/5 text-white/50 flex items-center justify-center hover:bg-white/10 hover:text-white transition-all"
                   onClick={() => setDiscordModalOpen(false)}
-                  aria-label="Close Discord join dialog"
                 >
-                  <X size={17} />
+                  <X size={16} />
                 </button>
               </div>
               <div className="fg-discord-modal-body">
-                <div className="fg-discord-modal-actions">
+                <div className="w-20 h-20 rounded-3xl bg-[#5865F2]/10 flex items-center justify-center mx-auto mb-6 border border-[#5865F2]/20">
+                  <svg viewBox="0 0 20 19" className="w-10 h-10 fill-[#5865F2]" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.224 3.768a14.5 14.5 0 0 0-3.67-1.153c-.158.286-.343.67-.47.976a13.5 13.5 0 0 0-4.067 0c-.128-.306-.317-.69-.476-.976A14.4 14.4 0 0 0 3.868 3.77C1.546 7.28.916 10.703 1.231 14.077a14.7 14.7 0 0 0 4.5 2.306q.545-.748.965-1.587a9.5 9.5 0 0 1-1.518-.74q.191-.14.372-.293c2.927 1.369 6.107 1.369 8.999 0q.183.152.372.294-.723.437-1.52.74.418.838.963 1.588a14.6 14.6 0 0 0 4.504-2.308c.37-3.911-.63-7.302-2.644-10.309m-9.13 8.234c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.894 0 1.614.82 1.599 1.82.001 1-.705 1.82-1.6 1.82m5.91 0c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.893 0 1.614.82 1.599 1.82 0 1-.706 1.82-1.6 1.82"/>
+                  </svg>
+                </div>
+                <h2 className="font-bebas text-4xl text-white mb-2 tracking-wide">JOIN THE STUDIO</h2>
+                <p className="font-sora text-sm text-fluke-muted mb-8 max-w-[280px] mx-auto">
+                  Get exclusive updates, early access, and chat with the developers.
+                </p>
+                <div className="space-y-3">
                   <a
                     href={DISCORD_JOIN_URL}
                     target="_blank"
@@ -643,8 +680,7 @@ export default function FloatingPublicAIChat() {
                     className="fg-discord-primary"
                     onClick={() => setDiscordModalOpen(false)}
                   >
-                    <MessageCircle size={17} aria-hidden="true" />
-                    Continue to Discord
+                    JOIN OUR DISCORD
                   </a>
                   <button
                     type="button"
@@ -653,7 +689,7 @@ export default function FloatingPublicAIChat() {
                       void navigator.clipboard?.writeText(DISCORD_JOIN_URL);
                     }}
                   >
-                    Copy Invite
+                    COPY INVITE LINK
                   </button>
                 </div>
               </div>
@@ -666,14 +702,14 @@ export default function FloatingPublicAIChat() {
         <motion.button
           type="button"
           className="fg-discord-join"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.96 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setDiscordModalOpen(true)}
-          aria-label="Join Discord server"
-          title="Join Discord server"
         >
-          <MessageCircle size={17} aria-hidden="true" />
-          <span>Join Discord</span>
+          <svg viewBox="0 0 20 19" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.224 3.768a14.5 14.5 0 0 0-3.67-1.153c-.158.286-.343.67-.47.976a13.5 13.5 0 0 0-4.067 0c-.128-.306-.317-.69-.476-.976A14.4 14.4 0 0 0 3.868 3.77C1.546 7.28.916 10.703 1.231 14.077a14.7 14.7 0 0 0 4.5 2.306q.545-.748.965-1.587a9.5 9.5 0 0 1-1.518-.74q.191-.14.372-.293c2.927 1.369 6.107 1.369 8.999 0q.183.152.372.294-.723.437-1.52.74.418.838.963 1.588a14.6 14.6 0 0 0 4.504-2.308c.37-3.911-.63-7.302-2.644-10.309m-9.13 8.234c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.894 0 1.614.82 1.599 1.82.001 1-.705 1.82-1.6 1.82m5.91 0c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.893 0 1.614.82 1.599 1.82 0 1-.706 1.82-1.6 1.82"/>
+          </svg>
+          <span>JOIN DISCORD</span>
         </motion.button>
       ) : null}
 

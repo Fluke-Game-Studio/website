@@ -2,11 +2,15 @@
 import React from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 // Controller (Business Logic)
 import { useApplicationController } from "../controllers/applicationController";
 import PremiumLoader from "../components/PremiumLoader";
 import { googlePrefillService, type GooglePrefillUser } from "../services/googlePrefillService";
+import { resolveApiBase } from "../services/apiBase";
 import "../styles/careers.css";
+
+const API_BASE = resolveApiBase();
 
 declare global {
   interface Window {
@@ -171,6 +175,70 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
     );
   }
 
+  if (field.type === "checkbox" && !field.options?.length) {
+    return (
+      <label 
+        style={{ 
+          display: "flex", 
+          alignItems: "flex-start", 
+          gap: "0.75rem", 
+          padding: "0.5rem 0",
+          cursor: "pointer",
+        }}
+      >
+        <div style={{ position: "relative", display: "flex", alignItems: "center", marginTop: "0.2rem" }}>
+          <input
+            type="checkbox"
+            id={field.id}
+            checked={!!value}
+            onChange={(e) => onChange(field.id, e.target.checked)}
+            required={field.required}
+            disabled={disabled}
+            style={{ 
+              opacity: 0,
+              position: "absolute",
+              width: "1.4rem",
+              height: "1.4rem",
+              cursor: "pointer",
+              zIndex: 10
+            }}
+          />
+          <div 
+            style={{ 
+              width: "1.4rem",
+              height: "1.4rem",
+              borderRadius: "3px",
+              border: "1.5px solid",
+              borderColor: value ? "var(--gold-primary)" : "rgba(255, 255, 255, 0.2)",
+              background: value ? "var(--gold-primary)" : "rgba(255, 255, 255, 0.05)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease"
+            }}
+          >
+            {value && (
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 4L3.5 6.5L9 1" stroke="var(--cs-bg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+        </div>
+        <span 
+          style={{ 
+            fontFamily: "var(--font-body)", 
+            fontSize: "0.9rem", 
+            lineHeight: 1.5,
+            color: value ? "var(--cs-text)" : "var(--cs-muted)",
+            transition: "color 0.2s ease"
+          }}
+        >
+          {field.placeholder || "I agree"}
+        </span>
+      </label>
+    );
+  }
+
   if (field.type === "checkbox" && field.options?.length) {
     const checked = Array.isArray(value) ? value : [];
     return (
@@ -220,11 +288,31 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, hasErro
     );
   }
 
+  if (field.type === "date") {
+    return (
+      <input
+        className={className}
+        id={field.id}
+        type="date"
+        value={value || ""}
+        onChange={(e) => onChange(field.id, e.target.value)}
+        required={field.required}
+        disabled={disabled}
+        style={{ width: "100%" }}
+      />
+    );
+  }
+
   return (
     <input
       className={className}
       id={field.id}
-      type={field.type === "tel" ? "tel" : field.type === "email" ? "email" : "text"}
+      type={
+        field.type === "tel" ? "tel" : 
+        field.type === "email" ? "email" : 
+        field.type === "date" ? "date" : 
+        "text"
+      }
       value={value || ""}
       onChange={(e) => onChange(field.id, e.target.value)}
       placeholder={field.placeholder}
@@ -436,6 +524,7 @@ function GooglePrefillGate({
   const buttonRef = React.useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [linkedInLoading, setLinkedInLoading] = React.useState(false);
 
   React.useEffect(() => {
     window.onSignIn = (legacyGoogleUser: any) => {
@@ -457,6 +546,63 @@ function GooglePrefillGate({
       container?.click();
     };
   }, [onSignedIn]);
+
+  // LinkedIn prefill — listen for postMessage from popup
+  React.useEffect(() => {
+    function onMessage(event: MessageEvent) {
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "linkedin-prefill" && data.ok) {
+        setLinkedInLoading(false);
+        const user: GooglePrefillUser = {
+          name: String(data.name || ""),
+          email: String(data.email || ""),
+          imageUrl: String(data.picture || ""),
+        };
+        if (user.email) onSignedIn(user);
+      } else if (data.type === "linkedin-prefill-error") {
+        setLinkedInLoading(false);
+        setError(String(data.message || "LinkedIn connect failed. You can still continue."));
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [onSignedIn]);
+
+  async function handleLinkedIn() {
+    setLinkedInLoading(true);
+    setError("");
+    const popup = window.open("", "linkedin-prefill", "width=560,height=720,left=140,top=100");
+    if (!popup) {
+      setLinkedInLoading(false);
+      setError("Popup was blocked. Please allow popups for this page and try again.");
+      return;
+    }
+    popup.document.write("<p style='font-family:Arial,sans-serif;padding:20px;color:#fff;background:#0b1220;min-height:100vh;margin:0'>Connecting to LinkedIn…</p>");
+
+    try {
+      const r = await fetch(`${API_BASE}/public/linkedin/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ returnTo: window.location.href }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.authorizeUrl) throw new Error(data.error || "Could not start LinkedIn connect.");
+      popup.location.href = data.authorizeUrl;
+      popup.focus();
+    } catch (e: any) {
+      try { popup.close(); } catch {}
+      setLinkedInLoading(false);
+      setError(String(e?.message || "LinkedIn connect failed. You can still continue without it."));
+    }
+
+    // Detect if user closes the popup without completing
+    const timer = window.setInterval(() => {
+      try {
+        if (popup.closed) { setLinkedInLoading(false); window.clearInterval(timer); }
+      } catch { setLinkedInLoading(false); window.clearInterval(timer); }
+    }, 600);
+  }
 
   React.useEffect(() => {
     if (!open || googleUser?.email) return;
@@ -544,20 +690,58 @@ function GooglePrefillGate({
         }}
       >
         <h2 style={{ margin: 0, fontFamily: "var(--font-heading)", fontSize: "1.35rem" }}>
-          Prefill your application
+          Speed up your application
         </h2>
         <p style={{ marginTop: "0.8rem", color: "var(--cs-muted)", lineHeight: 1.65, fontFamily: "var(--font-body)" }}>
-          Sign in with Google to auto-fill your name and email. You can still proceed without signing in.
+          Connect with Google or LinkedIn to auto-fill your name and email. You can still proceed without signing in.
         </p>
 
+        {/* Google button */}
         <div style={{ marginTop: "1.25rem", minHeight: 44, display: "flex", alignItems: "center" }}>
           <div ref={buttonRef} />
           {!ready && !error && (
             <span style={{ color: "var(--cs-muted)", fontFamily: "var(--font-body)", fontSize: "0.9rem" }}>
-              Loading Google sign-in...
+              Loading Google sign-in…
             </span>
           )}
         </div>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1rem 0" }}>
+          <div style={{ flex: 1, height: 1, background: "var(--cs-border)" }} />
+          <span style={{ color: "var(--cs-muted)", fontSize: "0.8rem", fontFamily: "var(--font-body)" }}>or</span>
+          <div style={{ flex: 1, height: 1, background: "var(--cs-border)" }} />
+        </div>
+
+        {/* LinkedIn button */}
+        <button
+          type="button"
+          onClick={handleLinkedIn}
+          disabled={linkedInLoading}
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.6rem",
+            padding: "0.7rem 1.2rem",
+            borderRadius: "6px",
+            border: "1px solid rgba(0,119,181,0.6)",
+            background: linkedInLoading ? "rgba(0,119,181,0.25)" : "rgba(0,119,181,0.15)",
+            color: "#58b4e0",
+            fontFamily: "var(--font-body)",
+            fontSize: "0.95rem",
+            fontWeight: 600,
+            cursor: linkedInLoading ? "not-allowed" : "pointer",
+            transition: "background 0.2s ease",
+          }}
+        >
+          {/* LinkedIn icon */}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          {linkedInLoading ? "Connecting…" : "Continue with LinkedIn"}
+        </button>
 
         {error && (
           <p style={{ color: "#ff8a80", marginTop: "0.9rem", fontFamily: "var(--font-body)", fontSize: "0.9rem" }}>
@@ -748,9 +932,16 @@ const CareersApply: React.FC = () => {
               <button
                 onClick={prevChapter}
                 className="btn-outline"
-                style={{ flex: 1 }}
+                style={{ 
+                  flex: 1, 
+                  display: "inline-flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  padding: "0.8rem 1.5rem",
+                  minHeight: "3.2rem"
+                }}
               >
-                ? Previous
+                <ArrowLeft size={16} style={{ marginRight: "0.5rem" }} /> Previous
               </button>
             ) : (
               <div style={{ flex: 1 }} />
@@ -761,9 +952,17 @@ const CareersApply: React.FC = () => {
                 onClick={nextChapter}
                 disabled={!isValid}
                 className="btn-gold"
-                style={{ flex: 1, opacity: isValid ? 1 : 0.4 }}
+                style={{ 
+                  flex: 1, 
+                  opacity: isValid ? 1 : 0.4,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.8rem 1.5rem",
+                  minHeight: "3.2rem"
+                }}
               >
-                Continue ?
+                Continue <ArrowRight size={16} style={{ marginLeft: "0.5rem" }} />
               </button>
             ) : (
               <button
@@ -773,9 +972,15 @@ const CareersApply: React.FC = () => {
                 style={{
                   flex: 1,
                   opacity: isValid && !isSubmitting ? 1 : 0.4,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.8rem 1.5rem",
+                  minHeight: "3.2rem"
                 }}
               >
-                {isSubmitting ? "Transmitting…" : "Submit Application ?"}
+                {isSubmitting ? "Transmitting…" : "Submit Application"}
+                {!isSubmitting && <ArrowRight size={16} style={{ marginLeft: "0.5rem" }} />}
               </button>
             )}
           </footer>

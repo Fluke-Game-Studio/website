@@ -444,3 +444,23 @@ html.light .btn-outline:hover {
 
 /* yellow-line accent under headings — keep brand yellow ✓ */
 /* (yellow line works as a FAT accent, not as text — reads fine) */
+
+/* Increased checkbox and bullet sizes */
+input[type="checkbox"] {
+  accent-color: var(--fluke-yellow);
+}
+
+/* Larger bullet points */
+ul {
+  list-style-size: larger;
+}
+
+ul li::marker {
+  font-size: 1.2rem;
+  color: var(--fluke-yellow);
+}
+
+ol li::marker {
+  font-size: 1.2rem;
+  color: var(--fluke-yellow);
+}

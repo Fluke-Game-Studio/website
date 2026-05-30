@@ -1,7 +1,10 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { games } from "@/lib/data/games";
-import { ArrowLeft, Monitor, Smartphone, Gamepad2, Globe, CheckCircle, ExternalLink } from "lucide-react";
+import { ArrowLeft, Monitor, Smartphone, Gamepad2, Globe, CheckCircle, ExternalLink, ShoppingCart, ShieldCheck } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
+import { useCustomerAuth } from "@/auth/CustomerAuthContext";
+import PayPalButton from "@/components/PayPalButton";
+import { motion } from "framer-motion";
 
 const platformIcons: Record<string, React.ReactNode> = {
   PC: <Monitor size={14} />,
@@ -14,6 +17,7 @@ export default function GameDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const game = games.find((g) => g.slug === slug);
   const { theme } = useTheme();
+  const { session } = useCustomerAuth();
   const isLight = theme === "light";
 
   if (!game) {
@@ -138,6 +142,63 @@ export default function GameDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Purchase Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="rounded-3xl p-8 sticky top-24"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                border: `1px solid ${isLight ? 'var(--fluke-yellow)' : 'var(--fluke-yellow)'}`,
+                boxShadow: isLight ? '0 10px 40px rgba(245, 197, 66, 0.1)' : '0 0 30px rgba(245, 197, 66, 0.1)',
+              }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-fluke-yellow/10 flex items-center justify-center border border-fluke-yellow/20 text-fluke-yellow">
+                  <ShoppingCart size={20} />
+                </div>
+                <h3 className="font-orbitron text-sm font-bold tracking-widest text-fluke-text uppercase">Get Access</h3>
+              </div>
+              
+              <div className="mb-8">
+                <div className="flex items-baseline gap-2 mb-2">
+                  <span className="font-bebas text-5xl text-fluke-yellow">$19.99</span>
+                  <span className="text-xs font-sora text-fluke-muted line-through opacity-50">$29.99</span>
+                </div>
+                <p className="text-xs font-sora text-fluke-muted leading-relaxed">
+                  Join the Fluke community. Get immediate access to the build and future updates.
+                </p>
+              </div>
+
+              {!session ? (
+                <div className="space-y-4">
+                  <Link
+                    to="/login"
+                    className="btn-primary w-full py-4 rounded-2xl font-orbitron text-sm font-bold tracking-widest text-center block shadow-[0_0_20px_rgba(245,197,66,0.3)]"
+                  >
+                    LOGIN TO BUY
+                  </Link>
+                  <p className="text-[10px] text-center text-fluke-muted font-sora uppercase tracking-tighter">
+                    Account required to track your library
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <PayPalButton 
+                    productId={game.id} 
+                    productName={game.title} 
+                    onSuccess={() => {
+                      // Logic to refresh profile or redirect to library
+                    }}
+                  />
+                  <div className={`flex items-center justify-center gap-2 ${isLight ? 'text-green-600' : 'text-green-400/70'}`}>
+                    <ShieldCheck size={14} />
+                    <span className="text-[10px] font-orbitron tracking-widest uppercase">Verified Purchase</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+
             {game.externalUrl ? (
               <a
                 href={game.externalUrl}
@@ -150,7 +211,7 @@ export default function GameDetailPage() {
                     Featured Site
                   </div>
                   <div className="mt-1 font-sora text-sm text-fluke-muted">
-                    Open the dedicated Pavan website.
+                    Open the dedicated {game.title} website.
                   </div>
                 </div>
                 <ExternalLink size={18} className={isLight ? "text-cyan-700" : "text-fluke-yellow"} />
@@ -159,11 +220,7 @@ export default function GameDetailPage() {
 
             <div 
               className="rounded-2xl p-6 transition-all duration-300"
-              style={{
-                backgroundColor: 'var(--card-bg)',
-                border: '1px solid var(--card-border)',
-                boxShadow: 'var(--card-shadow)',
-              }}
+              style={panelStyle}
             >
               <h3 className={`mb-4 font-orbitron text-xs tracking-widest uppercase ${isLight ? "text-cyan-700" : "text-fluke-yellow"}`}>Tags</h3>
               <div className="flex flex-wrap gap-2">
@@ -174,9 +231,10 @@ export default function GameDetailPage() {
                 ))}
               </div>
             </div>
+            
             <Link
               to="/contact"
-              className="btn-primary w-full py-3 rounded-xl font-sora text-sm text-center block"
+              className="btn-outline w-full py-3 rounded-xl font-sora text-sm text-center block"
             >
               Collaborate on a Game
             </Link>

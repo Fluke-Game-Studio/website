@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingPublicAIChat from './components/FloatingPublicAIChat';
+import PromotionModal from './components/PromotionModal';
 import { ThemeProvider } from './lib/ThemeContext';
 import { AIAssistantProvider } from './context/AIAssistantContext';
 
@@ -21,6 +22,11 @@ import CareersApply from './pages/CareersApply';
 import TeamMember from './pages/TeamMember';
 import Privacy from './pages/Privacy';
 import NotFound from './pages/NotFound';
+import CustomerLogin from './pages/CustomerLogin';
+import CustomerDownload from './pages/CustomerDownload';
+import { CustomerAuthProvider } from './auth/CustomerAuthContext';
+import CustomerProtected from './auth/CustomerProtected';
+import VoiceIntake from './pages/VoiceIntake';
 
 const scrollPositions = new Map<string, number>();
 
@@ -74,14 +80,21 @@ function AnimatedRoutes() {
         <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
         <Route path="/careers" element={<PageWrapper><Careers /></PageWrapper>} />
         <Route path="/careers/apply" element={<PageWrapper><CareersApply /></PageWrapper>} />
+        <Route path="/login" element={<PageWrapper><CustomerLogin /></PageWrapper>} />
+        <Route
+          path="/download"
+          element={
+            <CustomerProtected>
+              <PageWrapper><CustomerDownload /></PageWrapper>
+            </CustomerProtected>
+          }
+        />
         <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />
         <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>
     </AnimatePresence>
   );
 }
-
-
 
 function App() {
   useLayoutEffect(() => {
@@ -92,18 +105,29 @@ function App() {
 
   return (
     <ThemeProvider>
-      <AIAssistantProvider>
-        <Router>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
-              <AnimatedRoutes />
-            </main>
-            <Footer />
-            <FloatingPublicAIChat />
-          </div>
-        </Router>
-      </AIAssistantProvider>
+      <CustomerAuthProvider>
+        <AIAssistantProvider>
+          <Router>
+            <Routes>
+              {/* Public standalone page — no Navbar/Footer */}
+              <Route path="/intake" element={<VoiceIntake />} />
+
+              {/* All other pages with site layout */}
+              <Route path="*" element={
+                <div className="flex flex-col min-h-screen">
+                  <Navbar />
+                  <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
+                    <AnimatedRoutes />
+                  </main>
+                  <Footer />
+                  <FloatingPublicAIChat />
+                  <PromotionModal />
+                </div>
+              } />
+            </Routes>
+          </Router>
+        </AIAssistantProvider>
+      </CustomerAuthProvider>
     </ThemeProvider>
   );
 }
