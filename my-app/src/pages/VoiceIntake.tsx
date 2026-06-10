@@ -72,6 +72,12 @@ export default function VoiceIntake() {
 
   async function refreshDevices() {
     try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      previewStreamRef.current?.getTracks().forEach((t) => t.stop());
+      previewStreamRef.current = stream;
+      if (previewRef.current) previewRef.current.srcObject = stream;
+    } catch {}
+    try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const audio = devices.filter((d) => d.kind === "audioinput");
       const video = devices.filter((d) => d.kind === "videoinput");
@@ -674,40 +680,34 @@ export default function VoiceIntake() {
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   Current: {audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"}
                 </div>
-                  <button onClick={() => setAudioOpen((v) => !v)} style={{ ...selectStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"}</span>
-                    <span>▾</span>
-                  </button>
-                  {audioOpen && (
-                    <div style={{ marginTop: 8, background: "#0f1117", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, overflow: "hidden" }}>
-                      {audioDevices.map((d) => (
-                        <button key={d.deviceId} onClick={() => { setAudioDeviceId(d.deviceId); setAudioOpen(false); }} style={{ width: "100%", padding: "10px 12px", color: "#fff", background: d.deviceId === audioDeviceId ? "rgba(99,102,241,0.22)" : "transparent", border: "none", textAlign: "left", cursor: "pointer", fontSize: 13 }}>
-                          {d.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div style={panelStyle}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.65)", marginBottom: 8 }}>📷 Camera</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    Current: {videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"}
-                  </div>
-                  <button onClick={() => setVideoOpen((v) => !v)} style={{ ...selectStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"}</span>
-                    <span>▾</span>
-                  </button>
-                  {videoOpen && (
-                    <div style={{ marginTop: 8, background: "#0f1117", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, overflow: "hidden" }}>
-                      {videoDevices.map((d) => (
-                        <button key={d.deviceId} onClick={() => { setVideoDeviceId(d.deviceId); setVideoOpen(false); }} style={{ width: "100%", padding: "10px 12px", color: "#fff", background: d.deviceId === videoDeviceId ? "rgba(99,102,241,0.22)" : "transparent", border: "none", textAlign: "left", cursor: "pointer", fontSize: 13 }}>
-                          {d.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <select
+                  value={audioDeviceId}
+                  onChange={(e) => setAudioDeviceId(e.target.value)}
+                  style={{ ...selectStyle, width: "100%", appearance: "auto" }}
+                >
+                  {audioDevices.length === 0 && <option value="">No microphone listed yet</option>}
+                  {audioDevices.map((d) => (
+                    <option key={d.deviceId} value={d.deviceId}>{d.label}</option>
+                  ))}
+                </select>
               </div>
+              <div style={panelStyle}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.65)", marginBottom: 8 }}>📷 Camera</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  Current: {videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"}
+                </div>
+                <select
+                  value={videoDeviceId}
+                  onChange={(e) => setVideoDeviceId(e.target.value)}
+                  style={{ ...selectStyle, width: "100%", appearance: "auto" }}
+                >
+                  {videoDevices.length === 0 && <option value="">No camera listed yet</option>}
+                  {videoDevices.map((d) => (
+                    <option key={d.deviceId} value={d.deviceId}>{d.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                 <button onClick={() => setDeviceStep(2)} style={{ padding: "11px 18px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 6px 18px rgba(99,102,241,0.3)" }}>
