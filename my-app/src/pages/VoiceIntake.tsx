@@ -63,6 +63,8 @@ export default function VoiceIntake() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number>(0);
+  const previewRef = useRef<HTMLVideoElement | null>(null);
+  const previewStreamRef = useRef<MediaStream | null>(null);
   const lobbyCardRef = useRef<HTMLDivElement | null>(null);
 
   // Keep answersRef in sync
@@ -116,6 +118,10 @@ export default function VoiceIntake() {
     })();
   }, []);
 
+  useEffect(() => () => {
+    previewStreamRef.current?.getTracks().forEach((t) => t.stop());
+  }, []);
+
   useEffect(() => {
     function onDocClick(event: MouseEvent) {
       if (!lobbyCardRef.current?.contains(event.target as Node)) {
@@ -138,6 +144,11 @@ export default function VoiceIntake() {
           video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
         });
         if (cancelled) stream.getTracks().forEach((t) => t.stop());
+        else {
+          previewStreamRef.current?.getTracks().forEach((t) => t.stop());
+          previewStreamRef.current = stream;
+          if (previewRef.current) previewRef.current.srcObject = stream;
+        }
       } catch {}
     })();
     return () => { cancelled = true; };
@@ -647,14 +658,23 @@ export default function VoiceIntake() {
                 </button>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-                <div style={panelStyle}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.65)", marginBottom: 8 }}>🎙️ Microphone</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    Current: {audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"}
-                  </div>
-                  <button onClick={() => setAudioOpen((v) => !v)} style={selectStyle}>
-                    {audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"} ▾
+            <div style={{ borderRadius: 18, overflow: "hidden", background: "#111", minHeight: 260, position: "relative", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <video ref={previewRef} autoPlay playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: 260, background: "linear-gradient(180deg,#111,#1b1b24)", transform: "scaleX(-1)" }} />
+              <div style={{ position: "absolute", left: 12, top: 12, padding: "5px 9px", borderRadius: 999, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80" }} />
+                Device preview
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+              <div style={panelStyle}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.65)", marginBottom: 8 }}>🎙️ Microphone</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  Current: {audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"}
+                </div>
+                  <button onClick={() => setAudioOpen((v) => !v)} style={{ ...selectStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"}</span>
+                    <span>▾</span>
                   </button>
                   {audioOpen && (
                     <div style={{ marginTop: 8, background: "#0f1117", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, overflow: "hidden" }}>
@@ -671,8 +691,9 @@ export default function VoiceIntake() {
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     Current: {videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"}
                   </div>
-                  <button onClick={() => setVideoOpen((v) => !v)} style={selectStyle}>
-                    {videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"} ▾
+                  <button onClick={() => setVideoOpen((v) => !v)} style={{ ...selectStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"}</span>
+                    <span>▾</span>
                   </button>
                   {videoOpen && (
                     <div style={{ marginTop: 8, background: "#0f1117", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, overflow: "hidden" }}>
