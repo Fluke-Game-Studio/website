@@ -42,6 +42,13 @@ export default function VoiceIntake() {
   const [userSpeaking, setUserSpeaking] = useState(false);
   const [feedback, setFeedback] = useState<{ stars: number; completedQs: boolean | null; listenedFully: string | null; stuckToTopic: string | null }>({ stars: 0, completedQs: null, listenedFully: null, stuckToTopic: null });
   const [hoveredStar, setHoveredStar] = useState(0);
+  const [deviceStep, setDeviceStep] = useState<1 | 2>(1);
+  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [audioDeviceId, setAudioDeviceId] = useState("");
+  const [videoDeviceId, setVideoDeviceId] = useState("");
+  const [audioOpen, setAudioOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
@@ -56,6 +63,7 @@ export default function VoiceIntake() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number>(0);
+  const lobbyCardRef = useRef<HTMLDivElement | null>(null);
 
   // Keep answersRef in sync
   useEffect(() => { answersRef.current = answers; }, [answers]);
@@ -94,6 +102,47 @@ export default function VoiceIntake() {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audio = devices.filter((d) => d.kind === "audioinput");
+        const video = devices.filter((d) => d.kind === "videoinput");
+        setAudioDevices(audio);
+        setVideoDevices(video);
+        setAudioDeviceId((prev) => prev || audio[0]?.deviceId || "");
+        setVideoDeviceId((prev) => prev || video[0]?.deviceId || "");
+      } catch {}
+    })();
+  }, []);
+
+  useEffect(() => {
+    function onDocClick(event: MouseEvent) {
+      if (!lobbyCardRef.current?.contains(event.target as Node)) {
+        setAudioOpen(false);
+        setVideoOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  useEffect(() => {
+    if (deviceStep !== 1) return;
+    let cancelled = false;
+    (async () => {
+      if (!audioDeviceId && !videoDeviceId) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: audioDeviceId ? { deviceId: { exact: audioDeviceId } } : true,
+          video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
+        });
+        if (cancelled) stream.getTracks().forEach((t) => t.stop());
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [audioDeviceId, videoDeviceId, deviceStep]);
+
   // Persistent audio element
   useEffect(() => {
     const el = document.createElement("audio");
@@ -114,6 +163,21 @@ export default function VoiceIntake() {
       payload?.client_secret || payload?.session?.client_secret?.value ||
       payload?.session?.client_secret?.secret || payload?.value || ""
     );
+  }
+
+  function formatMediaError(err: any) {
+    const name = String(err?.name || "");
+    const message = String(err?.message || err || "Unknown microphone error");
+    if (name === "NotFoundError" || /requested device not found/i.test(message)) {
+      return "No microphone was found. Please connect or enable a microphone, then try again.";
+    }
+    if (name === "NotAllowedError" || name === "SecurityError") {
+      return "Microphone access was blocked. Please allow mic permissions for this site and try again.";
+    }
+    if (name === "NotReadableError") {
+      return "Your microphone is already in use by another app or tab. Close other audio apps and try again.";
+    }
+    return message;
   }
 
   function startMicAnalysis(stream: MediaStream) {
@@ -145,7 +209,7 @@ export default function VoiceIntake() {
     setUserSpeaking(false);
   }
 
-  async function connect() {
+  async function connect(audioDeviceId?: string) {
     if (!ctx) return;
     const seq = ++connectSeqRef.current;
     qIdxRef.current = 0;
@@ -163,10 +227,16 @@ export default function VoiceIntake() {
         body: JSON.stringify({ token: intakeToken, model: "gpt-realtime-mini", voice: "alloy" }),
       });
       const sessionData = await sessionRes.json().catch(() => ({}));
-      if (!sessionRes.ok) throw new Error(sessionData?.error || `Session error ${sessionRes.status}`);
+      if (!sessionRes.ok) {
+        throw new Error(
+          `Session ${sessionRes.status}: ${sessionData?.error || sessionData?.message || JSON.stringify(sessionData || {}) || "unknown"}`
+        );
+      }
 
       const ephemeralKey = extractEphemeralKey(sessionData);
-      if (!ephemeralKey) throw new Error("Missing realtime key from server.");
+      if (!ephemeralKey) {
+        throw new Error(`Missing realtime key from server: ${JSON.stringify(sessionData || {})}`);
+      }
 
       const pc = new RTCPeerConnection();
       pcRef.current = pc;
@@ -184,7 +254,9 @@ export default function VoiceIntake() {
         if (["failed", "closed", "disconnected"].includes(pc.connectionState)) disconnect();
       };
 
-      const ms = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const ms = await navigator.mediaDevices.getUserMedia({
+        audio: audioDeviceId ? { deviceId: { exact: audioDeviceId } } : true,
+      });
       if (seq !== connectSeqRef.current) { ms.getTracks().forEach((t) => t.stop()); pc.close(); return; }
       micRef.current = ms;
       ms.getTracks().forEach((t) => { if (pc.signalingState !== "closed") pc.addTrack(t, ms); });
@@ -312,7 +384,7 @@ export default function VoiceIntake() {
       if (!sdpRes.ok) throw new Error(`OpenAI SDP ${sdpRes.status}`);
       await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
     } catch (e: any) {
-      setErr(String(e?.message || e));
+      setErr(formatMediaError(e));
       setStatus("idle");
     }
   }
@@ -387,7 +459,27 @@ export default function VoiceIntake() {
   );
 
   if (status === "awaiting_feedback") return (
-    <div style={{ ...page, alignItems: "center", justifyContent: "center", gap: 16, padding: 24, overflowY: "auto" }}>
+    <div style={{ ...page, alignItems: "center", justifyContent: "center", gap: 16, padding: 24, overflowY: "auto", position: "relative" }}>
+      {err && (
+        <div style={{
+          position: "fixed",
+          top: 20,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 9999,
+          maxWidth: "min(900px, calc(100vw - 24px))",
+          padding: "10px 16px",
+          borderRadius: 12,
+          background: "rgba(220,38,38,0.95)",
+          color: "#fff",
+          boxShadow: "0 14px 32px rgba(0,0,0,0.35)",
+          textAlign: "center",
+          fontSize: 13,
+          lineHeight: 1.4,
+        }}>
+          {err}
+        </div>
+      )}
       <img src="https://flukegameassets.s3.amazonaws.com/logo.png" alt="Fluke Games" style={{ height: 36, flexShrink: 0 }} />
       <div style={{ fontSize: 52, flexShrink: 0 }}>🎉</div>
       <h2 style={{ margin: 0 }}>Interview Complete</h2>
@@ -515,6 +607,21 @@ export default function VoiceIntake() {
       { icon: "⏸️", text: "The AI will prompt you if your response seems incomplete" },
       { icon: "✅", text: "Your responses are saved automatically when you end the call" },
     ];
+    const panelStyle: React.CSSProperties = {
+      background: "rgba(255,255,255,0.04)",
+      border: "1px solid rgba(255,255,255,0.08)",
+      borderRadius: 16,
+      padding: 14,
+    };
+    const selectStyle: React.CSSProperties = {
+      width: "100%",
+      padding: "10px 12px",
+      borderRadius: 12,
+      background: "#f7f7fb",
+      color: "#111827",
+      border: "1px solid rgba(255,255,255,0.2)",
+      fontSize: 13,
+    };
     return (
       <div style={{ ...page, overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
@@ -523,36 +630,94 @@ export default function VoiceIntake() {
           <div style={{ width: 60 }} />
         </div>
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 24px", gap: 28 }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 16px" }}>🤖</div>
-            <h2 style={{ margin: "0 0 6px", fontSize: 22, fontWeight: 800, color: "#fff" }}>
-              {ctx.label}{jobTitle && <span style={{ color: "#a78bfa" }}> · {jobTitle}</span>}
-            </h2>
-            {ctx.description && <p style={{ margin: "0 0 10px", color: "rgba(255,255,255,0.45)", fontSize: 14, lineHeight: 1.5, maxWidth: 380 }}>{ctx.description}</p>}
-            {allQuestions.length > 0 && (
-              <span style={{ display: "inline-block", padding: "4px 14px", borderRadius: 999, background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", fontSize: 12, fontWeight: 700 }}>
-                {allQuestions.length} question{allQuestions.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%", maxWidth: 480 }}>
-            {tips.map((tip, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
-                <span style={{ fontSize: 20, lineHeight: 1 }}>{tip.icon}</span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.55 }}>{tip.text}</span>
+        {deviceStep === 1 ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px", gap: 16, minHeight: "calc(100vh - 128px)" }}>
+            <div style={{ width: "100%", maxWidth: 760, ...panelStyle, display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.62)" }}>Device Setup</div>
+                  <div style={{ marginTop: 4, fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Pick your mic and camera before continuing.</div>
+                </div>
+                <button
+                  onClick={() => setDeviceStep(2)}
+                  style={{ width: 36, height: 36, borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.06)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                  title="Continue"
+                >
+                  ↻
+                </button>
               </div>
-            ))}
-          </div>
 
-          <button
-            onClick={connect}
-            style={{ padding: "14px 48px", borderRadius: 14, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer", boxShadow: "0 8px 32px rgba(99,102,241,0.4)", letterSpacing: "0.3px" }}
-          >
-            Join Call →
-          </button>
-        </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+                <div style={panelStyle}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.65)", marginBottom: 8 }}>🎙️ Microphone</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    Current: {audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"}
+                  </div>
+                  <button onClick={() => setAudioOpen((v) => !v)} style={selectStyle}>
+                    {audioDevices.find((d) => d.deviceId === audioDeviceId)?.label || "Choose microphone"} ▾
+                  </button>
+                  {audioOpen && (
+                    <div style={{ marginTop: 8, background: "#0f1117", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, overflow: "hidden" }}>
+                      {audioDevices.map((d) => (
+                        <button key={d.deviceId} onClick={() => { setAudioDeviceId(d.deviceId); setAudioOpen(false); }} style={{ width: "100%", padding: "10px 12px", color: "#fff", background: d.deviceId === audioDeviceId ? "rgba(99,102,241,0.22)" : "transparent", border: "none", textAlign: "left", cursor: "pointer", fontSize: 13 }}>
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div style={panelStyle}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.65)", marginBottom: 8 }}>📷 Camera</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    Current: {videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"}
+                  </div>
+                  <button onClick={() => setVideoOpen((v) => !v)} style={selectStyle}>
+                    {videoDevices.find((d) => d.deviceId === videoDeviceId)?.label || "Choose camera"} ▾
+                  </button>
+                  {videoOpen && (
+                    <div style={{ marginTop: 8, background: "#0f1117", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, overflow: "hidden" }}>
+                      {videoDevices.map((d) => (
+                        <button key={d.deviceId} onClick={() => { setVideoDeviceId(d.deviceId); setVideoOpen(false); }} style={{ width: "100%", padding: "10px 12px", color: "#fff", background: d.deviceId === videoDeviceId ? "rgba(99,102,241,0.22)" : "transparent", border: "none", textAlign: "left", cursor: "pointer", fontSize: 13 }}>
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                <button onClick={() => setDeviceStep(2)} style={{ padding: "11px 18px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 6px 18px rgba(99,102,241,0.3)" }}>
+                  Next →
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 24px", gap: 28 }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 16px" }}>🤖</div>
+              <h2 style={{ margin: "0 0 6px", fontSize: 22, fontWeight: 800, color: "#fff" }}>
+                {ctx.label}{jobTitle && <span style={{ color: "#a78bfa" }}> · {jobTitle}</span>}
+              </h2>
+              {ctx.description && <p style={{ margin: "0 0 10px", color: "rgba(255,255,255,0.45)", fontSize: 14, lineHeight: 1.5, maxWidth: 380 }}>{ctx.description}</p>}
+              {allQuestions.length > 0 && <span style={{ display: "inline-block", padding: "4px 14px", borderRadius: 999, background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", fontSize: 12, fontWeight: 700 }}>{allQuestions.length} question{allQuestions.length !== 1 ? "s" : ""}</span>}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, width: "100%", maxWidth: 520 }}>
+              {tips.map((tip, i) => (
+                <div key={i} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 20, lineHeight: 1 }}>{tip.icon}</span>
+                  <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.55 }}>{tip.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <button onClick={() => connect(audioDeviceId)} style={{ padding: "14px 48px", borderRadius: 14, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer", boxShadow: "0 8px 32px rgba(99,102,241,0.4)", letterSpacing: "0.3px" }}>
+              Join Call →
+            </button>
+          </div>
+        )}
         <style>{`@keyframes ripple-out{0%{transform:scale(1);opacity:.65}100%{transform:scale(3.2);opacity:0}}`}</style>
       </div>
     );
