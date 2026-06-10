@@ -68,6 +68,18 @@ export default function VoiceIntake() {
   // Keep answersRef in sync
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
+  async function refreshDevices() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audio = devices.filter((d) => d.kind === "audioinput");
+      const video = devices.filter((d) => d.kind === "videoinput");
+      setAudioDevices(audio);
+      setVideoDevices(video);
+      setAudioDeviceId((prev) => prev || audio[0]?.deviceId || "");
+      setVideoDeviceId((prev) => prev || video[0]?.deviceId || "");
+    } catch {}
+  }
+
   // Load context from token
   useEffect(() => {
     if (!intakeToken) {
@@ -103,17 +115,7 @@ export default function VoiceIntake() {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const audio = devices.filter((d) => d.kind === "audioinput");
-        const video = devices.filter((d) => d.kind === "videoinput");
-        setAudioDevices(audio);
-        setVideoDevices(video);
-        setAudioDeviceId((prev) => prev || audio[0]?.deviceId || "");
-        setVideoDeviceId((prev) => prev || video[0]?.deviceId || "");
-      } catch {}
-    })();
+    refreshDevices();
   }, []);
 
   useEffect(() => {
@@ -639,9 +641,9 @@ export default function VoiceIntake() {
                   <div style={{ marginTop: 4, fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Pick your mic and camera before continuing.</div>
                 </div>
                 <button
-                  onClick={() => setDeviceStep(2)}
+                  onClick={() => refreshDevices()}
                   style={{ width: 36, height: 36, borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.06)", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-                  title="Continue"
+                  title="Refresh devices"
                 >
                   ↻
                 </button>
