@@ -307,6 +307,16 @@ export default function VoiceIntake() {
           session: { type: "realtime", instructions: sessionInstructions },
         }));
 
+        // Hard-inject as a system message so the model cannot ignore these rules
+        dc.send(JSON.stringify({
+          type: "conversation.item.create",
+          item: {
+            type: "message",
+            role: "system",
+            content: [{ type: "input_text", text: `[SYSTEM — ABSOLUTE RULES — follow at ALL times]\n${sessionInstructions}` }],
+          },
+        }));
+
         responseInProgressRef.current = true;
         dc.send(JSON.stringify({
           type: "response.create",
