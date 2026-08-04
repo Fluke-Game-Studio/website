@@ -412,7 +412,27 @@ export default function VoiceIntake() {
           const msg = JSON.parse(String(event.data || "{}"));
           const type = String(msg?.type || "");
 
-          if (type === "error") { setErr(String(msg?.error?.message || "Realtime error")); return; }
+          if (type === "error") {
+            // An error event can arrive INSTEAD OF response.done (e.g. a rejected pinned
+            // tool_choice during forced elaboration). Without resetting state here,
+            // responseInProgressRef stays stuck true forever and the transcription handler's
+            // guard silently drops every future candidate turn — the session looks "over"
+            // when it's actually just wedged. Recover exactly like the response.done watchdog.
+            setErr(String(msg?.error?.message || "Realtime error"));
+            const wasExpectingToolCall = expectingToolCallRef.current;
+            const kind = pendingKindRef.current;
+            responseInProgressRef.current = false;
+            expectingToolCallRef.current = false;
+            pendingKindRef.current = null;
+            if (wasExpectingToolCall) {
+              if (kind === "forced_elaborate") {
+                requestToolDecision({ kind: "decision_retry" });
+              } else {
+                performAdvance(false);
+              }
+            }
+            return;
+          }
           if (type === "response.created") responseInProgressRef.current = true;
           if (type === "response.cancelled") {
             responseInProgressRef.current = false;
