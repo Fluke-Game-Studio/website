@@ -30,12 +30,6 @@ Respond only in English, regardless of what language the candidate uses.`;
 
 const DEFAULT_PERSONA = "You are a warm, professional AI interviewer for Fluke Games, having a natural conversation — not reading a script robotically.";
 
-// Re-stated in every per-turn instruction that asks the model to freely generate text (rather
-// than recite a literal script) — session-opening instructions alone don't reliably hold this
-// rule many turns into a conversation, same class of drift the whole tool-calling redesign
-// exists to prevent for question order.
-const ENGLISH_REMINDER = "(Regardless of what language the candidate just used, write this in English only.)";
-
 const INTERVIEW_TOOLS = [
   {
     type: "function",
@@ -93,7 +87,7 @@ const SOFT_ELABORATE_THRESHOLD_MS = 30000;
 // Not a normal operating limit — the model is meant to decide when a topic ("epic") has been
 // covered well enough. This is purely a circuit breaker so a stuck/looping model can't trap a
 // candidate on one question forever.
-const SAFETY_MAX_FOLLOWUPS_PER_EPIC = 3;
+const SAFETY_MAX_FOLLOWUPS_PER_EPIC = 6;
 
 export default function VoiceIntake() {
   const [searchParams] = useSearchParams();
@@ -147,11 +141,6 @@ export default function VoiceIntake() {
   // most recent follow-up within it. Clarify/off-topic repeats must target THIS, not always the
   // top-level question, since the candidate may be mid-elaboration-chain when either fires.
   const currentAskedQuestionRef = useRef("");
-  // What kind of tool call is outstanding, so the watchdog can react correctly instead of
-  // always defaulting to "just advance" — that default is wrong when a FORCED follow-up
-  // (<10s case) silently fails, since blindly advancing corrupts qIdx/answer attribution
-  // mid-epic. null once a response is scripted (no tool call is ever expected then).
-  const pendingKindRef = useRef<"decision" | "forced_elaborate" | "decision_retry" | null>(null);
 
   // Keep answersRef in sync
   useEffect(() => { answersRef.current = answers; }, [answers]);
@@ -457,23 +446,11 @@ export default function VoiceIntake() {
             const fnCall = outputs.find((o) => o?.type === "function_call");
             if (fnCall) {
               expectingToolCallRef.current = false;
-              pendingKindRef.current = null;
               handleFunctionCall(fnCall);
             } else if (expectingToolCallRef.current) {
+              // Model ignored the required tool call — safety net so a skip is never silent.
               expectingToolCallRef.current = false;
-              const kind = pendingKindRef.current;
-              pendingKindRef.current = null;
-              if (kind === "forced_elaborate") {
-                // A forced ask_follow_up_question call didn't come through. Do NOT advance —
-                // qIdx must not move while the candidate is still mid-answer on this topic.
-                // Retry once as an open decision instead of a pinned single-function call.
-                requestToolDecision({ kind: "decision_retry" });
-              } else {
-                // An open decision (or its retry) came back empty — safety net so a skip is
-                // never silent. Advancing here is the correct fallback: the model already had
-                // the chance to choose ask_follow_up_question and didn't take it.
-                performAdvance(false);
-              }
+              performAdvance(false);
             }
           }
           if (type === "response.audio_transcript.delta" || type === "response.output_audio_transcript.delta") setAiSpeaking(true);
@@ -507,70 +484,46 @@ export default function VoiceIntake() {
             const roundsUsed = counterQuestionCountRef.current[currentIdx] || 0;
             const safetyReached = roundsUsed >= SAFETY_MAX_FOLLOWUPS_PER_EPIC;
             const followUpGuidance = ctx?.followUpInstructions?.trim();
-            const qs = allQuestionsRef.current;
-            const remaining = qs.length - currentIdx - 1;
-            // The model has no innate sense of how many topics are left, so left unchecked it
-            // will happily spend the whole interview drilling into one — this is the missing
-            // context that keeps its (deliberately uncapped) judgment well-informed.
-            const pacingNote = `You are covering topic ${currentIdx + 1} of ${qs.length}${remaining > 0 ? ` (${remaining} more after this one)` : " (the last one)"}. Keep the interview moving — don't over-invest in one topic at the expense of the others.`;
 
             if (!safetyReached && durationMs != null && durationMs < HARD_ELABORATE_THRESHOLD_MS) {
               // Under 10s: elaboration is forced, not offered.
-              requestForcedFollowUp(
-                `The candidate's answer was very brief (under 10 seconds). Based specifically on what they just said, call ask_follow_up_question with ONE natural, targeted follow-up asking them to elaborate.${followUpGuidance ? ` Follow these guidelines from the interviewer's configuration: ${followUpGuidance}` : ""} ${pacingNote} ${ENGLISH_REMINDER}`
-              );
+              expectingToolCallRef.current = true;
+              channel.send(JSON.stringify({
+                type: "response.create",
+                response: {
+                  instructions: `The candidate's answer was very brief (under 10 seconds). Based specifically on what they just said, call ask_follow_up_question with ONE natural, targeted follow-up asking them to elaborate.${followUpGuidance ? ` Follow these guidelines from the interviewer's configuration: ${followUpGuidance}` : ""}`,
+                  tool_choice: { type: "function", name: "ask_follow_up_question" },
+                },
+              }));
               return;
             }
 
+            expectingToolCallRef.current = true;
             const softNudge = !safetyReached && durationMs != null && durationMs < SOFT_ELABORATE_THRESHOLD_MS;
-            const decisionInstructions = [
-              softNudge ? `The candidate's answer was somewhat brief (under 30 seconds). Decide whether this topic has enough substance now, or whether one more targeted follow-up (ask_follow_up_question) would get meaningfully more useful information before moving on (advance_interview).` : "",
-              pacingNote,
-              followUpGuidance ? `Follow-up guidance from the interviewer's configuration: ${followUpGuidance}` : "",
-              ENGLISH_REMINDER,
-            ].filter(Boolean).join(" ");
-            requestToolDecision({ kind: "decision", instructions: decisionInstructions, restrictTools: safetyReached });
+            const nudgeInstructions = softNudge
+              ? `The candidate's answer was somewhat brief (under 30 seconds). Decide whether this topic has enough substance now, or whether one more targeted follow-up (ask_follow_up_question) would get meaningfully more useful information before moving on (advance_interview).${followUpGuidance ? ` Follow-up guidance from the interviewer's configuration: ${followUpGuidance}` : ""}`
+              : undefined;
+            // No embedded rules otherwise — tool_choice:"required" forces the model to choose
+            // among advance_interview / flag_off_topic / ask_follow_up_question on its own
+            // judgment; it cannot free-speak past a question. Once the safety cap is hit,
+            // ask_follow_up_question is structurally removed from the allowed tool set.
+            channel.send(JSON.stringify({
+              type: "response.create",
+              response: {
+                ...(nudgeInstructions ? { instructions: nudgeInstructions } : {}),
+                ...(safetyReached ? { tools: ADVANCE_AND_OFFTOPIC_TOOLS } : {}),
+                tool_choice: "required",
+              },
+            }));
           }
         } catch {}
       };
-
-      // No embedded per-turn rules beyond what's passed in `instructions` — tool_choice
-      // forces the model to choose among the allowed tools; it cannot free-speak past a
-      // question. `kind` lets the response.done watchdog react correctly if this call fails.
-      function requestToolDecision({ kind, instructions, restrictTools }: { kind: "decision" | "decision_retry"; instructions?: string; restrictTools?: boolean }) {
-        const channel = dcRef.current;
-        if (!channel) return;
-        responseInProgressRef.current = true;
-        expectingToolCallRef.current = true;
-        pendingKindRef.current = kind;
-        channel.send(JSON.stringify({
-          type: "response.create",
-          response: {
-            ...(instructions ? { instructions } : {}),
-            ...(restrictTools ? { tools: ADVANCE_AND_OFFTOPIC_TOOLS } : {}),
-            tool_choice: "required",
-          },
-        }));
-      }
-
-      function requestForcedFollowUp(instructions: string) {
-        const channel = dcRef.current;
-        if (!channel) return;
-        responseInProgressRef.current = true;
-        expectingToolCallRef.current = true;
-        pendingKindRef.current = "forced_elaborate";
-        channel.send(JSON.stringify({
-          type: "response.create",
-          response: { instructions, tool_choice: { type: "function", name: "ask_follow_up_question" } },
-        }));
-      }
 
       function sendScriptedResponse(text: string) {
         const channel = dcRef.current;
         if (!channel) return;
         responseInProgressRef.current = true;
         expectingToolCallRef.current = false;
-        pendingKindRef.current = null;
         speechStartedAtRef.current = null;
         channel.send(JSON.stringify({
           type: "response.create",
@@ -583,13 +536,12 @@ export default function VoiceIntake() {
         if (!channel) return;
         responseInProgressRef.current = true;
         expectingToolCallRef.current = false;
-        pendingKindRef.current = null;
         speechStartedAtRef.current = null;
         currentAskedQuestionRef.current = question;
         channel.send(JSON.stringify({
           type: "response.create",
           response: {
-            instructions: `Briefly and naturally acknowledge the candidate's last answer in your own words — one short sentence, warm and human, varied phrasing (don't reuse the same stock phrase every time). Do NOT comment on audio quality, interruptions, or completeness — that's already been decided; just acknowledge normally. Then ask this exact question, word-for-word with no changes: "${question}" ${ENGLISH_REMINDER}`,
+            instructions: `Briefly and naturally acknowledge the candidate's last answer in your own words — one short sentence, warm and human, varied phrasing (don't reuse the same stock phrase every time). Do NOT comment on audio quality, interruptions, or completeness — that's already been decided; just acknowledge normally. Then ask this exact question, word-for-word with no changes: "${question}"`,
             tool_choice: "none",
           },
         }));
