@@ -36,3 +36,36 @@ export async function submitPublicContact(payload: ContactPayload) {
   return data;
 }
 
+type SupportPayload = {
+  context?: string;
+  name: string;
+  email: string;
+  category?: string;
+  orderRef?: string;
+  message: string;
+  pageUrl?: string;
+  website?: string; // honeypot
+};
+
+export async function submitPublicSupport(payload: SupportPayload) {
+  const res = await fetch(`${API_BASE}/public/support`, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const raw = await res.text();
+  let data: any = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    data = { reply: raw };
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.error || data?.message || `Request failed (${res.status})`);
+  }
+
+  return data as { ok: boolean; ticketNumber: string; delivered: boolean; confirmationSent: boolean };
+}
+

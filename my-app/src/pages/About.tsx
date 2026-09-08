@@ -45,7 +45,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="font-bebas text-7xl md:text-9xl text-fluke-text uppercase tracking-tight"
+            className="font-bebas heading-hero text-fluke-text uppercase tracking-tight"
           >
             We Are <span className="gradient-text">Fluke</span>
           </motion.h1>

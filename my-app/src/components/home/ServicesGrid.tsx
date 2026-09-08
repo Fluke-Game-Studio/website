@@ -26,7 +26,7 @@ export default function ServicesGrid() {
           <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
             What We Do
           </p>
-          <h2 className="font-bebas text-5xl sm:text-7xl text-fluke-text yellow-line">
+          <h2 className="font-bebas heading-section text-fluke-text yellow-line">
             Our Services
           </h2>
 

@@ -25,7 +25,7 @@ export default function ServicesPage() {
           <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
             What We Offer
           </p>
-          <h1 className="font-bebas text-6xl sm:text-8xl text-fluke-text mb-4">
+          <h1 className="font-bebas heading-page text-fluke-text mb-4">
             Our Services
           </h1>
           <p className="font-sora text-fluke-muted max-w-xl mx-auto">

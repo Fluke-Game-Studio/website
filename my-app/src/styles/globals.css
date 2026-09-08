@@ -464,3 +464,48 @@ ol li::marker {
   font-size: 1.2rem;
   color: var(--fluke-yellow);
 }
+
+/* ─── Fluid display-heading tiers (clamp-based, replaces bare text-6xl..9xl breakpoint jumps) ───
+   Scales smoothly across viewport width instead of jumping at sm/md, so very narrow screens
+   (e.g. ~344px foldable cover screens) get a proportionally smaller heading instead of the
+   "mobile" base size, which was itself tuned for ~375-430px phones. */
+.heading-hero    { font-size: clamp(2.75rem, 6vw + 1rem, 8rem); }
+.heading-page    { font-size: clamp(2.25rem, 5vw + 1rem, 6rem); }
+.heading-section { font-size: clamp(2rem, 4vw + 1rem, 4.5rem); }
+
+.heading-hero, .heading-page, .heading-section {
+  overflow-wrap: anywhere; /* protects dynamic titles (product names, chapter titles) from clipping under overflow-x:hidden */
+}
+
+/* ─── VoiceIntake in-call responsive fixes ───
+   The call UI is inline-style driven; these classes carry only the fixed layout dimensions
+   that need to change on narrow screens (state-driven colors/shadows stay inline). */
+.vi-call-row {
+  display: flex;
+  gap: 16px;
+  padding: 20px 20px 0;
+}
+.vi-ai-tile {
+  max-width: 640px;
+}
+.vi-user-tile {
+  width: 160px;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+@media (max-width: 480px) {
+  .vi-call-row {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 12px 0;
+  }
+  .vi-ai-tile {
+    max-width: 100%;
+    width: 100%;
+  }
+  .vi-user-tile {
+    width: 110px;
+    flex-shrink: 0;
+    align-self: center;
+  }
+}

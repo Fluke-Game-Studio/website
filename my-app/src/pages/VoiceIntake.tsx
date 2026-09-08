@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { resolveApiBase } from "../services/apiBase";
+import CommitmentPreviewModal, {
+  COMMITMENT_STEPS,
+  COMMITMENT_QUESTIONS_PROMPT,
+  COMMITMENT_QUESTIONS_FOLLOWUP_PROMPT,
+} from "../components/CommitmentPreviewModal";
 
 const API_BASE = resolveApiBase();
+
+// Same content the modal displays, flattened for use as LLM grounding when the candidate asks
+// about it out loud (the typed-chat path is grounded server-side with an identical summary).
+const COMMITMENT_INFO_TEXT = COMMITMENT_STEPS.map((s) => `${s.title}: ${s.details.join(" ")}`).join("\n");
 
 type IntakeContext = {
   key: string;
@@ -14,6 +23,10 @@ type IntakeContext = {
   backgroundInfo?: string;
   customInstructions?: string;
   followUpInstructions?: string;
+  preSessionEnabled?: boolean;
+  preSessionNote?: string;
+  postSessionQAEnabled?: boolean;
+  commitmentModalEnabled?: boolean;
 };
 
 // Two clearly separate layers:
@@ -83,6 +96,40 @@ const INTERVIEW_TOOLS = [
 // model is structurally unable to keep drilling, regardless of what it "wants."
 const ADVANCE_AND_OFFTOPIC_TOOLS = INTERVIEW_TOOLS.filter((t) => t.name !== "ask_follow_up_question");
 
+// Post-session open Q&A: only reachable after all fixed questions are done, and only when the
+// context has postSessionQAEnabled. Separate tool set from INTERVIEW_TOOLS — never offered
+// during the main epic phase, only via an explicit per-response override once open Q&A starts.
+const ANSWER_CANDIDATE_QUESTION_TOOL = {
+  type: "function",
+  name: "answer_candidate_question",
+  description:
+    "Call this if the candidate asked a real question. Answer it using ONLY the company information you were given in this turn's instructions — if it doesn't cover what they asked, say a team member will follow up with details. Never invent facts.",
+  parameters: {
+    type: "object",
+    properties: {
+      answer: {
+        type: "string",
+        description: "Your answer, natural and conversational, grounded strictly in the provided company information.",
+      },
+    },
+    required: ["answer"],
+  },
+};
+const CONCLUDE_QA_TOOL = {
+  type: "function",
+  name: "conclude_qa",
+  description:
+    "Call this if the candidate said they have no questions, declined, or gave any closing/negative response (e.g. \"no\", \"I'm good\", \"that's all\"). A short negative answer here is complete by itself — do not ask them to elaborate.",
+  parameters: { type: "object", properties: {}, required: [] },
+};
+const OPEN_QA_TOOLS = [ANSWER_CANDIDATE_QUESTION_TOOL, CONCLUDE_QA_TOOL];
+const OPEN_QA_PROMPT = "Before we wrap up — do you have any questions for me?";
+const OPEN_QA_FOLLOWUP_PROMPT = "Do you have any other questions for me?";
+// Circuit breaker only, same philosophy as SAFETY_MAX_FOLLOWUPS_PER_EPIC — open Q&A is meant to
+// run as long as the candidate has real questions, this just prevents it running forever.
+const MAX_QA_ROUNDS = 5;
+const MAX_COMMITMENT_QA_ROUNDS = 3;
+
 const OFF_TOPIC_REDIRECT = "Let's keep focused on the interview.";
 const CLARIFY_PROMPT = "It seems your response may have been incomplete — could you say a bit more about that?";
 // Under 10s: elaboration is forced. Under 30s: elaboration is nudged but the model still
@@ -124,6 +171,20 @@ export default function VoiceIntake() {
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const micRef = useRef<MediaStream | null>(null);
+  // Refs (not the React state) because these are read from inside WebRTC event-handler
+  // closures created once per connect() call, which would otherwise see stale state.
+  const micMutedRef = useRef(false);
+  // True while the AI is expected to be speaking. The mic track is physically disabled during
+  // this window — not just filtered after the fact — so acoustic echo/background noise can
+  // never reach server-side VAD and get misheard as the candidate's answer. This flow is
+  // strictly turn-based (no barge-in), so there's no downside to actually cutting the mic.
+  const micBlockedForAiRef = useRef(false);
+  // The RTCRtpSender for the mic track — used to physically stop transmitting it
+  // (replaceTrack(null)) while blocked, not just mark it enabled=false. Belt-and-suspenders:
+  // enabled=false SHOULD make WebRTC send silence instead of real audio, but if anything is
+  // still leaking through server-side VAD, replaceTrack(null) sends nothing over the wire at
+  // all, which is airtight.
+  const micSenderRef = useRef<RTCRtpSender | null>(null);
   const audioElRef = useRef<HTMLAudioElement | null>(null);
   const greetedRef = useRef(false);
   const connectSeqRef = useRef(0);
@@ -134,6 +195,14 @@ export default function VoiceIntake() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number>(0);
+  // Mirrors the mic-input analyser, but on the AI's OUTGOING audio track — used to detect when
+  // the AI has actually finished speaking (real silence), instead of guessing a fixed delay or
+  // trusting response.done (which marks generation complete, not playback complete — these can
+  // diverge in either direction depending on how fast audio is generated vs. played back).
+  const aiAudioCtxRef = useRef<AudioContext | null>(null);
+  const aiAnalyserRef = useRef<AnalyserNode | null>(null);
+  const aiAudioLevelRef = useRef(0);
+  const aiAudioMonitorFrameRef = useRef<number>(0);
   const previewRef = useRef<HTMLVideoElement | null>(null);
   const previewStreamRef = useRef<MediaStream | null>(null);
   const lobbyCardRef = useRef<HTMLDivElement | null>(null);
@@ -152,6 +221,38 @@ export default function VoiceIntake() {
   // (<10s case) silently fails, since blindly advancing corrupts qIdx/answer attribution
   // mid-epic. null once a response is scripted (no tool call is ever expected then).
   const pendingKindRef = useRef<"decision" | "forced_elaborate" | "decision_retry" | null>(null);
+  const inOpenQaRef = useRef(false);
+  const qaRoundsRef = useRef(0);
+  const qaGroundingTextRef = useRef("");
+  const commitmentQaRoundsRef = useRef(0);
+  // Which Q&A loop a pending answer_candidate_question/conclude_qa call actually belongs to —
+  // NOT the same as inCommitmentIntroRef/inOpenQaRef, because those can already have moved on
+  // (e.g. Continue clicked) by the time a response that was in flight finishes generating. Any
+  // function call whose qaContextRef doesn't match a still-active phase is a stale echo from an
+  // abandoned round and must be ignored, not routed into whatever the OTHER phase happens to be.
+  const qaContextRef = useRef<"commitment" | "open" | null>(null);
+  // "narrating" while auto-advancing through commitment steps; "awaiting_question" once all
+  // steps are narrated and we're waiting on the candidate's spoken (or typed) reply; null when
+  // not in this phase at all.
+  const inCommitmentIntroRef = useRef<"narrating" | "awaiting_question" | null>(null);
+  // Generic "run this once the current scripted response finishes, with no candidate input
+  // needed" hook — used to auto-advance narration steps without waiting for a mic turn. Actually
+  // fired only once waitForAiSilenceThenRun confirms real silence — see there for why a fixed
+  // delay estimate doesn't work.
+  const postScriptedActionRef = useRef<(() => void) | null>(null);
+  const [commitmentUiStep, setCommitmentUiStep] = useState(-1);
+  // True from the moment a candidate question is dispatched for processing until the AI's
+  // answer has genuinely finished being spoken. Continue is disabled the whole time — the only
+  // way it should ever look like "clicking Continue answered the question" is if it wasn't
+  // disabled while a question was in flight, which is exactly the bug being fixed here.
+  const [commitmentBusy, setCommitmentBusy] = useState(false);
+  // Bridges the "Continue" button (rendered at component level, outside connect()'s closure)
+  // to the actual skip-past-commitment logic, which needs functions only defined inside that
+  // closure. Reassigned each connect() call; a no-op otherwise so a stray click can't error.
+  const continueFromCommitmentRef = useRef<() => void>(() => {});
+  // Set right before a response.cancel that might legitimately have nothing to cancel — see
+  // the error handler.
+  const suppressNextErrorRef = useRef(false);
 
   // Keep answersRef in sync
   useEffect(() => { answersRef.current = answers; }, [answers]);
@@ -198,6 +299,7 @@ export default function VoiceIntake() {
           return;
         }
         setCtx(data.context as IntakeContext);
+        qaGroundingTextRef.current = String(data?.qaGroundingText || "");
         if (Array.isArray(data.jobRoleQuestions) && data.jobRoleQuestions.length > 0) {
           setJobRoleQuestions(data.jobRoleQuestions as string[]);
         }
@@ -314,6 +416,66 @@ export default function VoiceIntake() {
     setUserSpeaking(false);
   }
 
+  function startAiAudioMonitor(stream: MediaStream) {
+    try {
+      const actx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = actx.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.6;
+      actx.createMediaStreamSource(stream).connect(analyser);
+      aiAudioCtxRef.current = actx;
+      aiAnalyserRef.current = analyser;
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      function tick() {
+        if (!aiAnalyserRef.current) return;
+        aiAnalyserRef.current.getByteFrequencyData(data);
+        aiAudioLevelRef.current = data.reduce((a, b) => a + b, 0) / data.length;
+        aiAudioMonitorFrameRef.current = requestAnimationFrame(tick);
+      }
+      tick();
+    } catch {}
+  }
+
+  function stopAiAudioMonitor() {
+    cancelAnimationFrame(aiAudioMonitorFrameRef.current);
+    try { aiAudioCtxRef.current?.close(); } catch {}
+    aiAudioCtxRef.current = null;
+    aiAnalyserRef.current = null;
+    aiAudioLevelRef.current = 0;
+  }
+
+  const AI_SILENCE_LEVEL_THRESHOLD = 8;
+  // Long enough to not mistake a natural inter-sentence pause (a period + breath in a multi-
+  // sentence narration can easily run 400-700ms) for the turn actually being over — that was
+  // cutting narration off mid-way through and jumping to the next step early.
+  const AI_SILENCE_HOLD_MS = 900;
+  // Grace period before we start looking for silence at all — otherwise a brief gap before
+  // audio actually starts streaming in could read as "already silent" and fire prematurely.
+  const AI_SILENCE_MIN_WAIT_MS = 800;
+  // Safety cap in case the analyser never reads a clean silence (e.g. background noise on the
+  // output device) — never block the interview forever waiting for a signal that might not come.
+  const AI_SILENCE_MAX_WAIT_MS = 25000;
+
+  function waitForAiSilenceThenRun(run: () => void) {
+    const startedAt = Date.now();
+    let quietSince: number | null = null;
+    function poll() {
+      const now = Date.now();
+      const elapsed = now - startedAt;
+      if (elapsed >= AI_SILENCE_MIN_WAIT_MS) {
+        if (aiAudioLevelRef.current < AI_SILENCE_LEVEL_THRESHOLD) {
+          if (quietSince == null) quietSince = now;
+          if (now - quietSince >= AI_SILENCE_HOLD_MS) { run(); return; }
+        } else {
+          quietSince = null;
+        }
+      }
+      if (elapsed > AI_SILENCE_MAX_WAIT_MS) { run(); return; }
+      requestAnimationFrame(poll);
+    }
+    requestAnimationFrame(poll);
+  }
+
   async function connect(audioDeviceId?: string) {
     if (!ctx) return;
     const seq = ++connectSeqRef.current;
@@ -352,6 +514,7 @@ export default function VoiceIntake() {
         const stream = event.streams?.[0] || new MediaStream([event.track]);
         audioEl.srcObject = stream;
         audioEl.play().catch(() => setErr("Audio blocked by browser. Click anywhere then reconnect."));
+        startAiAudioMonitor(stream);
       };
 
       pc.onconnectionstatechange = () => {
@@ -364,7 +527,17 @@ export default function VoiceIntake() {
       });
       if (seq !== connectSeqRef.current) { ms.getTracks().forEach((t) => t.stop()); pc.close(); return; }
       micRef.current = ms;
-      ms.getTracks().forEach((t) => { if (pc.signalingState !== "closed") pc.addTrack(t, ms); });
+      micMutedRef.current = false;
+      // Start blocked — the greeting fires immediately once the data channel opens, before
+      // there's ever a genuine moment to listen.
+      micBlockedForAiRef.current = true;
+      ms.getTracks().forEach((t) => {
+        if (pc.signalingState !== "closed") {
+          const sender = pc.addTrack(t, ms);
+          if (t.kind === "audio") micSenderRef.current = sender;
+        }
+      });
+      applyMicEnabledState();
       startMicAnalysis(ms);
 
       const dc = pc.createDataChannel("oai-events");
@@ -378,6 +551,14 @@ export default function VoiceIntake() {
         counterQuestionCountRef.current = {};
         speechStartedAtRef.current = null;
         lastAnswerDurationMsRef.current = null;
+        inOpenQaRef.current = false;
+        qaRoundsRef.current = 0;
+        commitmentQaRoundsRef.current = 0;
+        qaContextRef.current = null;
+        inCommitmentIntroRef.current = null;
+        postScriptedActionRef.current = null;
+        setCommitmentUiStep(-1);
+        setCommitmentBusy(false);
         const qs = allQuestionsRef.current;
         currentAskedQuestionRef.current = qs[0] || "";
 
@@ -405,14 +586,40 @@ export default function VoiceIntake() {
         // Clear any mic audio buffered during connection to prevent VAD from cancelling the greeting
         dc.send(JSON.stringify({ type: "input_audio_buffer.clear" }));
 
-        // First turn has no "advance" decision to make — override to tool_choice:"none" and
-        // hand the model the literal Q1 text to speak.
+        // Every distinct thing the AI says opens as its OWN turn, chained via
+        // postScriptedActionRef — never combined into one response. Combining them (e.g.
+        // greeting + overview + step-1 narration in a single turn) was the actual bug behind
+        // the commitment modal appearing to "jump ahead": the UI can only correctly reflect
+        // what's currently being said if each thing being said is its own turn boundary.
+        const overviewText = ctx?.preSessionEnabled
+          ? (ctx?.preSessionNote?.trim() ||
+              `This will be a short interview with ${qs.length} question${qs.length === 1 ? "" : "s"} about ${ctx?.label || "a few topics"}, and it should take about ${Math.max(3, qs.length * 2)} minutes.`)
+          : "";
+        const commitmentEnabled = Boolean(ctx?.commitmentModalEnabled);
+
+        function startCommitmentOrQ1() {
+          if (commitmentEnabled) {
+            inCommitmentIntroRef.current = "narrating";
+            narrateCommitmentStep(0);
+          } else {
+            currentAskedQuestionRef.current = qs[0] || "";
+            sendScriptedResponse(qs[0] || closingTextRef.current);
+          }
+        }
+
+        postScriptedActionRef.current = overviewText
+          ? () => {
+              postScriptedActionRef.current = startCommitmentOrQ1;
+              sendNaturalResponse(overviewText);
+            }
+          : startCommitmentOrQ1;
+
         responseInProgressRef.current = true;
         expectingToolCallRef.current = false;
         dc.send(JSON.stringify({
           type: "response.create",
           response: {
-            instructions: `Begin the session now. Greet the candidate warmly, introduce yourself as the Fluke Games AI interviewer, do NOT say your model name or mention ChatGPT, then say exactly and only: "${qs[0]}"`,
+            instructions: `Begin the session now. Greet the candidate warmly, introduce yourself as the Fluke Games AI interviewer, do NOT say your model name or mention ChatGPT. Say only a brief greeting — nothing else yet. ${ENGLISH_REMINDER}`,
             tool_choice: "none",
           },
         }));
@@ -424,6 +631,14 @@ export default function VoiceIntake() {
           const type = String(msg?.type || "");
 
           if (type === "error") {
+            if (suppressNextErrorRef.current) {
+              // We deliberately sent a response.cancel that might legitimately find nothing to
+              // cancel (e.g. Continue clicked right as the response was already wrapping up) —
+              // the server confirming "no active response" is a harmless race, not a real
+              // failure, and shouldn't surface as a scary red banner or trigger recovery.
+              suppressNextErrorRef.current = false;
+              return;
+            }
             // An error event can arrive INSTEAD OF response.done (e.g. a rejected pinned
             // tool_choice during forced elaboration). Without resetting state here,
             // responseInProgressRef stays stuck true forever and the transcription handler's
@@ -438,8 +653,27 @@ export default function VoiceIntake() {
             if (wasExpectingToolCall) {
               if (kind === "forced_elaborate") {
                 requestToolDecision({ kind: "decision_retry" });
+              } else if (inCommitmentIntroRef.current === "awaiting_question") {
+                proceedToQ1AfterCommitment();
               } else {
                 performAdvance(false);
+              }
+            } else if (postScriptedActionRef.current) {
+              // A scripted narration turn errored out instead of completing — nothing was
+              // actually spoken, so no silence wait is needed; just skip ahead immediately
+              // rather than getting stuck silent forever.
+              const run = postScriptedActionRef.current;
+              postScriptedActionRef.current = null;
+              run();
+            } else {
+              // A plain spoken turn with nothing chained after it (e.g. answering a commitment
+              // question) errored out instead of completing normally. Nothing else was going to
+              // reset state here — this is exactly what left the mic blocked and Continue stuck
+              // on "Waiting for answer…" forever. Recover the same way a normal completion would.
+              micBlockedForAiRef.current = false;
+              applyMicEnabledState();
+              if (inCommitmentIntroRef.current === "awaiting_question") {
+                setCommitmentBusy(false);
               }
             }
             return;
@@ -449,10 +683,49 @@ export default function VoiceIntake() {
             responseInProgressRef.current = false;
             greetedRef.current = true;
             expectingToolCallRef.current = false;
+            micBlockedForAiRef.current = false;
+            applyMicEnabledState();
           }
           if (type === "response.done") {
+            // Capture BEFORE anything below mutates it: false means the turn that just finished
+            // was a spoken one (tool_choice:"none" — sendScriptedResponse/sendNaturalResponse/
+            // sendAckThenQuestion all set this false), true means it was a silent tool-decision
+            // turn with no audio at all.
+            const wasSpokenTurn = !expectingToolCallRef.current;
             responseInProgressRef.current = false;
             greetedRef.current = true;
+            if (postScriptedActionRef.current && !expectingToolCallRef.current) {
+              // A scripted, no-candidate-input-needed turn just finished generating (e.g.
+              // narrating a commitment step) — response.done means generation is complete, not
+              // that playback is complete, and the gap between those two can go either way
+              // depending on how fast this turn's audio was generated vs. real-time. Wait for
+              // the audio to actually go quiet before running the next step.
+              const run = postScriptedActionRef.current;
+              postScriptedActionRef.current = null;
+              waitForAiSilenceThenRun(run);
+              return;
+            }
+            // No more chained scripted turns — genuinely waiting on the candidate next (or about
+            // to send a silent tool-decision request). If the AI was just actually speaking
+            // (e.g. "do you have any questions?"), re-enabling the mic on response.done alone is
+            // too early — audio may still be playing, and the start of the candidate's real
+            // answer gets cut off/overlapped with the tail of the AI's own prompt. Wait for real
+            // silence first. Silent tool-decision turns never produced audio, so there's nothing
+            // to wait for — unblock immediately.
+            if (wasSpokenTurn) {
+              waitForAiSilenceThenRun(() => {
+                micBlockedForAiRef.current = false;
+                applyMicEnabledState();
+                // Whatever was just spoken (the initial prompt, or an answer) has genuinely
+                // finished — Continue is safe to use again now, not before.
+                if (inCommitmentIntroRef.current === "awaiting_question") {
+                  setCommitmentBusy(false);
+                }
+              });
+            } else {
+              micBlockedForAiRef.current = false;
+              applyMicEnabledState();
+            }
             const outputs: any[] = Array.isArray(msg?.response?.output) ? msg.response.output : [];
             const fnCall = outputs.find((o) => o?.type === "function_call");
             if (fnCall) {
@@ -468,6 +741,10 @@ export default function VoiceIntake() {
                 // qIdx must not move while the candidate is still mid-answer on this topic.
                 // Retry once as an open decision instead of a pinned single-function call.
                 requestToolDecision({ kind: "decision_retry" });
+              } else if (inCommitmentIntroRef.current === "awaiting_question") {
+                // A commitment-QA decision came back empty — qIdx hasn't moved yet (Q1 hasn't
+                // started), so performAdvance would misfire here. Just proceed to Q1 directly.
+                proceedToQ1AfterCommitment();
               } else {
                 // An open decision (or its retry) came back empty — safety net so a skip is
                 // never silent. Advancing here is the correct fallback: the model already had
@@ -491,6 +768,42 @@ export default function VoiceIntake() {
           if (type === "conversation.item.input_audio_transcription.completed") {
             const text = String(msg?.transcript || "").trim();
             if (!text || responseInProgressRef.current) return;
+
+            if (inCommitmentIntroRef.current === "awaiting_question") {
+              // Same principle as open Q&A: no duration/elaboration logic — a short "no" ends
+              // this phase immediately and moves straight to Q1.
+              const channel = dcRef.current;
+              if (!channel) return;
+              // NOT setting responseInProgressRef here — requestCommitmentQaDecision() sets it
+              // itself right after its own overlap guard passes. Pre-setting it here made that
+              // guard see "already in progress" on every call and silently no-op, which is
+              // exactly what left this stuck on "Waiting for answer…" forever.
+              setCommitmentBusy(true);
+              // Circuit breaker: whatever the exact failure mode, Continue must never be able
+              // to get stuck disabled forever. Harmless no-op if the answer already resolved
+              // normally by the time this fires.
+              window.setTimeout(() => setCommitmentBusy(false), 20000);
+              requestCommitmentQaDecision();
+              return;
+            }
+
+            if (inOpenQaRef.current) {
+              // Open Q&A: deliberately NO duration/elaboration logic here — a brief "no" is a
+              // complete, valid answer by definition, unlike a fixed interview question. This
+              // is the actual fix for "AI keeps asking to clarify 'no I don't have questions'".
+              setAnswers((prev) => {
+                const next = { ...prev, qa: (prev.qa ? `${prev.qa} | ` : "") + text };
+                answersRef.current = next;
+                return next;
+              });
+              const channel = dcRef.current;
+              if (!channel) return;
+              // requestOpenQaDecision() sets responseInProgressRef itself — see the comment on
+              // the commitment-QA branch above for why pre-setting it here is actively harmful.
+              requestOpenQaDecision();
+              return;
+            }
+
             const currentIdx = qIdxRef.current;
             const key = `q${currentIdx + 1}`;
             setAnswers((prev) => {
@@ -501,7 +814,10 @@ export default function VoiceIntake() {
 
             const channel = dcRef.current;
             if (!channel) return;
-            responseInProgressRef.current = true;
+            // Not pre-setting responseInProgressRef here — requestForcedFollowUp/
+            // requestToolDecision (called below) each set it themselves right after their own
+            // overlap guard passes. Pre-setting it here made every call silently no-op, which
+            // meant no candidate answer in the main interview was ever actually processed.
 
             const durationMs = lastAnswerDurationMsRef.current;
             const roundsUsed = counterQuestionCountRef.current[currentIdx] || 0;
@@ -539,7 +855,11 @@ export default function VoiceIntake() {
       // question. `kind` lets the response.done watchdog react correctly if this call fails.
       function requestToolDecision({ kind, instructions, restrictTools }: { kind: "decision" | "decision_retry"; instructions?: string; restrictTools?: boolean }) {
         const channel = dcRef.current;
-        if (!channel) return;
+        // Hard guard: never send response.create while one is already active. A race here
+        // (e.g. a duplicate VAD/transcription event) is exactly what caused the Realtime API's
+        // "conversation already has an active response in progress" error and the qIdx/UI
+        // desync that followed it — the in-flight response's own chain already handles this.
+        if (!channel || responseInProgressRef.current) return;
         responseInProgressRef.current = true;
         expectingToolCallRef.current = true;
         pendingKindRef.current = kind;
@@ -555,7 +875,7 @@ export default function VoiceIntake() {
 
       function requestForcedFollowUp(instructions: string) {
         const channel = dcRef.current;
-        if (!channel) return;
+        if (!channel || responseInProgressRef.current) return;
         responseInProgressRef.current = true;
         expectingToolCallRef.current = true;
         pendingKindRef.current = "forced_elaborate";
@@ -567,32 +887,131 @@ export default function VoiceIntake() {
 
       function sendScriptedResponse(text: string) {
         const channel = dcRef.current;
-        if (!channel) return;
+        if (!channel || responseInProgressRef.current) return;
         responseInProgressRef.current = true;
         expectingToolCallRef.current = false;
         pendingKindRef.current = null;
         speechStartedAtRef.current = null;
+        micBlockedForAiRef.current = true;
+        applyMicEnabledState();
         channel.send(JSON.stringify({
           type: "response.create",
           response: { instructions: `Say exactly and only: "${text}"`, tool_choice: "none" },
         }));
       }
 
-      function sendAckThenQuestion(question: string) {
+      // For content that should be paraphrased, not recited verbatim (e.g. commitment step
+      // narration). Never nest this instruction inside sendScriptedResponse's "say exactly and
+      // only" wrapper — the two are contradictory and the model's fallback when confused was to
+      // ignore the script entirely and improvise an interview question instead.
+      function sendNaturalResponse(text: string) {
         const channel = dcRef.current;
-        if (!channel) return;
+        if (!channel || responseInProgressRef.current) return;
         responseInProgressRef.current = true;
         expectingToolCallRef.current = false;
         pendingKindRef.current = null;
         speechStartedAtRef.current = null;
+        micBlockedForAiRef.current = true;
+        applyMicEnabledState();
+        channel.send(JSON.stringify({
+          type: "response.create",
+          response: {
+            instructions: `Say the following, adapted naturally in your own words but keeping the same meaning — do not recite it verbatim, do not add anything else: "${text}" ${ENGLISH_REMINDER}`,
+            tool_choice: "none",
+          },
+        }));
+      }
+
+      function sendAckThenQuestion(question: string) {
+        const channel = dcRef.current;
+        if (!channel || responseInProgressRef.current) return;
+        responseInProgressRef.current = true;
+        expectingToolCallRef.current = false;
+        pendingKindRef.current = null;
+        speechStartedAtRef.current = null;
+        micBlockedForAiRef.current = true;
+        applyMicEnabledState();
         currentAskedQuestionRef.current = question;
         channel.send(JSON.stringify({
           type: "response.create",
           response: {
-            instructions: `Briefly and naturally acknowledge the candidate's last answer in your own words — one short sentence, warm and human, varied phrasing (don't reuse the same stock phrase every time). Do NOT comment on audio quality, interruptions, or completeness — that's already been decided; just acknowledge normally. Then ask this exact question, word-for-word with no changes: "${question}" ${ENGLISH_REMINDER}`,
+            instructions: `Briefly and naturally react to what the candidate just said, in one short sentence — reference something specific from their answer, don't just fill space. NEVER use generic filler acknowledgments like "Got it," "Understood," "Noted," "Great," "Awesome," or any close variant — those sound like a canned prompt response, not a person listening. Do NOT comment on audio quality, interruptions, or completeness — that's already been decided; just react normally. Then ask this exact question, word-for-word with no changes: "${question}" ${ENGLISH_REMINDER}`,
             tool_choice: "none",
           },
         }));
+      }
+
+      function requestOpenQaDecision() {
+        const channel = dcRef.current;
+        if (!channel || responseInProgressRef.current) return;
+        responseInProgressRef.current = true;
+        expectingToolCallRef.current = true;
+        pendingKindRef.current = "decision";
+        qaContextRef.current = "open";
+        qaRoundsRef.current += 1;
+        const safetyReached = qaRoundsRef.current > MAX_QA_ROUNDS;
+        const grounding = qaGroundingTextRef.current;
+        channel.send(JSON.stringify({
+          type: "response.create",
+          response: {
+            instructions: safetyReached
+              ? `The candidate has asked several questions already — it's time to wrap up. Call conclude_qa now regardless of what they just said.`
+              : `The candidate just responded to being asked if they have any questions for you. If they asked a real question, call answer_candidate_question and answer it using ONLY this company information — never invent facts beyond it: ${grounding || "(No additional company information is available. If you can't answer from general public knowledge of Fluke Games, say politely that a team member will follow up with details.)"} If they said no, declined, or gave any closing/negative response, call conclude_qa. ${ENGLISH_REMINDER}`,
+            tools: safetyReached ? [CONCLUDE_QA_TOOL] : OPEN_QA_TOOLS,
+            tool_choice: "required",
+          },
+        }));
+      }
+
+      function narrateCommitmentStep(idx: number) {
+        setCommitmentUiStep(idx);
+        const isLast = idx === COMMITMENT_STEPS.length - 1;
+        const narration = COMMITMENT_STEPS[idx].narration;
+        postScriptedActionRef.current = isLast ? askCommitmentQuestions : () => narrateCommitmentStep(idx + 1);
+        sendNaturalResponse(narration);
+      }
+
+      function askCommitmentQuestions() {
+        inCommitmentIntroRef.current = "awaiting_question";
+        setCommitmentUiStep(COMMITMENT_STEPS.length);
+        currentAskedQuestionRef.current = COMMITMENT_QUESTIONS_PROMPT;
+        sendScriptedResponse(COMMITMENT_QUESTIONS_PROMPT);
+      }
+
+      function requestCommitmentQaDecision() {
+        const channel = dcRef.current;
+        if (!channel || responseInProgressRef.current) return;
+        responseInProgressRef.current = true;
+        expectingToolCallRef.current = true;
+        pendingKindRef.current = "decision";
+        qaContextRef.current = "commitment";
+        commitmentQaRoundsRef.current += 1;
+        // This never had a cap before — the model could keep calling answer_candidate_question
+        // forever with no forced exit, which is exactly what left the interview stuck unable to
+        // reach the real questions.
+        const safetyReached = commitmentQaRoundsRef.current > MAX_COMMITMENT_QA_ROUNDS;
+        channel.send(JSON.stringify({
+          type: "response.create",
+          response: {
+            instructions: safetyReached
+              ? `The candidate has asked several questions about the commitment model already — it's time to move on to the actual interview. Call conclude_qa now regardless of what they just said.`
+              : `The candidate just responded to being asked if they have questions about the commitment/vesting model just explained. If they asked a real question, call answer_candidate_question and answer it using ONLY this information — never invent facts beyond it: ${COMMITMENT_INFO_TEXT} If they said no, declined, or gave any closing/negative response, call conclude_qa. ${ENGLISH_REMINDER}`,
+            tools: safetyReached ? [CONCLUDE_QA_TOOL] : OPEN_QA_TOOLS,
+            tool_choice: "required",
+          },
+        }));
+      }
+
+      function proceedToQ1AfterCommitment() {
+        inCommitmentIntroRef.current = null;
+        qaContextRef.current = null;
+        setCommitmentUiStep(-1);
+        setCommitmentBusy(false);
+        const qs = allQuestionsRef.current;
+        qIdxRef.current = 0;
+        setQIdx(0);
+        currentAskedQuestionRef.current = qs[0] || "";
+        sendScriptedResponse(qs[0] || closingTextRef.current);
       }
 
       function performAdvance(seemsIncomplete: boolean) {
@@ -611,6 +1030,15 @@ export default function VoiceIntake() {
           qIdxRef.current = nextIdx;
           setQIdx(nextIdx);
           sendAckThenQuestion(qs[nextIdx]);
+        } else if (ctx?.postSessionQAEnabled && !inOpenQaRef.current) {
+          // All fixed questions done — enter open Q&A instead of the rigid "any questions for
+          // me?" list item, which is what caused the elaboration/clarify loop on short "no"s.
+          inOpenQaRef.current = true;
+          qaRoundsRef.current = 0;
+          qIdxRef.current = qs.length;
+          setQIdx(qs.length);
+          currentAskedQuestionRef.current = OPEN_QA_PROMPT;
+          sendScriptedResponse(OPEN_QA_PROMPT);
         } else {
           qIdxRef.current = qs.length;
           setQIdx(qs.length);
@@ -647,8 +1075,53 @@ export default function VoiceIntake() {
           return;
         }
 
+        if (name === "answer_candidate_question") {
+          const answer = String(args?.answer || "").trim() || "I'm not certain about that, but a team member will follow up with you on it.";
+          const context = qaContextRef.current;
+          if (context === "commitment" && inCommitmentIntroRef.current === "awaiting_question") {
+            currentAskedQuestionRef.current = COMMITMENT_QUESTIONS_FOLLOWUP_PROMPT;
+            sendScriptedResponse(`${answer} ${COMMITMENT_QUESTIONS_FOLLOWUP_PROMPT}`);
+          } else if (context === "open" && inOpenQaRef.current) {
+            currentAskedQuestionRef.current = OPEN_QA_FOLLOWUP_PROMPT;
+            sendScriptedResponse(`${answer} ${OPEN_QA_FOLLOWUP_PROMPT}`);
+          }
+          // else: stale — this response finished generating after we already left that phase
+          // (e.g. Continue was clicked). Speaking it now would talk over whatever comes next,
+          // so it's dropped entirely rather than guessed into the wrong flow.
+          return;
+        }
+
+        if (name === "conclude_qa") {
+          const context = qaContextRef.current;
+          qaContextRef.current = null;
+          if (context === "commitment" && inCommitmentIntroRef.current === "awaiting_question") {
+            proceedToQ1AfterCommitment();
+          } else if (context === "open" && inOpenQaRef.current) {
+            inOpenQaRef.current = false;
+            sendScriptedResponse(closingTextRef.current);
+          }
+          // else: stale, same reasoning as above — ignore rather than misroute.
+          return;
+        }
+
         performAdvance(!!args?.candidate_answer_seems_incomplete);
       }
+
+      // "Continue" button in the commitment modal — works regardless of whether the AI is
+      // mid-speech (cancels the in-flight response first) or idle, and always lands cleanly on
+      // Q1, same destination as a spoken "no" via conclude_qa.
+      continueFromCommitmentRef.current = () => {
+        const channel = dcRef.current;
+        if (channel && responseInProgressRef.current) {
+          suppressNextErrorRef.current = true;
+          try { channel.send(JSON.stringify({ type: "response.cancel" })); } catch {}
+        }
+        responseInProgressRef.current = false;
+        expectingToolCallRef.current = false;
+        pendingKindRef.current = null;
+        postScriptedActionRef.current = null;
+        proceedToQ1AfterCommitment();
+      };
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -675,14 +1148,31 @@ export default function VoiceIntake() {
     const el = audioElRef.current;
     if (el) { try { el.pause(); } catch {}; el.srcObject = null; }
     dcRef.current = null; pcRef.current = null; micRef.current = null;
+    micSenderRef.current = null;
+    continueFromCommitmentRef.current = () => {};
+    suppressNextErrorRef.current = false;
     setAiSpeaking(false);
     stopMicAnalysis();
+    stopAiAudioMonitor();
     if (invalidate) setStatus("idle");
+  }
+
+  function applyMicEnabledState() {
+    const enabled = !micMutedRef.current && !micBlockedForAiRef.current;
+    micRef.current?.getTracks().forEach((t) => { t.enabled = enabled; });
+    // Physically stop transmitting the track while blocked, rather than trusting enabled=false
+    // alone to suppress it server-side.
+    const sender = micSenderRef.current;
+    if (sender) {
+      const micTrack = micRef.current?.getAudioTracks()[0] || null;
+      try { sender.replaceTrack(enabled ? micTrack : null); } catch {}
+    }
   }
 
   function toggleMic() {
     const newMuted = !micMuted;
-    micRef.current?.getTracks().forEach((t) => { t.enabled = !newMuted; });
+    micMutedRef.current = newMuted;
+    applyMicEnabledState();
     setMicMuted(newMuted);
   }
 
@@ -998,6 +1488,12 @@ export default function VoiceIntake() {
             <button onClick={() => connect(audioDeviceId)} style={{ padding: "14px 48px", borderRadius: 14, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer", boxShadow: "0 8px 32px rgba(99,102,241,0.4)", letterSpacing: "0.3px" }}>
               Join Call →
             </button>
+
+            {err && (
+              <div style={{ width: "100%", maxWidth: 520, padding: "10px 16px", borderRadius: 10, background: "rgba(220,38,38,0.12)", border: "1px solid rgba(220,38,38,0.25)", color: "#fca5a5", fontSize: 13, textAlign: "center", lineHeight: 1.5 }}>
+                {err}
+              </div>
+            )}
           </div>
         )}
         <style>{`@keyframes ripple-out{0%{transform:scale(1);opacity:.65}100%{transform:scale(3.2);opacity:0}}`}</style>
@@ -1007,6 +1503,13 @@ export default function VoiceIntake() {
 
   return (
     <div style={page}>
+      {connected && (
+        <CommitmentPreviewModal
+          activeStep={commitmentUiStep}
+          onContinue={() => continueFromCommitmentRef.current()}
+          busy={commitmentBusy}
+        />
+      )}
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
@@ -1038,11 +1541,11 @@ export default function VoiceIntake() {
       </div>
 
       {/* Call area */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 20px 0", gap: 16 }}>
+      <div className="vi-call-row" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
 
         {/* AI tile */}
-        <div style={{
-          flex: 1, maxWidth: 640, aspectRatio: "16/9",
+        <div className="vi-ai-tile" style={{
+          flex: 1, aspectRatio: "16/9",
           background: "#1a1a2e", borderRadius: 20,
           border: `2px solid ${aiSpeaking ? "#6366f1" : connected ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.08)"}`,
           boxShadow: aiSpeaking ? "0 0 32px rgba(99,102,241,0.35)" : "none",
@@ -1107,7 +1610,7 @@ export default function VoiceIntake() {
         </div>
 
         {/* User tile */}
-        <div style={{ width: 160, aspectRatio: "4/3", background: "#111", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, alignSelf: "flex-end", flexShrink: 0 }}>
+        <div className="vi-user-tile" style={{ aspectRatio: "4/3", background: "#111", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
             {userSpeaking && !micMuted && [0, 0.55].map((delay, i) => (
               <div key={i} style={{

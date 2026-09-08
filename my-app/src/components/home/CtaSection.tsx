@@ -42,7 +42,7 @@ export default function CtaSection() {
             Let&apos;s Create Together
           </p>
 
-          <h2 className="font-bebas text-6xl sm:text-8xl md:text-9xl text-fluke-text leading-none mb-6">
+          <h2 className="font-bebas heading-hero text-fluke-text leading-none mb-6">
             Have a{" "}
             <span className="text-fluke-yellow">Game Idea?</span>
           </h2>
