@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+const apiBase = (process.env.VITE_API_BASE || 'https://xtipeal88c.execute-api.us-east-1.amazonaws.com').trim();
 
 export default defineConfig({
   plugins: [react()],
@@ -14,7 +15,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'https://xtipeal88c.execute-api.us-east-1.amazonaws.com',
+        target: apiBase,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

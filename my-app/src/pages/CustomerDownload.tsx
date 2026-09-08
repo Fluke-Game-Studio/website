@@ -7,6 +7,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import DiscordButton from "../components/DiscordButton";
 import { useTheme } from "../lib/ThemeContext";
 
+const PUBLIC_RELEASE_SCOPES = ["candidate", "released"] as const;
+
+function publicScopeLabel(scope: string) {
+  const normalized = String(scope || "").trim().toLowerCase();
+  if (normalized === "candidate") return "Release Candidate (Test)";
+  if (normalized === "released") return "Final";
+  return "";
+}
+
+function publicScopes(item: CustomerDownloadItem) {
+  const available = new Set(item.scopes || []);
+  return PUBLIC_RELEASE_SCOPES.filter((scope) => available.has(scope));
+}
+
 export default function CustomerDownload() {
   const { profile, logout } = useCustomerAuth();
   const { theme } = useTheme();
@@ -171,7 +185,7 @@ export default function CustomerDownload() {
                          </span>
                        )}
                     </div>
-                    <h1 className="font-bebas text-6xl md:text-8xl text-fluke-text mb-4 leading-none">{activeGroup.base.name}</h1>
+                    <h1 className="font-bebas heading-page text-fluke-text mb-4 leading-none">{activeGroup.base.name}</h1>
                     <p className="font-sora text-fluke-muted max-w-2xl text-base md:text-lg leading-relaxed">
                        {activeGroup.gameData?.description || "Select a build from the available environments below to start your installation."}
                     </p>
@@ -184,25 +198,28 @@ export default function CustomerDownload() {
                  <div className="mb-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-white/5 pb-8">
                     <div>
                        <h3 className="font-orbitron text-[10px] text-fluke-yellow tracking-[0.3em] uppercase mb-1 font-bold">Select Deployment</h3>
-                       <p className="text-xs text-fluke-muted font-sora">Switch between internal, test, or production builds.</p>
+                       <p className="text-xs text-fluke-muted font-sora">Choose a release candidate test build or the final release when eligible.</p>
                     </div>
-                    <div className={`p-1 rounded-xl ${isLight ? 'bg-fluke-yellow/5 border-fluke-yellow/20' : 'bg-black/20 border-white/5'} border flex gap-1`}>
+                    <div className={`p-1 rounded-xl ${isLight ? 'bg-fluke-yellow/5 border-fluke-yellow/20' : 'bg-black/20 border-white/5'} border flex flex-wrap gap-1`}>
                        {(() => {
-                          const scopes = Array.from(new Set(activeGroup.entries.flatMap(e => e.scopes || ["internal"])));
-                          const selectedScope = envByProduct[activeGroup.productId] || scopes[0] || "internal";
+                          const scopes = publicScopes(activeGroup.base);
+                          const savedScope = envByProduct[activeGroup.productId];
+                          const selectedScope = scopes.includes(savedScope as (typeof PUBLIC_RELEASE_SCOPES)[number])
+                            ? savedScope
+                            : scopes[0] || "";
                           return scopes.map(scope => (
                              <button
                                 key={scope}
                                 onClick={() => setEnvByProduct(prev => ({ ...prev, [activeGroup.productId]: scope }))}
                                 className={`
-                                   px-6 py-2.5 rounded-lg text-[10px] font-orbitron font-bold tracking-widest transition-all
+                                   px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg text-[10px] font-orbitron font-bold tracking-widest transition-all
                                    ${selectedScope === scope 
                                       ? "bg-fluke-yellow text-fluke-bg shadow-lg shadow-fluke-yellow/20" 
                                       : "text-fluke-muted hover:text-fluke-yellow"
                                    }
                                 `}
                              >
-                                {scope.toUpperCase()}
+                                {publicScopeLabel(scope)}
                              </button>
                           ));
                        })()}
@@ -212,8 +229,11 @@ export default function CustomerDownload() {
                  {/* Builds Grid */}
                  <div className="grid gap-6">
                     {(() => {
-                       const scopes = Array.from(new Set(activeGroup.entries.flatMap(e => e.scopes || ["internal"])));
-                       const selectedScope = envByProduct[activeGroup.productId] || scopes[0] || "internal";
+                       const scopes = publicScopes(activeGroup.base);
+                       const savedScope = envByProduct[activeGroup.productId];
+                       const selectedScope = scopes.includes(savedScope as (typeof PUBLIC_RELEASE_SCOPES)[number])
+                         ? savedScope
+                         : scopes[0] || "";
                        const releases = activeGroup.base.releasesByScope?.[selectedScope] || [];
 
                        if (releases.length === 0) {
@@ -242,7 +262,7 @@ export default function CustomerDownload() {
                                    <div className="text-[9px] font-orbitron text-fluke-muted tracking-widest uppercase mb-1 font-bold">Release Tier</div>
                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-fluke-yellow/5 border border-fluke-yellow/10">
                                       <CheckCircle2 size={12} className="text-green-500" />
-                                      <span className="font-orbitron text-[10px] text-fluke-text font-bold uppercase">{r.release_status}</span>
+                                      <span className="font-orbitron text-[10px] text-fluke-text font-bold uppercase">{publicScopeLabel(r.release_status)}</span>
                                    </div>
                                 </div>
                                 <div>

@@ -101,7 +101,7 @@ export default function AboutAccordion() {
                 >
 
 
-                  <h3 className="font-bebas text-6xl md:text-8xl text-fluke-text mb-12 uppercase tracking-wide leading-tight">
+                  <h3 className="font-bebas heading-page text-fluke-text mb-12 uppercase tracking-wide leading-tight">
                     {studioAbout[activeTab].title}
                   </h3>
 

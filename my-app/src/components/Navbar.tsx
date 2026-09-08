@@ -89,7 +89,7 @@ export default function Navbar() {
                   to={session ? "/download" : "/login"}
                   className="btn-primary px-8 py-3 rounded-xl text-sm font-bold font-sora shadow-[0_0_20px_rgba(245,197,76,0.25)] hover:shadow-[0_0_35px_rgba(245,197,76,0.45)] transition-all duration-300"
                 >
-                  {session ? "My Library" : "Customer Login"}
+                  {session ? "My Library" : "Login"}
                 </Link>
 
                 {!session ? (
@@ -168,7 +168,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)} 
               className="btn-primary px-5 py-3 rounded-lg text-center font-sora mt-4"
             >
-              {session ? "My Library" : "Customer Login"}
+              {session ? "My Library" : "Login"}
             </Link>
 
             {!session ? (

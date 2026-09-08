@@ -26,7 +26,7 @@ export default function DevlogsPage() {
               <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
                 Studio Updates
               </p>
-              <h1 className="font-bebas text-6xl sm:text-8xl text-fluke-text yellow-line">
+              <h1 className="font-bebas heading-page text-fluke-text yellow-line">
                 Latest News
               </h1>
             </div>
