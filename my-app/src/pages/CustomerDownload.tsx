@@ -274,12 +274,18 @@ export default function CustomerDownload() {
                                 </div>
                              </div>
 
-                             <motion.button 
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="flex-none btn-primary !rounded-2xl px-12 py-5 flex items-center gap-4 text-xs font-black shadow-2xl hover:shadow-fluke-yellow/40 transition-all"
+                             <motion.button
+                                whileHover={r.download_url ? { scale: 1.02 } : undefined}
+                                whileTap={r.download_url ? { scale: 0.98 } : undefined}
+                                disabled={!r.download_url}
+                                onClick={() => {
+                                   if (!r.download_url) return;
+                                   window.open(r.download_url, "_blank", "noopener,noreferrer");
+                                }}
+                                title={r.download_url ? undefined : "No build file has been uploaded for this release yet"}
+                                className="flex-none btn-primary !rounded-2xl px-12 py-5 flex items-center gap-4 text-xs font-black shadow-2xl hover:shadow-fluke-yellow/40 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none"
                              >
-                                DOWNLOAD NOW
+                                {r.download_url ? "DOWNLOAD NOW" : "UNAVAILABLE"}
                                 <Download size={20} strokeWidth={3} />
                              </motion.button>
                           </motion.div>

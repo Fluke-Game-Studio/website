@@ -42,6 +42,8 @@ export type CustomerDownloadItem = {
       version: string;
       platform: string;
       updated_at?: string;
+      download_url?: string;
+      sha256?: string;
     }>
   >;
 };
