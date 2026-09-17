@@ -12,6 +12,7 @@ type ContactPayload = {
   message: string;
   pageUrl?: string;
   website?: string; // honeypot
+  formLoadedAt?: number; // bot check: epoch ms the form was rendered at
 };
 
 export async function submitPublicContact(payload: ContactPayload) {
@@ -45,6 +46,7 @@ type SupportPayload = {
   message: string;
   pageUrl?: string;
   website?: string; // honeypot
+  formLoadedAt?: number; // bot check: epoch ms the form was rendered at
 };
 
 export async function submitPublicSupport(payload: SupportPayload) {

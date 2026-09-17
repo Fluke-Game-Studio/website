@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, MapPin, Send, CheckCircle, LifeBuoy, MessageSquare, Copy, Check } from "lucide-react";
 import { submitPublicContact, submitPublicSupport } from "@/services/publicIntakeService";
@@ -39,6 +39,15 @@ type Tab = "general" | "support";
 export default function ContactPage() {
   const [tab, setTab] = useState<Tab>("general");
 
+  // Bot check: how long each form has been on screen, plus a hidden
+  // "website" field real visitors never see or fill. A scripted submission
+  // that loads the page and posts immediately, or that blindly fills every
+  // input it finds, trips one of these — see publicIntake.mjs on the backend.
+  const formLoadedAtRef = useRef(Date.now());
+  const supportFormLoadedAtRef = useRef(Date.now());
+  const [honeypot, setHoneypot] = useState("");
+  const [supportHoneypot, setSupportHoneypot] = useState("");
+
   /* ---------------- General inquiry form ---------------- */
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -72,6 +81,8 @@ export default function ContactPage() {
         type: form.type,
         message: form.message,
         pageUrl: typeof window !== "undefined" ? window.location.href : "",
+        website: honeypot,
+        formLoadedAt: formLoadedAtRef.current,
       });
       setSent(true);
     } catch (err: any) {
@@ -114,6 +125,8 @@ export default function ContactPage() {
         orderRef: supportForm.orderRef,
         message: supportForm.message,
         pageUrl: typeof window !== "undefined" ? window.location.href : "",
+        website: supportHoneypot,
+        formLoadedAt: supportFormLoadedAtRef.current,
       });
       setSupportTicket(res?.ticketNumber || "");
       setSupportSent(true);
@@ -208,6 +221,19 @@ export default function ContactPage() {
                   className="rounded-2xl p-8 space-y-5 transition-all duration-300"
                   style={cardStyle}
                 >
+                  {/* Honeypot — invisible to real visitors, bots that fill every field find it */}
+                  <div aria-hidden="true" style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+                    <label htmlFor="contact-website">Leave this field blank</label>
+                    <input
+                      id="contact-website"
+                      name="website"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </div>
                   {error ? (
                     <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                       {error}
@@ -345,6 +371,19 @@ export default function ContactPage() {
                 className="rounded-2xl p-8 space-y-5 transition-all duration-300"
                 style={cardStyle}
               >
+                {/* Honeypot — invisible to real visitors, bots that fill every field find it */}
+                <div aria-hidden="true" style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+                  <label htmlFor="support-website">Leave this field blank</label>
+                  <input
+                    id="support-website"
+                    name="website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={supportHoneypot}
+                    onChange={(e) => setSupportHoneypot(e.target.value)}
+                  />
+                </div>
                 <div className="flex items-start gap-3 rounded-xl border border-fluke-yellow/15 bg-fluke-yellow/5 px-4 py-3">
                   <LifeBuoy size={18} className="text-fluke-yellow mt-0.5 flex-none" />
                   <p className="font-sora text-sm text-fluke-muted">
