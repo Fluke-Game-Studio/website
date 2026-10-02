@@ -44,7 +44,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="font-bebas text-6xl sm:text-8xl md:text-9xl leading-none mb-6 text-fluke-text"
+          className="font-bebas heading-hero leading-none mb-6 text-fluke-text"
         >
           Crafting <span className="text-fluke-yellow">Games,</span>
           <br />

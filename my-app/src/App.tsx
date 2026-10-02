@@ -21,6 +21,7 @@ import Careers from './pages/Careers';
 import CareersApply from './pages/CareersApply';
 import TeamMember from './pages/TeamMember';
 import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import NotFound from './pages/NotFound';
 import CustomerLogin from './pages/CustomerLogin';
 import CustomerDownload from './pages/CustomerDownload';
@@ -32,18 +33,16 @@ const scrollPositions = new Map<string, number>();
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
-  
+
   useLayoutEffect(() => {
-    // Restore scroll position when new page mounts
     const savedPosition = scrollPositions.get(pathname);
-    window.scrollTo({ 
-      top: savedPosition ?? 0, 
-      behavior: 'instant' 
+    window.scrollTo({
+      top: savedPosition ?? 0,
+      behavior: 'instant',
     });
   }, [pathname]);
 
   useLayoutEffect(() => {
-    // Save scroll position when the current page instance unmounts
     return () => {
       scrollPositions.set(pathname, window.scrollY);
     };
@@ -54,7 +53,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
       className="w-full"
     >
       {children}
@@ -64,7 +63,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 
 function AnimatedRoutes() {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -90,6 +89,7 @@ function AnimatedRoutes() {
           }
         />
         <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />
+        <Route path="/terms" element={<PageWrapper><Terms /></PageWrapper>} />
         <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>
     </AnimatePresence>
@@ -109,21 +109,22 @@ function App() {
         <AIAssistantProvider>
           <Router>
             <Routes>
-              {/* Public standalone page — no Navbar/Footer */}
               <Route path="/intake" element={<VoiceIntake />} />
 
-              {/* All other pages with site layout */}
-              <Route path="*" element={
-                <div className="flex flex-col min-h-screen">
-                  <Navbar />
-                  <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
-                    <AnimatedRoutes />
-                  </main>
-                  <Footer />
-                  <FloatingPublicAIChat />
-                  <PromotionModal />
-                </div>
-              } />
+              <Route
+                path="*"
+                element={
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="bg-grid flex-grow flex flex-col min-h-[90vh]">
+                      <AnimatedRoutes />
+                    </main>
+                    <Footer />
+                    <FloatingPublicAIChat />
+                    <PromotionModal />
+                  </div>
+                }
+              />
             </Routes>
           </Router>
         </AIAssistantProvider>

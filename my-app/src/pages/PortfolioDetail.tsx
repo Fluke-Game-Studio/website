@@ -51,7 +51,7 @@ export default function PortfolioDetailPage() {
               <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
                 {item.category}
               </p>
-              <h1 className="font-bebas text-5xl sm:text-7xl text-fluke-text yellow-line mb-4">
+              <h1 className="font-bebas heading-section text-fluke-text yellow-line mb-4">
                 {item.title}
               </h1>
               <p className="font-sora text-lg text-fluke-muted max-w-2xl">

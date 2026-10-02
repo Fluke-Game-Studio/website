@@ -31,7 +31,7 @@ export default function PortfolioPage() {
           <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
             Proof of Work
           </p>
-          <h1 className="font-bebas text-6xl sm:text-8xl text-fluke-text yellow-line mb-4">
+          <h1 className="font-bebas heading-page text-fluke-text yellow-line mb-4">
             Portfolio
           </h1>
           <p className="font-sora text-fluke-muted max-w-xl mt-6">

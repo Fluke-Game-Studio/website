@@ -47,7 +47,7 @@ export default function CustomerLogin() {
           <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
             Client Portal
           </p>
-          <h1 className="font-bebas text-6xl text-fluke-text yellow-line inline-block mb-4">
+          <h1 className="font-bebas heading-page text-fluke-text yellow-line inline-block mb-4">
             LOGIN
           </h1>
           <p className="font-sora text-sm text-fluke-muted max-w-xs mx-auto">
