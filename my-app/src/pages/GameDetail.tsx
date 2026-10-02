@@ -68,7 +68,7 @@ export default function GameDetailPage() {
           <p className={`font-orbitron text-xs tracking-[0.3em] uppercase mb-2 ${isLight ? "text-cyan-700" : "text-fluke-yellow"}`}>
             {game.genre} · {game.releaseYear}
           </p>
-          <h1 className={`font-bebas text-6xl sm:text-8xl mb-4 ${heroTextClass}`}>{game.title}</h1>
+          <h1 className={`font-bebas heading-page mb-4 ${heroTextClass}`}>{game.title}</h1>
           <div className="flex flex-wrap gap-2 items-center">
             {game.platforms.map((p) => (
               <span

@@ -48,16 +48,18 @@ export default function StudioStory() {
   const pathLength = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
   return (
-    <section ref={containerRef} className="relative h-[400vh] bg-fluke-bg overflow-clip">
+    <>
+      {/* Desktop/tablet: horizontal scroll-jack timeline, md and up */}
+      <section ref={containerRef} className="hidden md:block relative h-[400vh] bg-fluke-bg overflow-clip">
       <Embers />
-      
+
       {/* Sticky Wrapper */}
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 mb-12 relative z-10 w-full">
           <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
             Our Journey
           </p>
-          <h2 className="font-bebas text-6xl sm:text-8xl text-fluke-text yellow-line">
+          <h2 className="font-bebas heading-page text-fluke-text yellow-line">
             Studio Story
           </h2>
         </div>
@@ -141,7 +143,7 @@ export default function StudioStory() {
               className="absolute inset-y-0 left-0 w-full bg-fluke-yellow origin-left" 
             />
           </div>
-          <motion.span 
+          <motion.span
             className="font-orbitron text-[10px] tracking-[0.2em] text-fluke-yellow font-bold uppercase min-w-[80px]"
           >
             {useTransform(scrollYProgress, (p) => {
@@ -152,6 +154,57 @@ export default function StudioStory() {
           </motion.span>
         </div>
       </div>
-    </section>
+      </section>
+
+      {/* Mobile: simple stacked vertical timeline, below md */}
+      <section className="md:hidden relative bg-fluke-bg py-20 px-6 overflow-hidden">
+        <div className="mb-12">
+          <p className="font-orbitron text-xs tracking-[0.4em] text-fluke-yellow uppercase mb-3">
+            Our Journey
+          </p>
+          <h2 className="font-bebas heading-page text-fluke-text yellow-line">
+            Studio Story
+          </h2>
+        </div>
+
+        <div className="relative pl-8 border-l-2 border-fluke-surface">
+          {milestones.map((m, i) => (
+            <motion.div
+              key={i}
+              className="relative pb-10 last:pb-0"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: 0.1 * i }}
+            >
+              {/* Node */}
+              <div className="absolute -left-[41px] top-0 w-6 h-6 rounded-full bg-fluke-bg border-2 border-fluke-yellow flex items-center justify-center shadow-[0_0_15px_var(--fluke-yellow)]">
+                <span className="text-[10px]">{m.icon}</span>
+              </div>
+
+              <div className="font-orbitron text-lg font-black text-fluke-yellow/40 tracking-tighter mb-2">
+                {m.year}
+              </div>
+
+              <div
+                className="rounded-2xl p-6"
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  border: '1px solid var(--card-border)',
+                  boxShadow: 'var(--card-shadow)',
+                }}
+              >
+                <h3 className="font-bebas text-2xl text-fluke-text mb-2 tracking-wide">
+                  {m.title}
+                </h3>
+                <p className="font-sora text-sm text-fluke-muted leading-relaxed">
+                  {m.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

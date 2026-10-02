@@ -124,19 +124,19 @@ export default function Footer() {
                 Game updates, dev insights and behind the scenes drops.
               </p>
             </div>
-            <form className="flex gap-3 w-full md:w-auto" onSubmit={handleSubscribe}>
+            <form className="flex flex-col sm:flex-row gap-3 w-full md:w-auto" onSubmit={handleSubscribe}>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 disabled={subscribeStatus !== "idle"}
-                className="flex-1 md:w-64 px-4 py-2.5 rounded-lg bg-fluke-bg border border-fluke-yellow/20 text-fluke-text text-sm font-sora placeholder:text-fluke-muted/60 focus:outline-none focus:border-fluke-yellow/60 transition-colors disabled:opacity-50"
+                className="w-full sm:flex-1 md:w-64 px-4 py-2.5 rounded-lg bg-fluke-bg border border-fluke-yellow/20 text-fluke-text text-sm font-sora placeholder:text-fluke-muted/60 focus:outline-none focus:border-fluke-yellow/60 transition-colors disabled:opacity-50"
               />
-              <button 
+              <button
                 type="submit"
                 disabled={subscribeStatus !== "idle"}
-                className={`px-5 py-2.5 rounded-lg text-sm font-sora whitespace-nowrap transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`w-full sm:w-auto px-5 py-2.5 rounded-lg text-sm font-sora whitespace-nowrap transition-all duration-300 flex items-center justify-center gap-2 ${
                   subscribeStatus === "success" 
                     ? "bg-green-500/20 text-green-400 border border-green-500/30" 
                     : "btn-primary disabled:opacity-75"
@@ -167,6 +167,7 @@ export default function Footer() {
           </div>
           <div className="flex gap-4">
             <Link to="/privacy" className="hover:text-fluke-yellow transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-fluke-yellow transition-colors">Terms of Service</Link>
             <Link to="/contact" className="hover:text-fluke-yellow transition-colors">Contact</Link>
           </div>
         </div>
