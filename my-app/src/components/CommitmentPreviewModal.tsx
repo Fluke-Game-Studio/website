@@ -41,18 +41,20 @@ export const COMMITMENT_STEPS: CommitmentStepData[] = [
   },
 ];
 
-// Talk-mode only — no typed chat. Candidate asks out loud, or clicks Continue.
+// Phase 1 of the interview, after the narration: spoken questions about the commitment model
+// ONLY (answers are grounded strictly in COMMITMENT_STEPS). Talk-mode only — no typed chat.
 export const COMMITMENT_QUESTIONS_PROMPT =
-  "Does that make sense so far? Do you have any questions about how commitment and vesting work — feel free to ask me out loud.";
+  "Do you have any questions about how the commitment model works? Feel free to ask me out loud.";
 export const COMMITMENT_QUESTIONS_FOLLOWUP_PROMPT = "Any other questions about the commitment model?";
 
 type Props = {
-  // -1 hidden, 0..COMMITMENT_STEPS.length-1 = currently-narrating step, length = "questions" phase
+  // -1 hidden, 0..COMMITMENT_STEPS.length-1 = currently-narrating step, length = commitment Q&A
+  // (Continue button shown).
   activeStep: number;
   onContinue: () => void;
-  // True while a question the candidate just asked is being processed/answered. Continue is
-  // disabled the whole time — it's only ever meant to mean "I have no more questions," not "skip
-  // whatever's being answered right now."
+  // True while the AI is speaking in the Q&A step (the opening question, or an answer to one
+  // the candidate just asked). Continue is disabled the whole time — it only ever means "I have
+  // no more questions", never "skip whatever is being answered right now."
   busy: boolean;
 };
 
@@ -145,8 +147,8 @@ export default function CommitmentPreviewModal({ activeStep, onContinue, busy }:
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 16 }}>
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", marginBottom: 12, lineHeight: 1.5 }}>
               {busy
-                ? "Answering your question…"
-                : "Ask out loud if you have any questions, or continue once you have none left."}
+                ? "Speaking…"
+                : "Ask out loud if you have any questions about the commitment model, or continue once you have none left. The interview questions come next."}
             </div>
             <button
               onClick={onContinue}
@@ -163,7 +165,7 @@ export default function CommitmentPreviewModal({ activeStep, onContinue, busy }:
                 cursor: busy ? "not-allowed" : "pointer",
               }}
             >
-              {busy ? "Waiting for answer…" : "Continue →"}
+              {busy ? "Please wait…" : "Continue to interview →"}
             </button>
           </div>
         )}
